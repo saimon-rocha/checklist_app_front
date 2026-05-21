@@ -1,0 +1,95 @@
+/* ============================================== VARIÁVEIS GLOBAIS ============================================== */
+:root {
+  --navbar-height: 62px;
+  --navbar-bg-color: #fff;
+  --navbar-text-color: #333;
+  --navbar-hover-color: #4f46e5;
+  --navbar-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================== ESTRUTURA PRINCIPAL DA NAVBAR ============================================== */
+.navbarCustom {
+  width: 100%;
+  position: static;
+  top: 0; /* ajustei pra top normal */
+  left: 0;
+  min-height: 60px; /* um pouco maior pra dar espaço */
+  z-index: 1000;
+  transition: all 0.3s ease-out;
+  padding: 10px 0; /* mais espaçamento vertical */
+  /*box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* sombra suave */
+  display: flex;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+}
+
+/* Container interno mais arredondado */
+.container-menu {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+  border-radius: 60px; /* mais redondo */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* sombra leve */
+  padding: 8px 20px; /* respiração interna */
+}
+
+/* Centralização do container */
+.navbarCustom .nav {
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* já centraliza os itens */
+  gap: 40px;
+  width: 100%;
+}
+
+/* ============================================== ITENS DA NAVBAR (ÍCONES E TEXTO) ============================================== */
+.navItemCustom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--navbar-text-color);
+  font-size: 13px;
+  transition:
+    color 0.2s,
+    transform 0.2s;
+  padding: 0 10px; /* Adiciona um respiro lateral */
+  min-width: 60px; /* Largura mínima para evitar que os itens fiquem espremidos */
+}
+
+.navItemCustom:hover {
+  color: var(--navbar-hover-color);
+  transform: translateY(-3px); /* Efeito de elevação um pouco maior */
+}
+
+/* Ícone SVG dentro do item */
+.navItemCustom svg {
+  margin-bottom: 5px; /* Aumenta o espaço entre o ícone e o texto */
+}
+
+@media (max-width: 600px) {
+  .container-menu {
+    max-width: 100%;
+    border-radius: 0;
+    padding: 6px 10px;
+  }
+
+  .navbarCustom .nav {
+    gap: 10px; /* reduz MUITO o espaço */
+  }
+
+  .navItemCustom {
+    min-width: auto; /* deixa encolher */
+    font-size: 11px;
+    padding: 0 5px;
+  }
+
+  .navItemCustom svg {
+    width: 18px;
+    height: 18px;
+  }
+}

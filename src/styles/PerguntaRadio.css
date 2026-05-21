@@ -1,0 +1,94 @@
+/* Container do toggle */
+.toggleSwitch {
+  position: relative;
+  width: 80px; /* largura total */
+  height: 32px; /* altura total */
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Trilha */
+.toggleTrack {
+  position: absolute;
+  inset: 0;
+  background-color: #e5e7eb; /* cinza claro padrão */
+  border-radius: 20px;
+  transition: background-color 0.3s ease;
+}
+
+/* Estados */
+.toggleTrack.sim {
+  background-color: #22c55e; /* verde */
+}
+.toggleTrack.nao {
+  background-color: #ef4444; /* vermelho */
+}
+
+/* Botão redondo (thumb) */
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  background-color: #fff;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Movimentação */
+.toggleTrack.sim .toggleThumb {
+  transform: translateX(48px);
+}
+.toggleTrack.nao .toggleThumb {
+  transform: translateX(0);
+}
+
+/* Labels Sim/Não */
+.toggleLabels {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: bold;
+  color: white;
+  pointer-events: none;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.radioButton {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  background: #e5e7eb; /* cinza padrão */
+  transition: background 0.2s ease;
+}
+
+.radioButton.ativo.verde {
+  background: #22c55e;
+  color: white;
+}
+
+.radioButton.ativo.vermelho {
+  background: #ef4444;
+  color: white;
+}
+
+/* celulares */
+@media (max-width: 480px){
+  .btnNaoAvaliar{
+    width:60%;
+  }
+
+}

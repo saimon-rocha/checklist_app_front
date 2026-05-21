@@ -1,0 +1,173 @@
+/* Container principal */
+.root {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea, #764ba2); /* azul-roxo moderno */
+  padding: 20px;
+  padding-top: 65px; /* mesmo valor da altura da navbar fixa */
+  padding-bottom: 20px;
+}
+
+/* Card do login */
+.loginCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  padding: 40px 30px;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+/* Inputs */
+.loginCard input,
+.loginCard .form-control {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 12px 15px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.loginCard input:focus,
+.loginCard .form-control:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 8px rgba(102, 126, 234, 0.4);
+  outline: none;
+}
+
+/* Título */
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 30px;
+}
+
+/* Botão */
+.loginButton {
+  width: 100%;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 12px;
+  margin-top: 10px;
+  background: #667eea;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.loginSplit {
+  width: 100%;
+  max-width: 1000px;
+  min-height: 520px;
+  display: flex;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.splitLeft {
+  width: 50%;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.splitLeft img {
+  width: 65%;
+  max-width: 260px;
+}
+
+.splitRight {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 40px;
+}
+
+.loginForm {
+  width: 100%;
+  max-width: 360px;
+}
+
+.loginButton {
+  width: 100%;
+  height: 52px;
+  font-size: 16px;
+  border-radius: 14px;
+}
+
+@media (max-width: 768px) {
+  .loginSplit {
+    flex-direction: column;
+  }
+
+  .splitLeft {
+    width: 100%;
+    /* background-image: url("../assets/android-chrome-192x192.png"); */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain; /* mantém proporção */
+  }
+  
+
+  .splitLeft img {
+    max-width: 260%;
+    width: 100%;
+  }
+
+  .splitRight {
+    width: 100%;
+    padding: 32px 24px;
+  }
+}
+
+.loginButton:hover {
+  background: #5563c1;
+  transform: translateY(-2px);
+}
+
+.loginButton:disabled {
+  background: #a3b1f0;
+  cursor: not-allowed;
+}
+
+/* Mensagem */
+.msg {
+  margin-top: 15px;
+  font-weight: 500;
+  color: #e74c3c;
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+  .loginCard {
+    padding: 25px 20px;
+  }
+  .title {
+    font-size: 22px;
+  }
+  .loginButton {
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .root {
+    padding-top: 0;
+    padding-bottom: 55px; /* espaço para a navbar no mobile */
+  }
+}

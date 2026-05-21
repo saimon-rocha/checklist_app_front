@@ -1,0 +1,104 @@
+/* Formulário base */
+.form-container {
+  width: 90%;          /* ocupa quase toda a tela */
+  max-width: 400px;    /* evita ficar gigante em desktop */
+  margin: 20px auto;
+  padding: 20px;
+  border: 2px solid #4a90e2;
+  border-radius: 12px;
+  background: #f5f7fa;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+  box-sizing: border-box;
+}
+
+/* Título */
+.form-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 22px;
+}
+
+/* Labels */
+.form-container label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: bold;
+  color: #555;
+  font-size: 14px;
+}
+
+/* Inputs e selects */
+.form-container input,
+.form-container select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 16px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: all 0.2s;
+}
+
+.form-container input:focus,
+.form-container select:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 5px rgba(74,144,226,0.5);
+}
+
+/* Botões */
+.form-container button {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.form-container button:hover {
+  background-color: #357ab8;
+  transform: translateY(-1px);
+}
+
+.form-container button:disabled {
+  background-color: #a0c4f2;
+  cursor: not-allowed;
+}
+
+/* Mensagem de feedback */
+.form-container p {
+  text-align: center;
+  margin-top: 12px;
+  font-weight: bold;
+  color: green;
+}
+
+/* Responsivo geral para telas pequenas (ex.: 390px) */
+@media (max-width: 400px) {
+  .form-container {
+    padding: 15px;
+    margin: 10px auto;
+  }
+
+  .form-container h2 {
+    font-size: 20px;
+  }
+
+  .form-container input,
+  .form-container select {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .form-container button {
+    font-size: 15px;
+    padding: 10px;
+  }
+}

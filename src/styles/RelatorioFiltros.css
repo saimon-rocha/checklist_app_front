@@ -1,0 +1,111 @@
+/* barra de filtros */
+.relatorio-filtros {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* campo */
+.campo-data {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* label */
+.campo-data label {
+  margin-bottom: 5px;
+  font-weight: 500;
+  color: #374151;
+}
+
+/* input date */
+.input-data {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  min-width: 160px;
+}
+
+.input-data:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+/* grupo de botões */
+.acoes-relatorio {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* botão base */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+/* buscar */
+.btn-buscar {
+  background: #2563eb;
+  color: white;
+}
+
+.btn-buscar:hover {
+  background: #1d4ed8;
+}
+
+/* gerar relatório */
+.btn-relatorio {
+  background: #10b981;
+  color: white;
+}
+
+.btn-relatorio:hover {
+  background: #059669;
+}
+
+/* ================= RESPONSIVIDADE ================= */
+
+/* tablets */
+@media (max-width: 768px) {
+  .relatorio-filtros {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .campo-data {
+    justify-content: flex-start;
+  }
+
+  .acoes-relatorio {
+    justify-content: flex-start;
+  }
+
+  .input-data {
+    min-width: 140px;
+  }
+}
+
+/* celulares */
+@media (max-width: 480px) {
+  .input-data {
+    width: 100%;
+    min-width: 0;
+  }
+}
