@@ -127,6 +127,7 @@ export default function EnsaioAfericaoPage() {
 
       if (!token) {
         toast.error("Usuário não autenticado");
+        router.replace("/login");
         return;
       }
 

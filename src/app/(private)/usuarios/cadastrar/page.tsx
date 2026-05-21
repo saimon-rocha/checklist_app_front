@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import sha256 from "crypto-js/sha256";
+
 import axios from "axios";
 import Button from "react-bootstrap/Button";
 import Col from "react-bootstrap/Col";
@@ -54,7 +53,7 @@ export default function CadastroUsuario() {
         `${API_URL}/usuarios`,
         {
           username: email.trim(),
-          password: sha256(senha.trim()).toString(),
+          password: senha.trim(),
           cpf: cpf.trim(),
           id_posto: filialSelecionada,
           id_admin: isAdmin,
