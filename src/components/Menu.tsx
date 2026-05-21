@@ -23,51 +23,61 @@ export default function Menu({ user }: { user?: any }) {
   function handleLogout() {
     localStorage.removeItem("token");
 
+    localStorage.removeItem("usuarioLogado");
+
+    localStorage.removeItem("expiresAt");
+
     toast.success("Logout realizado!");
 
-    router.push("/login");
+    router.replace("/login");
   }
 
   return (
     <div className="navbarCustom">
       <div className="container-menu">
-        <div className="navInner">
+        <Link href="/checklist" className="navItemCustom">
+          <House size={22} />
+          <div>Home</div>
+        </Link>
 
-          <Link href="/checklist" className="navItemCustom">
-            <House size={22} />
-            <div>Home</div>
-          </Link>
+        <Link href="/arquivos" className="navItemCustom">
+          <FileEarmarkText size={22} />
+          <div>Formulários</div>
+        </Link>
 
-          <Link href="/arquivos" className="navItemCustom">
-            <FileEarmarkText size={22} />
-            <div>Formulários</div>
-          </Link>
+        <Link href="/relatorios" className="navItemCustom">
+          <FileEarmarkText size={22} />
+          <div>Relatórios</div>
+        </Link>
 
-          <Link href="/relatorio" className="navItemCustom">
-            <FileEarmarkText size={22} />
-            <div>Relatórios</div>
-          </Link>
+        <Link href="/usuarios" className="navItemCustom">
+          <People size={22} />
+          <div>Usuarios</div>
+        </Link>
 
-          {isAdmin && (
-            <>
-              <Link href="/listuser" className="navItemCustom">
-                <People size={22} />
-                <div>Usuários</div>
-              </Link>
+        <Link href="/postos" className="navItemCustom">
+          <Fuel size={22} />
+          <div>Postos</div>
+        </Link>
 
-              <Link href="/listfilial" className="navItemCustom">
-                <Fuel size={22} />
-                <div>Postos</div>
-              </Link>
-            </>
-          )}
+        {isAdmin && (
+          <>
+            <Link href="/usuarios" className="navItemCustom">
+              <People size={22} />
+              <div>Usuários</div>
+            </Link>
 
-          <button onClick={handleLogout} className="navItemCustom">
-            <BoxArrowRight size={22} />
-            <div>Sair</div>
-          </button>
+            <Link href="/postos" className="navItemCustom">
+              <Fuel size={22} />
+              <div>Postos</div>
+            </Link>
+          </>
+        )}
 
-        </div>
+        <button onClick={handleLogout} className="navItemCustom">
+          <BoxArrowRight size={22} />
+          <div>Sair</div>
+        </button>
       </div>
     </div>
   );
