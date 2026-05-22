@@ -29,48 +29,36 @@ function ChecklistField({ item, formData, onChange }: any) {
 
   return (
     <Card>
-      {item.type === "radio" &&
-        item.allowNotEvaluate && (
-          <PerguntaRadioNaoAvaliar
-            label={item.label}
-            selectedValue={formData[item.id]}
-            onChange={(val: string) =>
-              onChange(item.id, val)
-            }
-          />
-        )}
+      {item.type === "radio" && item.allowNotEvaluate && (
+        <PerguntaRadioNaoAvaliar
+          label={item.label}
+          selectedValue={formData[item.id]}
+          onChange={(val: string) => onChange(item.id, val)}
+        />
+      )}
 
-      {item.type === "radio" &&
-        !item.allowNotEvaluate &&
-        !item.dangerOnSim && (
-          <PerguntaRadio
-            label={item.label}
-            selectedValue={formData[item.id]}
-            onChange={(val: string) =>
-              onChange(item.id, val)
-            }
-          />
-        )}
+      {item.type === "radio" && !item.allowNotEvaluate && !item.dangerOnSim && (
+        <PerguntaRadio
+          label={item.label}
+          selectedValue={formData[item.id]}
+          onChange={(val: string) => onChange(item.id, val)}
+        />
+      )}
 
-      {item.type === "radio" &&
-        item.dangerOnSim && (
-          <PerguntaRadioDefeito
-            label={item.label}
-            selectedValue={formData[item.id]}
-            onChange={(val: string) =>
-              onChange(item.id, val)
-            }
-          />
-        )}
+      {item.type === "radio" && item.dangerOnSim && (
+        <PerguntaRadioDefeito
+          label={item.label}
+          selectedValue={formData[item.id]}
+          onChange={(val: string) => onChange(item.id, val)}
+        />
+      )}
 
       {item.type === "text" && (
         <PerguntaTexto
           label={item.label}
           placeholder={item.placeholder}
           value={formData[item.id]}
-          onChange={(val: string) =>
-            onChange(item.id, val)
-          }
+          onChange={(val: string) => onChange(item.id, val)}
         />
       )}
     </Card>
@@ -95,18 +83,14 @@ export default function ChecklistBomba() {
     {
       bombaId: "",
       data: getToday(),
-    }
+    },
   );
 
   const [form, setForm] = useState(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(
-        "checklistBombaForm"
-      );
+      const saved = localStorage.getItem("checklistBombaForm");
 
-      return saved
-        ? JSON.parse(saved)
-        : initialState;
+      return saved ? JSON.parse(saved) : initialState;
     }
 
     return initialState;
@@ -127,14 +111,13 @@ export default function ChecklistBomba() {
 
     setForm(newForm);
 
-    localStorage.setItem(
-      "checklistBombaForm",
-      JSON.stringify(newForm)
-    );
+    localStorage.setItem("checklistBombaForm", JSON.stringify(newForm));
   }
 
   function handleAvancar() {
-    router.push("/ensaio");
+    localStorage.setItem("checklistBombaForm", JSON.stringify(form));
+
+    router.push("/checklist/ensaio");
   }
 
   function handleCancelar() {
@@ -147,52 +130,41 @@ export default function ChecklistBomba() {
 
     setForm(resetForm);
 
-    localStorage.removeItem(
-      "checklistBombaForm"
-    );
+    localStorage.removeItem("checklistBombaForm");
   }
 
   return (
-    <div className="container-checklist">
-      <h1 className="title">
-        Checklist da Bomba Medidora
-      </h1>
+    <div className="contentWithMenu">
+      <div className="container-checklist">
+        <h1 className="title">Checklist da Bomba Medidora</h1>
 
-      <TopFields
-        formData={form}
-        onChange={handleChange}
-      />
+        <TopFields formData={form} onChange={handleChange} />
 
-      <div
-        className="mb-4"
-        style={{
-          maxHeight: "60vh",
-          overflowY: "auto",
-        }}
-      >
-        {checklistItems.map((item: any) => (
-          <ChecklistField
-            key={item.id}
-            item={item}
-            formData={form}
-            onChange={handleChange}
-          />
-        ))}
+        <div
+          className="mb-4"
+          style={{
+            maxHeight: "60vh",
+            overflowY: "auto",
+          }}
+        >
+          {checklistItems.map((item: any) => (
+            <ChecklistField
+              key={item.id}
+              item={item}
+              formData={form}
+              onChange={handleChange}
+            />
+          ))}
 
-        <div className="d-flex justify-content-end gap-2">
-          <button
-            className="btn btn-secondary"
-            onClick={handleCancelar}
-          >
-            Cancelar
-          </button>
+          <div className="d-flex justify-content-end gap-2">
+            <button className="btn btn-secondary" onClick={handleCancelar}>
+              Cancelar
+            </button>
 
-          <button
-            className="btn btn-primary"
-            onClick={handleAvancar}
-          >
-            Avançar
-          </button>
+            <button className="btn btn-primary" onClick={handleAvancar}>
+              Avançar
+            </button>
+          </div>
         </div>
       </div>
     </div>

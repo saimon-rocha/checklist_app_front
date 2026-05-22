@@ -93,7 +93,7 @@ export default function LoginPage() {
               payload.username,
             filial:
               payload.filial ||
-              payload.filial_id,
+              payload.id_posto,
             isAdmin:
               payload.isAdmin ||
               payload.id_admin,

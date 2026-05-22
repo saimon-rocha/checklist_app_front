@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Card from "../../../components/Card";
-import PerguntaTexto from "../../../components/PerguntaTexto";
-import PerguntaRadio from "../../../components/PerguntaRadio";
-import PerguntaRadioDefeito from "../../../components/PerguntaRadioDefeito";
-import PerguntaCheckbox from "../../../components/PerguntaCheckbox";
-import { ensaioAfericaoItems } from "../../../utils/checklistStructure";
+import Card from "../../../../components/Card";
+import PerguntaTexto from "../../../../components/PerguntaTexto";
+import PerguntaRadio from "../../../../components/PerguntaRadio";
+import PerguntaRadioDefeito from "../../../../components/PerguntaRadioDefeito";
+import PerguntaCheckbox from "../../../../components/PerguntaCheckbox";
+import {
+  ensaioAfericaoItems,
+  checklistItems,
+} from "../../../../utils/checklistStructure";
 import { toast } from "react-toastify";
-import "../../../styles/EnsaioAfericao.css";
-import api from "../../../service/api";
+import "../../../../styles/EnsaioAfericao.css";
+import "../../../../styles/ChecklistBomba.css";
+import api from "../../../../service/api";
+
 interface ChecklistFieldProps {
   item: any;
   formData: any;
@@ -127,41 +132,78 @@ export default function EnsaioAfericaoPage() {
 
       if (!token) {
         toast.error("Usuário não autenticado");
+
         router.replace("/login");
+
         return;
       }
 
       const payload = parseJwt(token);
 
-      const primeiroForm = JSON.parse(
-        localStorage.getItem("checklistBombaForm") || "{}",
-      );
+      // =========================
+      // CHECKLIST SALVO
+      // =========================
+      const checklistSalvo = localStorage.getItem("checklistBombaForm");
 
-      const ensaioArray = Object.keys(form).map((key) => ({
-        id: key,
+      const checklistObj = checklistSalvo ? JSON.parse(checklistSalvo) : {};
 
-        label: ensaioAfericaoItems.find((i: any) => i.id === key)?.label || key,
+      console.log("CHECKLIST OBJ:", checklistObj);
 
-        resposta: form[key],
+      // =========================
+      // CHECKLIST ARRAY
+      // =========================
+      const checklistArray = checklistItems.map((item: any) => ({
+        id: item.id,
+
+        label: item.label || item.placeholder || item.id,
+
+        resposta: checklistObj[item.id] || "",
       }));
 
+      console.log("CHECKLIST ARRAY:", checklistArray);
+
+      // =========================
+      // ENSAIO ARRAY
+      // =========================
+      const ensaioArray = ensaioAfericaoItems.map((item: any) => ({
+        id: item.id,
+
+        label: item.label || item.placeholder || item.id,
+
+        resposta: form[item.id] || "",
+      }));
+
+      console.log("ENSAIO ARRAY:", ensaioArray);
+
+      // =========================
+      // DADOS COMPLETOS
+      // =========================
       const dadosCompletos = {
-        titulo: primeiroForm.bombaId || "Checklist Bomba",
+        titulo: checklistObj.bombaId || "Checklist Bomba",
 
         usuario_id: payload?.id,
 
-        filial_id: payload?.filial || payload?.filial_id,
+        id_posto: payload?.id_posto,
 
         respostas: {
-          checklist: primeiroForm,
+          checklist: checklistArray,
+
           ensaio: ensaioArray,
         },
 
         id_ativo: true,
       };
 
+      console.log("DADOS COMPLETOS:", dadosCompletos);
+
+      // =========================
+      // SALVAR
+      // =========================
       await api.post("/arquivos", dadosCompletos);
 
+      // =========================
+      // LIMPAR
+      // =========================
       setForm(initialState);
 
       localStorage.removeItem("ensaioForm");
