@@ -107,7 +107,7 @@ export default function Arquivos() {
       const response = await api.get(`/arquivos/${id}/pdf`);
 
       const dados = response.data;
-      
+
       gerarPDF({
         titulo: dados.titulo,
         usuario: dados.Usuario?.username,
@@ -158,7 +158,7 @@ export default function Arquivos() {
                     <td className="p-3">
                       <div className="flex gap-2 justify-center">
                         <button
-                          onClick={() => downloadPdf(f.id, f.titulo)}
+                          onClick={() => downloadPdf(f.id)}
                           className="px-3 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm"
                         >
                           PDF
