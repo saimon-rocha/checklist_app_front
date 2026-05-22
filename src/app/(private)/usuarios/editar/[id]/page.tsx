@@ -1,35 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { useRouter, useParams } from "next/navigation";
-
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
-import Container from "react-bootstrap/Container";
-
 import { toast } from "react-toastify";
 
 import validarCPF from "../../../../../utils/validarCPF";
 
-import "../../../../../styles/Usuarios.css";
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-function EditarUsuario() {
+export default function EditarUsuario() {
+  const router = useRouter();
+  const params = useParams();
+
+  const id = params.id;
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [cpf, setCpf] = useState("");
   const [filialSelecionada, setFilialSelecionada] = useState("");
   const [filiais, setFiliais] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const router = useRouter();
-  const params = useParams();
-
-  const id = params.id;
 
   useEffect(() => {
     loadPostos();
@@ -40,17 +30,15 @@ function EditarUsuario() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(`${API_URL}/postos`, {
+      const res = await fetch(`${API_URL}/postos`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const data = await response.json();
-
+      const data = await res.json();
       setFiliais(data);
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Erro ao carregar postos");
     }
   }
@@ -59,23 +47,20 @@ function EditarUsuario() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(`${API_URL}/usuarios/${id}`, {
+      const res = await fetch(`${API_URL}/usuarios/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error();
-      }
+      if (!res.ok) throw new Error();
 
-      const usuario = await response.json();
+      const usuario = await res.json();
 
       setEmail(usuario.username);
       setCpf(usuario.cpf);
       setFilialSelecionada(usuario.id_posto);
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Usuário não encontrado!");
     }
   }
@@ -104,12 +89,11 @@ function EditarUsuario() {
         id_posto: filialSelecionada,
       };
 
-      // só envia senha se digitou
       if (senha.trim()) {
         body.password = senha.trim();
       }
 
-      const response = await fetch(`${API_URL}/usuarios/${id}`, {
+      const res = await fetch(`${API_URL}/usuarios/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -118,19 +102,16 @@ function EditarUsuario() {
         body: JSON.stringify(body),
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      if (!response.ok) {
+      if (!res.ok) {
         throw new Error(data.error || "Erro ao atualizar");
       }
 
       toast.success("Usuário atualizado com sucesso!");
 
-      setTimeout(() => {
-        router.push("/usuarios");
-      }, 1200);
+      setTimeout(() => router.push("/usuarios"), 1200);
     } catch (err: any) {
-      console.error(err);
       toast.error(err.message || "Erro ao atualizar usuário.");
     } finally {
       setLoading(false);
@@ -138,84 +119,90 @@ function EditarUsuario() {
   }
 
   return (
-    <Container
-      className="d-flex justify-content-center align-items-center"
-      style={{ minHeight: "100vh" }}
-    >
-      <Form
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <form
         onSubmit={handleSubmit}
-        className="p-4 shadow rounded bg-white"
+        className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-6 space-y-4"
       >
-        <h2 className="text-center mb-4">
+        {/* TITLE */}
+        <h2 className="text-2xl font-bold text-center">
           Editar Usuário
         </h2>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Email</Form.Label>
+        {/* EMAIL */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">Email</label>
 
-          <Form.Control
+          <input
             type="email"
+            className="border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-        </Form.Group>
+        </div>
 
-        <Row className="mb-3">
-          <Form.Group as={Col} md={6}>
-            <Form.Label>
+        {/* SENHA + CPF */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex flex-col">
+            <label className="text-sm font-medium">
               Nova senha (opcional)
-            </Form.Label>
+            </label>
 
-            <Form.Control
+            <input
               type="password"
               placeholder="Deixe em branco para manter"
+              className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
             />
-          </Form.Group>
+          </div>
 
-          <Form.Group as={Col} md={6}>
-            <Form.Label>CPF</Form.Label>
+          <div className="flex flex-col">
+            <label className="text-sm font-medium">CPF</label>
 
-            <Form.Control
+            <input
               type="text"
+              className="border rounded-lg px-3 py-2 mt-1 bg-gray-100 cursor-not-allowed"
               value={cpf}
               disabled
             />
-          </Form.Group>
-        </Row>
+          </div>
+        </div>
 
-        <Form.Group className="mb-4">
-          <Form.Label>Posto</Form.Label>
+        {/* POSTO */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">Posto</label>
 
-          <Form.Select
+          <select
+            className="border rounded-lg px-3 py-2 mt-1"
             value={filialSelecionada}
-            onChange={(e) =>
-              setFilialSelecionada(e.target.value)
-            }
+            onChange={(e) => setFilialSelecionada(e.target.value)}
             required
           >
             <option value="">Selecione...</option>
 
-            {filiais.map((f: any) => (
+            {filiais.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.nome}
               </option>
             ))}
-          </Form.Select>
-        </Form.Group>
+          </select>
+        </div>
 
-        <Button
+        {/* BUTTON */}
+        <button
           type="submit"
           disabled={loading}
-          className="w-100"
+          className={`w-full py-2 rounded-lg font-semibold transition ${
+            loading
+              ? "bg-gray-400"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
         >
           {loading ? "Salvando..." : "Salvar Alterações"}
-        </Button>
-      </Form>
-    </Container>
+        </button>
+      </form>
+    </div>
   );
 }
-
-export default EditarUsuario;

@@ -2,28 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+
 import Card from "../../../../components/Card";
 import PerguntaTexto from "../../../../components/PerguntaTexto";
 import PerguntaRadio from "../../../../components/PerguntaRadio";
 import PerguntaRadioDefeito from "../../../../components/PerguntaRadioDefeito";
 import PerguntaCheckbox from "../../../../components/PerguntaCheckbox";
+
 import {
   ensaioAfericaoItems,
   checklistItems,
 } from "../../../../utils/checklistStructure";
+
 import { toast } from "react-toastify";
-import "../../../../styles/EnsaioAfericao.css";
-import "../../../../styles/ChecklistBomba.css";
 import api from "../../../../service/api";
 
-interface ChecklistFieldProps {
-  item: any;
-  formData: any;
-  onChange: (field: string, value: any) => void;
-}
-
-function ChecklistField({ item, formData, onChange }: ChecklistFieldProps) {
-  if (item.dependsOn && formData[item.dependsOn] !== item.showIf) {
+function ChecklistField({ item, formData, onChange }: any) {
+  if (item.dependsOn && mergedForm[item.dependsOn] !== item.showIf) {
     return null;
   }
 
@@ -69,8 +64,6 @@ function ChecklistField({ item, formData, onChange }: ChecklistFieldProps) {
 }
 
 function parseJwt(token: string) {
-  if (!token) return null;
-
   try {
     return JSON.parse(atob(token.split(".")[1]));
   } catch {
@@ -81,25 +74,26 @@ function parseJwt(token: string) {
 export default function EnsaioAfericaoPage() {
   const router = useRouter();
 
+  const checklistSalvo =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("checklistBombaForm") || "{}")
+      : {};
+  const mergedForm = {
+    ...form,
+    ...checklistSalvo, // 👈 ESSENCIAL
+  };
   const initialState = ensaioAfericaoItems.reduce((acc: any, item: any) => {
-    if (item.type === "checkbox") {
-      acc[item.id] = [];
-    } else if (item.type === "radio") {
-      acc[item.id] = "nao";
-    } else {
-      acc[item.id] = "";
-    }
+    if (item.type === "checkbox") acc[item.id] = [];
+    else if (item.type === "radio") acc[item.id] = "nao";
+    else acc[item.id] = "";
 
     return acc;
   }, {});
 
   const [form, setForm] = useState<any>(() => {
-    if (typeof window === "undefined") {
-      return initialState;
-    }
+    if (typeof window === "undefined") return initialState;
 
     const saved = localStorage.getItem("ensaioForm");
-
     return saved ? JSON.parse(saved) : initialState;
   });
 
@@ -120,9 +114,7 @@ export default function EnsaioAfericaoPage() {
 
   function handleCancel() {
     toast.warning("Operação Cancelada");
-
     setForm(initialState);
-
     localStorage.removeItem("ensaioForm");
   }
 
@@ -132,82 +124,42 @@ export default function EnsaioAfericaoPage() {
 
       if (!token) {
         toast.error("Usuário não autenticado");
-
         router.replace("/login");
-
         return;
       }
 
       const payload = parseJwt(token);
 
-      // =========================
-      // CHECKLIST SALVO
-      // =========================
       const checklistSalvo = localStorage.getItem("checklistBombaForm");
-
       const checklistObj = checklistSalvo ? JSON.parse(checklistSalvo) : {};
 
-      console.log("CHECKLIST OBJ:", checklistObj);
-
-      // =========================
-      // CHECKLIST ARRAY
-      // =========================
       const checklistArray = checklistItems.map((item: any) => ({
         id: item.id,
-
         label: item.label || item.placeholder || item.id,
-
         resposta: checklistObj[item.id] || "",
       }));
 
-      console.log("CHECKLIST ARRAY:", checklistArray);
-
-      // =========================
-      // ENSAIO ARRAY
-      // =========================
       const ensaioArray = ensaioAfericaoItems.map((item: any) => ({
         id: item.id,
-
         label: item.label || item.placeholder || item.id,
-
         resposta: form[item.id] || "",
       }));
 
-      console.log("ENSAIO ARRAY:", ensaioArray);
-
-      // =========================
-      // DADOS COMPLETOS
-      // =========================
       const dadosCompletos = {
         titulo: checklistObj.bombaId || "Checklist Bomba",
-
         usuario_id: payload?.id,
-
         id_posto: payload?.id_posto,
-
         respostas: {
           checklist: checklistArray,
-
           ensaio: ensaioArray,
         },
-
         id_ativo: true,
       };
 
-      console.log("DADOS COMPLETOS:", dadosCompletos);
-
-      // =========================
-      // SALVAR
-      // =========================
       await api.post("/arquivos", dadosCompletos);
 
-      // =========================
-      // LIMPAR
-      // =========================
       setForm(initialState);
-
       localStorage.removeItem("ensaioForm");
-
       localStorage.removeItem("checklistBombaForm");
 
       toast.success("Checklist salvo com sucesso!");
@@ -216,23 +168,17 @@ export default function EnsaioAfericaoPage() {
         router.push("/checklist");
       }, 1500);
     } catch (error: any) {
-      console.error(error);
-
       toast.error(error?.response?.data?.error || "Erro ao salvar checklist");
     }
   }
 
   return (
-    <div className="container-ensaio my-4">
-      <h1 className="title mb-4">Ensaio / Aferição</h1>
+    <div className="min-h-screen px-4 py-6 flex flex-col items-center">
+      {/* HEADER */}
+      <h1 className="text-2xl font-bold mb-6 text-center">Ensaio / Aferição</h1>
 
-      <div
-        className="mb-4"
-        style={{
-          maxHeight: "60vh",
-          overflowY: "auto",
-        }}
-      >
+      {/* FORM AREA SCROLLÁVEL */}
+      <div className="w-full max-w-3xl max-h-[60vh] overflow-y-auto space-y-4 pr-2">
         {ensaioAfericaoItems.map((item: any) => (
           <ChecklistField
             key={item.id}
@@ -242,26 +188,38 @@ export default function EnsaioAfericaoPage() {
           />
         ))}
 
-        <h4>Observações</h4>
+        {/* OBSERVAÇÕES */}
+        <div className="mt-4">
+          <h2 className="text-lg font-semibold mb-2">Observações</h2>
 
-        <textarea
-          className="form-control"
-          rows={3}
-          value={form.observacoes || ""}
-          onChange={(e) => handleChange("observacoes", e.target.value)}
-        />
+          <textarea
+            value={form.observacoes || ""}
+            onChange={(e) => handleChange("observacoes", e.target.value)}
+            className="w-full border rounded-lg p-3 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
       </div>
 
-      <div className="d-flex justify-content-end gap-2">
-        <button className="btn btn-secondary" onClick={handleBack}>
+      {/* BOTÕES */}
+      <div className="w-full max-w-3xl flex justify-end gap-3 mt-6">
+        <button
+          onClick={handleBack}
+          className="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold transition"
+        >
           Voltar
         </button>
 
-        <button className="btn btn-danger" onClick={handleCancel}>
+        <button
+          onClick={handleCancel}
+          className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold transition"
+        >
           Cancelar
         </button>
 
-        <button className="btn btn-primary" onClick={handleConclude}>
+        <button
+          onClick={handleConclude}
+          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+        >
           Concluir
         </button>
       </div>

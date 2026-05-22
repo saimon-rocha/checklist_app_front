@@ -1,15 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import axios from "axios";
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
-import Container from "react-bootstrap/Container";
-import validarCPF from "../../../../utils/validarCPF";
+import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+
+import validarCPF from "../../../../utils/validarCPF";
 
 export default function CadastroUsuario() {
   const router = useRouter();
@@ -19,21 +15,23 @@ export default function CadastroUsuario() {
   const [cpf, setCpf] = useState("");
   const [filialSelecionada, setFilialSelecionada] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [filiais, setFiliais] = useState([]);
+  const [filiais, setFiliais] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   useEffect(() => {
-    const filiaisSalvas = JSON.parse(localStorage.getItem("filiais")) || [];
+    const filiaisSalvas = JSON.parse(
+      localStorage.getItem("filiais") || "[]"
+    );
     setFiliais(filiaisSalvas);
   }, []);
 
-  const handleCpfChange = (e) => {
+  function handleCpfChange(e: any) {
     setCpf(e.target.value.replace(/\D/g, ""));
-  };
+  }
 
-  const handleSubmit = async (e) => {
+  async function handleSubmit(e: any) {
     e.preventDefault();
 
     if (!email || !senha || !cpf || !filialSelecionada) {
@@ -66,61 +64,103 @@ export default function CadastroUsuario() {
       );
 
       toast.success("Usuário cadastrado com sucesso!");
-
       router.push("/usuarios");
-    } catch (err) {
-      console.error(err);
-      toast.error(err?.response?.data?.error || "Erro ao cadastrar usuário");
+    } catch (err: any) {
+      toast.error(
+        err?.response?.data?.error || "Erro ao cadastrar usuário"
+      );
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-      <Form onSubmit={handleSubmit} className="p-4 shadow rounded bg-white form-container">
-        <h2 className="text-center mb-4">Cadastro de Usuário</h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-6 space-y-4"
+      >
+        {/* TITLE */}
+        <h2 className="text-2xl font-bold text-center">
+          Cadastro de Usuário
+        </h2>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Email</Form.Label>
-          <Form.Control value={email} onChange={(e) => setEmail(e.target.value)} />
-        </Form.Group>
+        {/* EMAIL */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">Email</label>
+          <input
+            className="border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+          />
+        </div>
 
-        <Row className="mb-3">
-          <Col md={6}>
-            <Form.Label>Senha</Form.Label>
-            <Form.Control type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-          </Col>
+        {/* SENHA + CPF */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex flex-col">
+            <label className="text-sm font-medium">Senha</label>
+            <input
+              type="password"
+              className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+            />
+          </div>
 
-          <Col md={6}>
-            <Form.Label>CPF</Form.Label>
-            <Form.Control value={cpf} onChange={handleCpfChange} maxLength={11} />
-          </Col>
-        </Row>
+          <div className="flex flex-col">
+            <label className="text-sm font-medium">CPF</label>
+            <input
+              className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
+              value={cpf}
+              onChange={handleCpfChange}
+              maxLength={11}
+            />
+          </div>
+        </div>
 
-        <Form.Group className="mb-3">
-          <Form.Label>Posto</Form.Label>
-          <Form.Select value={filialSelecionada} onChange={(e) => setFilialSelecionada(e.target.value)}>
+        {/* POSTO */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">Posto</label>
+
+          <select
+            className="border rounded-lg px-3 py-2 mt-1"
+            value={filialSelecionada}
+            onChange={(e) => setFilialSelecionada(e.target.value)}
+          >
             <option value="">Selecione...</option>
+
             {filiais.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.nome}
               </option>
             ))}
-          </Form.Select>
-        </Form.Group>
+          </select>
+        </div>
 
-        <Form.Check
-          type="checkbox"
-          label="Administrador"
-          checked={isAdmin}
-          onChange={(e) => setIsAdmin(e.target.checked)}
-        />
+        {/* ADMIN */}
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={isAdmin}
+            onChange={(e) => setIsAdmin(e.target.checked)}
+          />
+          Administrador
+        </label>
 
-        <Button type="submit" disabled={loading} className="w-100 mt-3">
+        {/* BUTTON */}
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-2 rounded-lg font-semibold transition ${
+            loading
+              ? "bg-gray-400"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
           {loading ? "Salvando..." : "Cadastrar"}
-        </Button>
-      </Form>
-    </Container>
+        </button>
+      </form>
+    </div>
   );
 }

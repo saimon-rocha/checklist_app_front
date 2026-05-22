@@ -1,28 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import Table from "react-bootstrap/Table";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
-
 import { useRouter } from "next/navigation";
-
 import { toast } from "react-toastify";
 
 import api from "../../../service/api";
 
-import "../../../styles/Posto.css";
+export default function ListaPostos() {
+  const router = useRouter();
 
-function ListaPostos() {
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [postos, setPostos] = useState<any[]>([]);
 
   const [showConfirm, setShowConfirm] = useState(false);
-
   const [postoToDelete, setPostoToDelete] = useState<any>(null);
-
-  const router = useRouter();
 
   useEffect(() => {
     loadData();
@@ -36,26 +27,19 @@ function ListaPostos() {
       ]);
 
       const postosAtivos = postosResponse.data.filter((p: any) =>
-        Boolean(p.id_ativo),
+        Boolean(p.id_ativo)
       );
 
       const usuariosAtivos = usuariosResponse.data.filter((u: any) =>
-        Boolean(u.id_ativo),
+        Boolean(u.id_ativo)
       );
 
       setPostos(postosAtivos);
-
       setUsuarios(usuariosAtivos);
-    } catch (error) {
-      console.error(error);
-
+    } catch {
       toast.error("Erro ao carregar dados");
     }
   }
-
-  // =========================
-  // NAVIGATION
-  // =========================
 
   function handleCadastrar() {
     router.push("/postos/cadastrar");
@@ -65,23 +49,19 @@ function ListaPostos() {
     router.push(`/postos/editar/${id}`);
   }
 
-  // =========================
-  // DELETE
-  // =========================
-
   function handleDeleteClick(posto: any) {
-    const usuariosVinculados = usuarios.filter((u) => u.id_posto === posto.id);
+    const usuariosVinculados = usuarios.filter(
+      (u) => u.id_posto === posto.id
+    );
 
     if (usuariosVinculados.length > 0) {
       toast.warning(
-        "Não é possível excluir este posto, pois há usuários vinculados.",
+        "Não é possível excluir este posto, pois há usuários vinculados."
       );
-
       return;
     }
 
     setPostoToDelete(posto);
-
     setShowConfirm(true);
   }
 
@@ -91,107 +71,111 @@ function ListaPostos() {
     try {
       await api.put(`/postos/${postoToDelete.id}/desabilitar`);
 
-      setPostos((prev) => prev.filter((p) => p.id !== postoToDelete.id));
+      setPostos((prev) =>
+        prev.filter((p) => p.id !== postoToDelete.id)
+      );
 
       toast.success("Posto excluído com sucesso!");
-    } catch (error) {
-      console.error(error);
-
+    } catch {
       toast.error("Erro ao excluir posto.");
     } finally {
       setShowConfirm(false);
-
       setPostoToDelete(null);
     }
   }
 
-  // =========================
-  // UI
-  // =========================
-
   return (
-    <div className="contentWithMenu">
-      <div className="container-posto">
-        <h2>Postos</h2>
+    <div className="min-h-screen px-4 py-6 flex flex-col items-center">
+      {/* TITLE */}
+      <h2 className="text-2xl font-bold mb-6">Postos</h2>
 
-        {postos.length === 0 ? (
-          <p style={{ textAlign: "center" }}>Nenhum posto cadastrado</p>
-        ) : (
-          <Table striped bordered hover responsive>
-            <thead>
+      {/* EMPTY */}
+      {postos.length === 0 ? (
+        <p className="text-gray-500">Nenhum posto cadastrado</p>
+      ) : (
+        <div className="w-full max-w-6xl overflow-x-auto">
+          <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+            <thead className="bg-gray-100 text-left">
               <tr>
-                <th>Posto</th>
-                <th>CEP</th>
-                <th>Rua</th>
-                <th>Bairro</th>
-                <th>Ações</th>
+                <th className="p-3">Posto</th>
+                <th className="p-3">CEP</th>
+                <th className="p-3">Rua</th>
+                <th className="p-3">Bairro</th>
+                <th className="p-3 text-center">Ações</th>
               </tr>
             </thead>
 
             <tbody>
               {postos.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.nome}</td>
+                <tr key={p.id} className="border-t">
+                  <td className="p-3">{p.nome}</td>
+                  <td className="p-3">{p.cep}</td>
+                  <td className="p-3">{p.rua}</td>
+                  <td className="p-3">{p.bairro}</td>
 
-                  <td>{p.cep}</td>
-
-                  <td>{p.rua}</td>
-
-                  <td>{p.bairro}</td>
-
-                  <td>
-                    <div className="tableButtonGroup">
-                      <Button
-                        variant="warning"
-                        size="sm"
+                  <td className="p-3">
+                    <div className="flex gap-2 justify-center">
+                      <button
                         onClick={() => handleEditar(p.id)}
+                        className="px-3 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-sm"
                       >
                         Editar
-                      </Button>
+                      </button>
 
-                      <Button
-                        variant="danger"
-                        size="sm"
+                      <button
                         onClick={() => handleDeleteClick(p)}
+                        className="px-3 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-sm"
                       >
                         Excluir
-                      </Button>
+                      </button>
                     </div>
                   </td>
                 </tr>
               ))}
             </tbody>
-          </Table>
-        )}
+          </table>
 
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <Button variant="primary" onClick={handleCadastrar}>
-            Cadastrar
-          </Button>
+          {/* BOTÃO CADASTRAR */}
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={handleCadastrar}
+              className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+            >
+              Cadastrar
+            </button>
+          </div>
         </div>
+      )}
 
-        <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Confirmação</Modal.Title>
-          </Modal.Header>
+      {/* MODAL */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md space-y-4">
+            <h3 className="text-lg font-semibold">Confirmação</h3>
 
-          <Modal.Body>
-            Deseja realmente excluir o posto "{postoToDelete?.nome}"?
-          </Modal.Body>
+            <p>
+              Deseja realmente excluir o posto{" "}
+              <strong>{postoToDelete?.nome}</strong>?
+            </p>
 
-          <Modal.Footer>
-            <Button variant="secondary" onClick={() => setShowConfirm(false)}>
-              Não
-            </Button>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 rounded bg-gray-400 text-white"
+              >
+                Não
+              </button>
 
-            <Button variant="danger" onClick={handleConfirmDelete}>
-              Sim
-            </Button>
-          </Modal.Footer>
-        </Modal>
-      </div>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 rounded bg-red-500 text-white"
+              >
+                Sim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
-
-export default ListaPostos;

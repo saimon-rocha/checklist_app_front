@@ -2,30 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
-
-import Button from "react-bootstrap/Button";
-import Col from "react-bootstrap/Col";
-import Form from "react-bootstrap/Form";
-import Row from "react-bootstrap/Row";
-import Container from "react-bootstrap/Container";
-
 import { toast } from "react-toastify";
 
 import { buscaCEP } from "../../../../../utils/buscaCep";
-
 import api from "../../../../../service/api";
 
 export default function EditarPosto() {
   const router = useRouter();
-
   const params = useParams();
 
   const id = params?.id;
 
   const [nomePosto, setNomePosto] = useState("");
-
   const [cep, setCep] = useState("");
-
   const [loading, setLoading] = useState(false);
 
   const [endereco, setEndereco] = useState({
@@ -36,7 +25,7 @@ export default function EditarPosto() {
   });
 
   // =========================
-  // CARREGA POSTO
+  // LOAD POSTO
   // =========================
   useEffect(() => {
     async function loadPosto() {
@@ -46,19 +35,16 @@ export default function EditarPosto() {
         const response = await api.get("/postos");
 
         const posto = response.data.find(
-          (p: any) => String(p.id) === String(id),
+          (p: any) => String(p.id) === String(id)
         );
 
         if (!posto) {
           toast.error("Posto não encontrado");
-
           router.push("/postos");
-
           return;
         }
 
         setNomePosto(posto.nome || "");
-
         setCep(posto.cep || "");
 
         setEndereco({
@@ -68,11 +54,8 @@ export default function EditarPosto() {
           bairroReadOnly: false,
         });
       } catch (error: any) {
-        console.error(error);
-
         toast.error(
-          error?.response?.data?.error ||
-            "Erro ao carregar posto",
+          error?.response?.data?.error || "Erro ao carregar posto"
         );
       }
     }
@@ -81,18 +64,16 @@ export default function EditarPosto() {
   }, [id, router]);
 
   // =========================
-  // BUSCA CEP
+  // CEP
   // =========================
-  const handleCepChange = async (e: any) => {
+  async function handleCepChange(e: any) {
     const value = e.target.value.replace(/\D/g, "");
-
     setCep(value);
 
     if (value.length === 8) {
       const data = await buscaCEP(value);
 
       const ruaFaltando = !data.rua;
-
       const bairroFaltando = !data.bairro;
 
       setEndereco({
@@ -103,27 +84,19 @@ export default function EditarPosto() {
       });
 
       if (ruaFaltando || bairroFaltando) {
-        toast.info(
-          "Complete os dados manualmente.",
-        );
+        toast.info("Complete os dados manualmente.");
       }
     }
-  };
+  }
 
   // =========================
-  // SALVAR
+  // SAVE
   // =========================
-  const handleSubmit = async (e: any) => {
+  async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (
-      !nomePosto ||
-      !cep ||
-      !endereco.rua ||
-      !endereco.bairro
-    ) {
+    if (!nomePosto || !cep || !endereco.rua || !endereco.bairro) {
       toast.warning("Preencha todos os campos.");
-
       return;
     }
 
@@ -137,110 +110,103 @@ export default function EditarPosto() {
         bairro: endereco.bairro.trim(),
       });
 
-      toast.success(
-        "Posto atualizado com sucesso!",
-      );
+      toast.success("Posto atualizado com sucesso!");
 
-      setTimeout(() => {
-        router.push("/postos");
-      }, 1200);
+      setTimeout(() => router.push("/postos"), 1200);
     } catch (error: any) {
-      console.error(error);
-
       toast.error(
-        error?.response?.data?.error ||
-          "Erro ao atualizar posto.",
+        error?.response?.data?.error || "Erro ao atualizar posto."
       );
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
-    <Container
-      className="d-flex justify-content-center align-items-center"
-      style={{
-        minHeight: "100vh",
-        padding: "20px",
-      }}
-    >
-      <Row className="w-100 justify-content-center">
-        <Col xs={12} sm={10} md={8} lg={6}>
-          <Form
-            onSubmit={handleSubmit}
-            className="p-4 shadow rounded bg-white"
-          >
-            <h2 className="text-center mb-4">
-              Editar Posto
-            </h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-2xl bg-white shadow-lg rounded-2xl p-6 space-y-4"
+      >
+        <h2 className="text-2xl font-bold text-center">
+          Editar Posto
+        </h2>
 
-            <Form.Group className="mb-3">
-              <Form.Label>
-                Nome do Posto
-              </Form.Label>
+        {/* NOME */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">
+            Nome do Posto
+          </label>
 
-              <Form.Control
-                value={nomePosto}
-                onChange={(e) =>
-                  setNomePosto(e.target.value)
-                }
-              />
-            </Form.Group>
+          <input
+            value={nomePosto}
+            onChange={(e) => setNomePosto(e.target.value)}
+            className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
 
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Label>CEP</Form.Label>
+        {/* CEP + RUA */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex flex-col">
+            <label className="text-sm font-medium">CEP</label>
 
-                <Form.Control
-                  value={cep}
-                  onChange={handleCepChange}
-                  maxLength={8}
-                />
-              </Col>
+            <input
+              value={cep}
+              onChange={handleCepChange}
+              maxLength={8}
+              className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-              <Col md={6}>
-                <Form.Label>Rua</Form.Label>
+          <div className="flex flex-col">
+            <label className="text-sm font-medium">Rua</label>
 
-                <Form.Control
-                  value={endereco.rua}
-                  readOnly={endereco.ruaReadOnly}
-                  onChange={(e) =>
-                    setEndereco({
-                      ...endereco,
-                      rua: e.target.value,
-                    })
-                  }
-                />
-              </Col>
-            </Row>
+            <input
+              value={endereco.rua}
+              readOnly={endereco.ruaReadOnly}
+              onChange={(e) =>
+                setEndereco({ ...endereco, rua: e.target.value })
+              }
+              className={`border rounded-lg px-3 py-2 mt-1 ${
+                endereco.ruaReadOnly
+                  ? "bg-gray-100 cursor-not-allowed"
+                  : "focus:ring-2 focus:ring-blue-500"
+              }`}
+            />
+          </div>
+        </div>
 
-            <Form.Group className="mb-4">
-              <Form.Label>Bairro</Form.Label>
+        {/* BAIRRO */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium">Bairro</label>
 
-              <Form.Control
-                value={endereco.bairro}
-                readOnly={endereco.bairroReadOnly}
-                onChange={(e) =>
-                  setEndereco({
-                    ...endereco,
-                    bairro: e.target.value,
-                  })
-                }
-              />
-            </Form.Group>
+          <input
+            value={endereco.bairro}
+            readOnly={endereco.bairroReadOnly}
+            onChange={(e) =>
+              setEndereco({ ...endereco, bairro: e.target.value })
+            }
+            className={`border rounded-lg px-3 py-2 mt-1 ${
+              endereco.bairroReadOnly
+                ? "bg-gray-100 cursor-not-allowed"
+                : "focus:ring-2 focus:ring-blue-500"
+            }`}
+          />
+        </div>
 
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-100"
-            >
-              {loading
-                ? "Salvando..."
-                : "Salvar Alterações"}
-            </Button>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+        {/* BUTTON */}
+        <button
+          type="submit"
+          disabled={loading}
+          className={`w-full py-2 rounded-lg font-semibold transition ${
+            loading
+              ? "bg-gray-400"
+              : "bg-blue-600 hover:bg-blue-700 text-white"
+          }`}
+        >
+          {loading ? "Salvando..." : "Salvar Alterações"}
+        </button>
+      </form>
+    </div>
   );
 }

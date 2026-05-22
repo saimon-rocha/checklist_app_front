@@ -1,12 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import "../../../styles/RelatorioFiltros.css";
-
-import Table from "react-bootstrap/Table";
-import gerarRelatorioPDF from "../../../utils/gerarRelatorioPDF";
 import { toast } from "react-toastify";
+
 import api from "../../../service/api";
+import gerarRelatorioPDF from "../../../utils/gerarRelatorioPDF";
 
 type RelatorioItem = {
   bomba: string;
@@ -23,12 +21,11 @@ export default function Relatorio() {
 
   const [dataInicio, setDataInicio] = useState(hoje);
   const [dataFim, setDataFim] = useState(hoje);
-
   const [resultado, setResultado] = useState<RelatorioItem[]>([]);
   const [loading, setLoading] = useState(false);
 
   // =========================
-  // BUSCAR NA API
+  // BUSCAR
   // =========================
   async function buscar() {
     try {
@@ -42,10 +39,7 @@ export default function Relatorio() {
           .toISOString()
           .split("T")[0];
 
-        const dentroPeriodo =
-          dataItem >= dataInicio && dataItem <= dataFim;
-
-        return dentroPeriodo;
+        return dataItem >= dataInicio && dataItem <= dataFim;
       });
 
       const formatado: RelatorioItem[] = filtrados.map((item: any) => ({
@@ -74,8 +68,7 @@ export default function Relatorio() {
       }
 
       setResultado(formatado);
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error("Erro ao buscar relatórios");
     } finally {
       setLoading(false);
@@ -98,68 +91,86 @@ export default function Relatorio() {
   // UI
   // =========================
   return (
-    <div className="container-arquivos safeArea">
-      <h2 style={{ textAlign: "center" }}>Relatório Aferições</h2>
+    <div className="min-h-screen px-4 py-6 flex flex-col items-center">
+      {/* TITLE */}
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        Relatório Aferições
+      </h2>
 
       {/* FILTROS */}
-      <div className="relatorio-filtros">
-        <div className="campo-data">
+      <div className="w-full max-w-5xl bg-white p-4 rounded-xl shadow flex flex-col md:flex-row gap-4 items-center justify-between">
+        {/* datas */}
+        <div className="flex items-center gap-2">
           <input
             type="date"
             value={dataInicio}
             onChange={(e) => setDataInicio(e.target.value)}
+            className="border rounded-lg px-3 py-2"
           />
 
-          <span>até</span>
+          <span className="text-gray-500">até</span>
 
           <input
             type="date"
             value={dataFim}
             onChange={(e) => setDataFim(e.target.value)}
+            className="border rounded-lg px-3 py-2"
           />
         </div>
 
-        <div className="acoes-relatorio">
-          <button className="btn btn-buscar" onClick={buscar}>
+        {/* ações */}
+        <div className="flex gap-2">
+          <button
+            onClick={buscar}
+            className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+          >
             Buscar
           </button>
 
-          <button className="btn btn-relatorio" onClick={gerarRelatorio}>
-            Gerar PDF
+          <button
+            onClick={gerarRelatorio}
+            className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition"
+          >
+            PDF
           </button>
         </div>
       </div>
 
-      {/* TABELA */}
-      {resultado.length > 0 && (
-        <Table striped bordered hover responsive>
-          <thead>
-            <tr>
-              <th>Bico</th>
-              <th>Data</th>
-              <th>Vazão Máxima</th>
-              <th>Vazão Mínima</th>
-              <th>Vazamento Bico</th>
-              <th>Vazão Bomba</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {resultado.map((item, index) => (
-              <tr key={index}>
-                <td>{item.bomba}</td>
-                <td>{item.dataRelatorio}</td>
-                <td>{item.totalVazaoMax}</td>
-                <td>{item.totalVazaoMin}</td>
-                <td>{item.vazamentoBico}</td>
-                <td>{item.vazaoBomba}</td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+      {/* LOADING */}
+      {loading && (
+        <div className="mt-6 w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
       )}
 
-      {loading && <p>Carregando...</p>}
+      {/* TABELA */}
+      {resultado.length > 0 && (
+        <div className="w-full max-w-5xl mt-6 overflow-x-auto">
+          <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="p-3 text-left">Bico</th>
+                <th className="p-3 text-left">Data</th>
+                <th className="p-3 text-left">Vazão Máx</th>
+                <th className="p-3 text-left">Vazão Mín</th>
+                <th className="p-3 text-left">Vazamento</th>
+                <th className="p-3 text-left">Bomba</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {resultado.map((item, index) => (
+                <tr key={index} className="border-t">
+                  <td className="p-3">{item.bomba}</td>
+                  <td className="p-3">{item.dataRelatorio}</td>
+                  <td className="p-3">{item.totalVazaoMax}</td>
+                  <td className="p-3">{item.totalVazaoMin}</td>
+                  <td className="p-3">{item.vazamentoBico}</td>
+                  <td className="p-3">{item.vazaoBomba}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

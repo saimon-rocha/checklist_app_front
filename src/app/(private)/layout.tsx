@@ -1,13 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
-
 import Menu from "../../components/Menu";
-
 import { parseJwt } from "../../utils/jwt";
-
 import { toast } from "react-toastify";
 
 export default function PrivateLayout({

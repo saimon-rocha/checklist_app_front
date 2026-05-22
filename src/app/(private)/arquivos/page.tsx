@@ -1,45 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-import Table from "react-bootstrap/Table";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
-import Spinner from "react-bootstrap/Spinner";
-
 import { toast } from "react-toastify";
 
-import gerarPDF from "../../../utils/gerarChecklistPDF";
-
 import api from "../../../service/api";
-
-import "../../../styles/Arquivos.css";
+import gerarPDF from "../../../utils/gerarChecklistPDF";
 
 import { checklistItems } from "../../../utils/checklistStructure";
 
 type Formulario = {
   id: string;
   titulo: string;
-
   createdAt?: string;
-
   usuario_id?: number;
   id_posto?: number;
-
   respostas?: {
     checklist?: any;
     ensaio?: any;
   };
-
-  Usuario?: {
-    id: number;
-    username: string;
-  };
-
-  Posto?: {
-    id: number;
-    nome: string;
-  };
+  Usuario?: { id: number; username: string };
+  Posto?: { id: number; nome: string };
 };
 
 function parseJwt(token: string) {
@@ -52,57 +32,44 @@ function parseJwt(token: string) {
 
 export default function Arquivos() {
   const [formularios, setFormularios] = useState<Formulario[]>([]);
-
   const [loading, setLoading] = useState(true);
-
   const [showConfirm, setShowConfirm] = useState(false);
-
   const [formularioToDelete, setFormularioToDelete] =
     useState<Formulario | null>(null);
-
   const [usuarioLogado, setUsuarioLogado] = useState<any>(null);
 
   // =========================
-  // USUÁRIO LOGADO
+  // USER LOGADO
   // =========================
   useEffect(() => {
     const token = localStorage.getItem("token");
-
     if (!token) return;
 
     const payload = parseJwt(token);
-
     setUsuarioLogado(payload);
   }, []);
 
   // =========================
-  // BUSCAR FORMULÁRIOS
+  // FETCH
   // =========================
   async function fetchFormularios() {
     try {
       setLoading(true);
 
       const response = await api.get("/arquivos");
-
-      console.log(response);
-
       const data: Formulario[] = response.data;
 
-      // ADMIN vê tudo
-      // usuário comum vê apenas os seus
       const filtrados =
         usuarioLogado?.isAdmin === true
           ? data
           : data.filter(
-              (f) => String(f.usuario_id) === String(usuarioLogado?.id),
+              (f) => String(f.usuario_id) === String(usuarioLogado?.id)
             );
 
       setFormularios(filtrados);
     } catch (error: any) {
-      console.error(error);
-
       toast.error(
-        error?.response?.data?.error || "Erro ao carregar formulários",
+        error?.response?.data?.error || "Erro ao carregar formulários"
       );
     } finally {
       setLoading(false);
@@ -110,13 +77,11 @@ export default function Arquivos() {
   }
 
   useEffect(() => {
-    if (usuarioLogado) {
-      fetchFormularios();
-    }
+    if (usuarioLogado) fetchFormularios();
   }, [usuarioLogado]);
 
   // =========================
-  // EXCLUIR
+  // DELETE
   // =========================
   async function handleConfirmDelete() {
     if (!formularioToDelete) return;
@@ -125,16 +90,12 @@ export default function Arquivos() {
       await api.put(`/arquivos/${formularioToDelete.id}/desabilitar`);
 
       toast.success("Formulário excluído com sucesso!");
-
       setShowConfirm(false);
-
       setFormularioToDelete(null);
 
       fetchFormularios();
     } catch (error: any) {
-      console.error(error);
-
-      toast.error(error?.response?.data?.error || "Erro ao excluir formulário");
+      toast.error("Erro ao excluir formulário");
     }
   }
 
@@ -143,46 +104,28 @@ export default function Arquivos() {
   // =========================
   function handleDownloadPDF(formulario: Formulario) {
     try {
-      const checklist = Array.isArray(formulario.respostas?.checklist)
-        ? formulario.respostas.checklist
-        : [];
-
+      const checklist = formulario.respostas?.checklist || {};
       const ensaio = formulario.respostas?.ensaio || [];
 
-      // transforma checklist OBJETO em ARRAY
       const checklistArray = Object.keys(checklist).map((key) => {
-        const itemDef = checklistItems.find((item: any) => item.id === key);
+        const itemDef = checklistItems.find((i: any) => i.id === key);
 
         return {
           id: key,
-
-          label: itemDef?.label || itemDef?.placeholder || key,
-
+          label: itemDef?.label || key,
           resposta: checklist[key],
         };
       });
 
-      const dadosParaPDF = {
+      gerarPDF({
         titulo: formulario.titulo,
-
         filial_nome: formulario.Posto?.nome || "—",
-
         usuario: formulario.Usuario?.username || "—",
-
         data: formulario.createdAt,
-
-        bombaId:
-          checklist.find((c: any) => c.id === "bombaId")?.resposta || "—",
-
-        checklist,
-
-        ensaio: Array.isArray(ensaio) ? ensaio : [],
-      };
-
-      gerarPDF(dadosParaPDF);
-    } catch (error) {
-      console.error(error);
-
+        checklist: checklistArray,
+        ensaio,
+      });
+    } catch {
       toast.error("Erro ao gerar PDF");
     }
   }
@@ -191,102 +134,101 @@ export default function Arquivos() {
   // UI
   // =========================
   return (
-    <div className="container-arquivos safeArea">
-      <h2 className="text-center mb-4">Formulários</h2>
+    <div className="min-h-screen px-4 py-6 flex flex-col items-center">
+      {/* HEADER */}
+      <h2 className="text-2xl font-bold mb-6 text-center">
+        Formulários
+      </h2>
 
+      {/* LOADING */}
       {loading ? (
-        <div className="d-flex justify-content-center py-5">
-          <Spinner animation="border" />
+        <div className="flex justify-center py-10">
+          <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
         </div>
       ) : (
-        <Table striped bordered hover responsive className="align-middle">
-          <thead>
-            <tr>
-              <th>Título</th>
+        <div className="w-full max-w-5xl overflow-x-auto">
+          <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+            <thead className="bg-gray-100 text-left">
+              <tr>
+                <th className="p-3">Título</th>
+                <th className="p-3">Posto</th>
+                <th className="p-3">Usuário</th>
+                <th className="p-3 text-center">Ações</th>
+              </tr>
+            </thead>
 
-              <th>Posto</th>
+            <tbody>
+              {formularios.length > 0 ? (
+                formularios.map((f) => (
+                  <tr key={f.id} className="border-t">
+                    <td className="p-3">{f.titulo}</td>
+                    <td className="p-3">{f.Posto?.nome || "—"}</td>
+                    <td className="p-3">{f.Usuario?.username || "—"}</td>
 
-              <th>Usuário</th>
+                    <td className="p-3">
+                      <div className="flex gap-2 justify-center">
+                        <button
+                          onClick={() => handleDownloadPDF(f)}
+                          className="px-3 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                        >
+                          PDF
+                        </button>
 
-              <th
-                style={{
-                  width: "170px",
-                  textAlign: "center",
-                }}
-              >
-                Ações
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {formularios.length > 0 ? (
-              formularios.map((f) => (
-                <tr key={f.id}>
-                  <td>{f.titulo}</td>
-
-                  <td>{f.Posto?.nome || "Não informado"}</td>
-
-                  <td>{f.Usuario?.username || "Não informado"}</td>
-
-                  <td>
-                    <div className="tableButtonGroup">
-                      <Button
-                        variant="info"
-                        size="sm"
-                        onClick={() => handleDownloadPDF(f)}
-                      >
-                        PDF
-                      </Button>
-
-                      <Button
-                        variant="danger"
-                        size="sm"
-                        onClick={() => {
-                          setFormularioToDelete(f);
-
-                          setShowConfirm(true);
-                        }}
-                      >
-                        Excluir
-                      </Button>
-                    </div>
+                        <button
+                          onClick={() => {
+                            setFormularioToDelete(f);
+                            setShowConfirm(true);
+                          }}
+                          className="px-3 py-1 rounded bg-red-500 hover:bg-red-600 text-white text-sm"
+                        >
+                          Excluir
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="text-center p-6">
+                    Nenhum formulário cadastrado
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="text-center">
-                  Nenhum formulário cadastrado
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </Table>
+              )}
+            </tbody>
+          </table>
+        </div>
       )}
 
-      {/* MODAL */}
-      <Modal show={showConfirm} onHide={() => setShowConfirm(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Confirmação</Modal.Title>
-        </Modal.Header>
+      {/* MODAL (Tailwind puro simples) */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md space-y-4">
+            <h3 className="text-lg font-semibold">Confirmação</h3>
 
-        <Modal.Body>
-          Deseja realmente excluir o formulário?
-          <br />
-          <strong>{formularioToDelete?.titulo}</strong>
-        </Modal.Body>
+            <p>
+              Deseja realmente excluir o formulário?
+              <br />
+              <strong>{formularioToDelete?.titulo}</strong>
+            </p>
 
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowConfirm(false)}>
-            Não
-          </Button>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setShowConfirm(false)}
+                className="px-4 py-2 rounded bg-gray-400 text-white"
+              >
+                Não
+              </button>
 
-          <Button variant="danger" onClick={handleConfirmDelete}>
-            Sim
-          </Button>
-        </Modal.Footer>
-      </Modal>
+              <button
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 rounded bg-red-500 text-white"
+              >
+                Sim
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
