@@ -107,12 +107,12 @@ export default function Arquivos() {
       const response = await api.get(`/arquivos/${id}/pdf`);
 
       const dados = response.data;
-
+      
       gerarPDF({
         titulo: dados.titulo,
         usuario: dados.Usuario?.username,
         filial_nome: dados.Posto?.nome,
-        data: dados.created_at,
+        data: dados.createdAt,
         checklist: dados.respostas.checklist,
         ensaio: dados.respostas.ensaio,
         observacoes: dados.respostas.observacoes,
