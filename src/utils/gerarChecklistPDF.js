@@ -28,20 +28,27 @@ function addTopo(doc, dados, y) {
 
 /* ================= CHECKLIST ================= */
 function addChecklist(doc, checklist, startY) {
-  const body = checklist
+  const body = checklistItems
     .filter(item => item.id !== "bombaId")
-    .map(item => {
-      const def = checklistItems.find(i => i.id === item.id);
-      if (!def) return null;
+    .map(def => {
+      const item = checklist.find(c => c.id === def.id);
 
+      const resposta =
+        Array.isArray(item?.resposta)
+          ? item.resposta.join(", ")
+          : item?.resposta ?? "—";
+
+      // valida dependência corretamente
       if (def.dependsOn) {
-        const depende = checklist.find(c => c.id === def.dependsOn)?.resposta;
-        if (depende?.toLowerCase() !== def.showIf) return null;
+        const dependeItem = checklist.find(c => c.id === def.dependsOn);
+        const dependeValor = dependeItem?.resposta?.toLowerCase();
+
+        if (dependeValor !== def.showIf) return null;
       }
 
       return [
-        def.label || def.placeholder || "",
-        item.resposta || "—"
+        def.label || def.placeholder || def.id,
+        resposta
       ];
     })
     .filter(Boolean);

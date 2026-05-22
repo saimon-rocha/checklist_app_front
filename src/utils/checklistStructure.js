@@ -34,12 +34,3 @@ export const ensaioAfericaoItems = [
         ],
     },
 ];
-
-// export const fichaControle = [
-//     { id: "data",          label: "Data", type: "date", keyboardType: "date-time", },
-//     { id: "bico",          label: "Bico", type: "text", keyboardType: "text", },
-//     { id: "vazaoMaxima",   label: "Vazão Máxima", type: "text", keyboardType: "text", },
-//     { id: "vazaoMinima",   label: "Vazão Mínima", type: "text", keyboardType: "text", },
-//     { id: "vazamentoBico", label: "Vazamento do Bico", type: "text", keyboardType: "text",},
-//     { id: "vazaoBomba",    label: "Vazão da Bomba", type: "text", keyboardType: "text",},
-// ];

@@ -63,13 +63,13 @@ export default function Arquivos() {
         usuarioLogado?.isAdmin === true
           ? data
           : data.filter(
-              (f) => String(f.usuario_id) === String(usuarioLogado?.id)
+              (f) => String(f.usuario_id) === String(usuarioLogado?.id),
             );
 
       setFormularios(filtrados);
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.error || "Erro ao carregar formulários"
+        error?.response?.data?.error || "Erro ao carregar formulários",
       );
     } finally {
       setLoading(false);
@@ -102,31 +102,23 @@ export default function Arquivos() {
   // =========================
   // PDF
   // =========================
-  function handleDownloadPDF(formulario: Formulario) {
+  async function downloadPdf(id: string) {
     try {
-      const checklist = formulario.respostas?.checklist || {};
-      const ensaio = formulario.respostas?.ensaio || [];
+      const response = await api.get(`/arquivos/${id}/pdf`);
 
-      const checklistArray = Object.keys(checklist).map((key) => {
-        const itemDef = checklistItems.find((i: any) => i.id === key);
-
-        return {
-          id: key,
-          label: itemDef?.label || key,
-          resposta: checklist[key],
-        };
-      });
+      const dados = response.data;
 
       gerarPDF({
-        titulo: formulario.titulo,
-        filial_nome: formulario.Posto?.nome || "—",
-        usuario: formulario.Usuario?.username || "—",
-        data: formulario.createdAt,
-        checklist: checklistArray,
-        ensaio,
+        titulo: dados.titulo,
+        usuario: dados.Usuario?.username,
+        filial_nome: dados.Posto?.nome,
+        data: dados.created_at,
+        checklist: dados.respostas.checklist,
+        ensaio: dados.respostas.ensaio,
+        observacoes: dados.respostas.observacoes,
       });
-    } catch {
-      toast.error("Erro ao gerar PDF");
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -136,9 +128,7 @@ export default function Arquivos() {
   return (
     <div className="min-h-screen px-4 py-6 flex flex-col items-center">
       {/* HEADER */}
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Formulários
-      </h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Formulários</h2>
 
       {/* LOADING */}
       {loading ? (
@@ -168,7 +158,7 @@ export default function Arquivos() {
                     <td className="p-3">
                       <div className="flex gap-2 justify-center">
                         <button
-                          onClick={() => handleDownloadPDF(f)}
+                          onClick={() => downloadPdf(f.id, f.titulo)}
                           className="px-3 py-1 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm"
                         >
                           PDF

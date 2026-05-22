@@ -36,11 +36,10 @@ export default function PrivateLayout({
     // token inválido
     if (!payload) {
       localStorage.removeItem("token");
-
       localStorage.removeItem("usuarioLogado");
-
+      localStorage.removeItem("checklistBombaForm");
+      localStorage.removeItem("ensaioForm");
       router.replace("/login");
-
       return;
     }
 
