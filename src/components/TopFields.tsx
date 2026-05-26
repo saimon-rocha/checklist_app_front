@@ -1,48 +1,68 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import PerguntaTexto from "../components/PerguntaTexto";
-
 import "../styles/TopFields.css";
 
 interface TopFieldsProps {
   formData: {
     bombaId?: string;
     data?: string;
+    id_posto?: number;
   };
 
-  onChange: (field: string, value: string) => void;
+  onChange: (field: string, value: any) => void;
+
+  postos: { id: number; nome: string }[];
+  postoSelecionado: number | null;
+  setPostoSelecionado: (id: number) => void;
 }
 
 export default function TopFields({
   formData,
   onChange,
+  postos,
+  postoSelecionado,
+  setPostoSelecionado,
 }: TopFieldsProps) {
-
   const [today, setToday] = useState("");
 
   useEffect(() => {
     const date = new Date();
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-
-    const year = date.getFullYear();
-
-    const formatted = `${day}/${month}/${year}`;
+    const formatted = `${String(date.getDate()).padStart(2, "0")}/${String(
+      date.getMonth() + 1,
+    ).padStart(2, "0")}/${date.getFullYear()}`;
 
     setToday(formatted);
 
     if (!formData.data) {
       onChange("data", formatted);
     }
-
   }, [onChange, formData.data]);
 
   return (
     <div className="topFieldsContainer">
+      
+      {/* POSTO */}
+      <div className="topField">
+        <label>Posto</label>
 
+        <select
+          value={formData.id_posto || ""}
+          onChange={(e) => onChange("id_posto", Number(e.target.value))}
+        >
+          <option value="">Selecione</option>
+
+          {postos.map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.nome}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* BICO */}
       <div className="topField">
         <PerguntaTexto
           label="Identificação do Bico"
@@ -52,16 +72,15 @@ export default function TopFields({
         />
       </div>
 
+      {/* DATA */}
       <div className="topField">
         <PerguntaTexto
           label="Data"
-          placeholder="DD/MM/AAAA"
           value={formData.data || today}
-          onChange={(val) => onChange("data", val)}
+          onChange={() => {}}
           readOnly
         />
       </div>
-
     </div>
   );
 }

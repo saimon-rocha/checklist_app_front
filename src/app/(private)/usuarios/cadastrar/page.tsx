@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
 import validarCPF from "../../../../utils/validarCPF";
+import api from "../../../../service/api";
 
 export default function CadastroUsuario() {
   const router = useRouter();
@@ -13,28 +14,47 @@ export default function CadastroUsuario() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [cpf, setCpf] = useState("");
-  const [filialSelecionada, setFilialSelecionada] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [filiais, setFiliais] = useState<any[]>([]);
+
+  const [postosSelecionados, setPostosSelecionados] = useState<number[]>([]);
+  const [role, setRole] = useState("funcionario");
+
+  const [postos, setPostos] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
   useEffect(() => {
-    const filiaisSalvas = JSON.parse(
-      localStorage.getItem("filiais") || "[]"
-    );
-    setFiliais(filiaisSalvas);
+    async function carregarPostos() {
+      try {
+        const [postosResponse] = await Promise.all([api.get("/postos")]);
+        const postosAtivos = postosResponse.data.filter((p: any) =>
+          Boolean(p.id_ativo),
+        );
+        setPostos(postosAtivos);
+      } catch {
+        toast.error("Erro ao carregar postos");
+      }
+    }
+
+    carregarPostos();
   }, []);
 
   function handleCpfChange(e: any) {
     setCpf(e.target.value.replace(/\D/g, ""));
   }
 
+  function handlePostoChange(postoId: number) {
+    setPostosSelecionados((prev) => {
+      if (prev.includes(postoId)) {
+        return prev.filter((id) => id !== postoId);
+      }
+
+      return [...prev, postoId];
+    });
+  }
+
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (!email || !senha || !cpf || !filialSelecionada) {
+    if (!email || !senha || !cpf || postosSelecionados.length === 0) {
       toast.warning("Preencha todos os campos!");
       return;
     }
@@ -47,28 +67,18 @@ export default function CadastroUsuario() {
     setLoading(true);
 
     try {
-      await axios.post(
-        `${API_URL}/usuarios`,
-        {
-          username: email.trim(),
-          password: senha.trim(),
-          cpf: cpf.trim(),
-          id_posto: filialSelecionada,
-          id_admin: isAdmin,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await api.post("/usuarios", {
+        username: email.trim(),
+        password: senha.trim(),
+        cpf: cpf.trim(),
+        role,
+        postos: postosSelecionados, // array de IDs
+      });
 
       toast.success("Usuário cadastrado com sucesso!");
       router.push("/usuarios");
     } catch (err: any) {
-      toast.error(
-        err?.response?.data?.error || "Erro ao cadastrar usuário"
-      );
+      toast.error(err?.response?.data?.error || "Erro ao cadastrar usuário");
     } finally {
       setLoading(false);
     }
@@ -80,16 +90,14 @@ export default function CadastroUsuario() {
         onSubmit={handleSubmit}
         className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-6 space-y-4"
       >
-        {/* TITLE */}
-        <h2 className="text-2xl font-bold text-center">
-          Cadastro de Usuário
-        </h2>
+        <h2 className="text-2xl font-bold text-center">Cadastro de Usuário</h2>
 
         {/* EMAIL */}
         <div className="flex flex-col">
           <label className="text-sm font-medium">Email</label>
+
           <input
-            className="border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border rounded-lg px-3 py-2 mt-1"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             type="email"
@@ -100,9 +108,10 @@ export default function CadastroUsuario() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           <div className="flex flex-col">
             <label className="text-sm font-medium">Senha</label>
+
             <input
               type="password"
-              className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-3 py-2 mt-1"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
             />
@@ -110,8 +119,9 @@ export default function CadastroUsuario() {
 
           <div className="flex flex-col">
             <label className="text-sm font-medium">CPF</label>
+
             <input
-              className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
+              className="border rounded-lg px-3 py-2 mt-1"
               value={cpf}
               onChange={handleCpfChange}
               maxLength={11}
@@ -119,43 +129,48 @@ export default function CadastroUsuario() {
           </div>
         </div>
 
-        {/* POSTO */}
+        {/* PERFIL */}
         <div className="flex flex-col">
-          <label className="text-sm font-medium">Posto</label>
+          <label className="text-sm font-medium">Perfil</label>
 
           <select
             className="border rounded-lg px-3 py-2 mt-1"
-            value={filialSelecionada}
-            onChange={(e) => setFilialSelecionada(e.target.value)}
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
           >
-            <option value="">Selecione...</option>
+            <option value="funcionario">Funcionário</option>
 
-            {filiais.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.nome}
-              </option>
-            ))}
+            <option value="gestor">Gestor</option>
+
+            <option value="master">Master</option>
           </select>
         </div>
 
-        {/* ADMIN */}
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={isAdmin}
-            onChange={(e) => setIsAdmin(e.target.checked)}
-          />
-          Administrador
-        </label>
+        {/* POSTOS */}
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-2">Postos</label>
+
+          <div className="space-y-2 border rounded-lg p-3 max-h-52 overflow-y-auto">
+            {postos.map((p) => (
+              <label key={p.id} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={postosSelecionados.includes(p.id)}
+                  onChange={() => handlePostoChange(p.id)}
+                />
+
+                {p.nome}
+              </label>
+            ))}
+          </div>
+        </div>
 
         {/* BUTTON */}
         <button
           type="submit"
           disabled={loading}
           className={`w-full py-2 rounded-lg font-semibold transition ${
-            loading
-              ? "bg-gray-400"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
+            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700 text-white"
           }`}
         >
           {loading ? "Salvando..." : "Cadastrar"}

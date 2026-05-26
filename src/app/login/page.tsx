@@ -52,9 +52,11 @@ export default function LoginPage() {
           JSON.stringify({
             id: payload.id,
             username: payload.username,
-            filial: payload.filial || payload.id_posto,
-            isAdmin: payload.isAdmin || payload.id_admin,
-          })
+
+            role: payload.role,
+
+            postos: payload.postos || [],
+          }),
         );
       }
 
@@ -98,9 +100,7 @@ export default function LoginPage() {
 
           {/* USERNAME */}
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Usuário
-            </label>
+            <label className="block text-sm font-medium mb-1">Usuário</label>
             <input
               type="text"
               value={username}
@@ -113,9 +113,7 @@ export default function LoginPage() {
 
           {/* PASSWORD */}
           <div>
-            <label className="block text-sm font-medium mb-1">
-              Senha
-            </label>
+            <label className="block text-sm font-medium mb-1">Senha</label>
             <input
               type="password"
               value={password}
@@ -136,9 +134,7 @@ export default function LoginPage() {
           </button>
 
           {/* MENSAGEM */}
-          {msg && (
-            <p className="text-red-500 text-sm text-center">{msg}</p>
-          )}
+          {msg && <p className="text-red-500 text-sm text-center">{msg}</p>}
         </form>
       </div>
     </div>

@@ -14,14 +14,15 @@ type Formulario = {
   createdAt?: string;
   usuario_id?: number;
   id_posto?: number;
+
   respostas?: {
     checklist?: any;
     ensaio?: any;
   };
-  Usuario?: { id: number; username: string };
-  Posto?: { id: number; nome: string };
-};
 
+  usuario?: { id: number; username: string };
+  posto?: { id: number; nome: string };
+};
 function parseJwt(token: string) {
   try {
     return JSON.parse(atob(token.split(".")[1]));
@@ -59,12 +60,16 @@ export default function Arquivos() {
       const response = await api.get("/arquivos");
       const data: Formulario[] = response.data;
 
+      console.log(response.data);
+
       const filtrados =
-        usuarioLogado?.isAdmin === true
+        usuarioLogado?.role === "master"
           ? data
-          : data.filter(
-              (f) => String(f.usuario_id) === String(usuarioLogado?.id),
-            );
+          : usuarioLogado?.role === "gestor"
+            ? data
+            : data.filter(
+                (f) => String(f.usuario_id) === String(usuarioLogado?.id),
+              );
 
       setFormularios(filtrados);
     } catch (error: any) {
@@ -108,10 +113,12 @@ export default function Arquivos() {
 
       const dados = response.data;
 
+      console.log(dados);
+
       gerarPDF({
         titulo: dados.titulo,
-        usuario: dados.Usuario?.username,
-        filial_nome: dados.Posto?.nome,
+        usuario: dados.usuario?.username,
+        filial_nome: dados.posto?.nome,
         data: dados.createdAt,
         checklist: dados.respostas.checklist,
         ensaio: dados.respostas.ensaio,
@@ -152,8 +159,8 @@ export default function Arquivos() {
                 formularios.map((f) => (
                   <tr key={f.id} className="border-t">
                     <td className="p-3">{f.titulo}</td>
-                    <td className="p-3">{f.Posto?.nome || "—"}</td>
-                    <td className="p-3">{f.Usuario?.username || "—"}</td>
+                    <td className="p-3">{f.posto?.nome || "—"}</td>
+                    <td className="p-3">{f.usuario?.username || "—"}</td>
 
                     <td className="p-3">
                       <div className="flex gap-2 justify-center">

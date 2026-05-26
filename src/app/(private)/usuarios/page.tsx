@@ -42,7 +42,7 @@ export default function ListaUsuarios() {
 
   function handleDeleteClick(usuario: any) {
     const usuarioLogado = JSON.parse(
-      localStorage.getItem("usuarioLogado") || "null"
+      localStorage.getItem("usuarioLogado") || "null",
     );
 
     if (usuarioLogado?.username === usuario.username) {
@@ -67,16 +67,14 @@ export default function ListaUsuarios() {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) throw new Error();
 
       toast.success("Usuário desativado com sucesso!");
 
-      setUsuarios((prev) =>
-        prev.filter((u) => u.id !== usuarioToDelete.id)
-      );
+      setUsuarios((prev) => prev.filter((u) => u.id !== usuarioToDelete.id));
 
       setShowConfirm(false);
       setUsuarioToDelete(null);
@@ -88,15 +86,11 @@ export default function ListaUsuarios() {
   return (
     <div className="min-h-screen px-4 py-6 flex flex-col items-center">
       {/* HEADER */}
-      <h2 className="text-2xl font-bold mb-6 text-center">
-        Usuários
-      </h2>
+      <h2 className="text-2xl font-bold mb-6 text-center">Usuários</h2>
 
       {/* EMPTY STATE */}
       {usuarios.length === 0 ? (
-        <p className="text-gray-500 text-center">
-          Nenhum usuário cadastrado
-        </p>
+        <p className="text-gray-500 text-center">Nenhum usuário cadastrado</p>
       ) : (
         <div className="w-full max-w-5xl overflow-x-auto">
           <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
@@ -117,25 +111,27 @@ export default function ListaUsuarios() {
                   </td>
 
                   <td className="p-3">
-                    {u.Postos?.nome || "-"}
+                    {u.postos?.length > 0
+                      ? u.postos.map((p: any) => p.nome).join(", ")
+                      : "-"}
                   </td>
 
                   <td className="p-3">
-                    {u.id_admin ? (
-                      <span className="text-red-500 font-bold">
-                        Administrador
-                      </span>
-                    ) : (
-                      <span>Usuário</span>
+                    {u.role === "master" && (
+                      <span className="text-red-500 font-bold">Master</span>
                     )}
+
+                    {u.role === "gestor" && (
+                      <span className="text-blue-500 font-bold">Gestor</span>
+                    )}
+
+                    {u.role === "funcionario" && <span>Funcionário</span>}
                   </td>
 
                   <td className="p-3">
                     <div className="flex gap-2 justify-center">
                       <button
-                        onClick={() =>
-                          router.push(`/usuarios/editar/${u.id}`)
-                        }
+                        onClick={() => router.push(`/usuarios/editar/${u.id}`)}
                         className="px-3 py-1 rounded bg-yellow-500 hover:bg-yellow-600 text-white text-sm"
                       >
                         Editar

@@ -9,11 +9,8 @@ import PerguntaTexto from "../../../components/PerguntaTexto";
 import PerguntaRadioDefeito from "../../../components/PerguntaRadioDefeito";
 import PerguntaRadioNaoAvaliar from "../../../components/PerguntaRadioNaoAvaliar";
 import TopFields from "../../../components/TopFields";
-
 import "../../../styles/ChecklistBomba.css";
-
 import { checklistItems } from "../../../utils/checklistStructure";
-
 import { toast } from "react-toastify";
 
 const getToday = () => {
@@ -36,15 +33,13 @@ function ChecklistField({ item, formData, onChange }: any) {
         />
       )}
 
-      {item.type === "radio" &&
-        !item.allowNotEvaluate &&
-        !item.dangerOnSim && (
-          <PerguntaRadio
-            label={item.label}
-            selectedValue={formData[item.id]}
-            onChange={(val: string) => onChange(item.id, val)}
-          />
-        )}
+      {item.type === "radio" && !item.allowNotEvaluate && !item.dangerOnSim && (
+        <PerguntaRadio
+          label={item.label}
+          selectedValue={formData[item.id]}
+          onChange={(val: string) => onChange(item.id, val)}
+        />
+      )}
 
       {item.type === "radio" && item.dangerOnSim && (
         <PerguntaRadioDefeito
@@ -68,6 +63,8 @@ function ChecklistField({ item, formData, onChange }: any) {
 
 /* ================= PAGE ================= */
 export default function ChecklistBomba() {
+  const [postos, setPostos] = useState<any[]>([]);
+  const [postoSelecionado, setPostoSelecionado] = useState<number | null>(null);
   const router = useRouter();
 
   const initialState = checklistItems.reduce(
@@ -81,7 +78,8 @@ export default function ChecklistBomba() {
     {
       bombaId: "",
       data: getToday(),
-    }
+      id_posto:""
+    },
   );
 
   const [form, setForm] = useState(() => {
@@ -97,6 +95,12 @@ export default function ChecklistBomba() {
       ...prev,
       data: getToday(),
     }));
+
+    const user = JSON.parse(localStorage.getItem("usuarioLogado") || "null");
+
+    if (user?.postos) {
+      setPostos(user.postos);
+    }
   }, []);
 
   function handleChange(field: string, value: any) {
@@ -128,21 +132,22 @@ export default function ChecklistBomba() {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-6 flex flex-col items-center">
-      
       {/* HEADER */}
       <div className="w-full max-w-4xl text-center mb-6">
-        <h1 className="text-2xl font-bold">
-          Checklist da Bomba Medidora
-        </h1>
+        <h1 className="text-2xl font-bold">Checklist da Bomba Medidora</h1>
         <p className="text-sm text-gray-500 mt-1">
           Preencha todas as verificações antes de avançar
         </p>
       </div>
 
       {/* TOP FIELDS */}
-      <div className="w-full max-w-4xl mb-4">
-        <TopFields formData={form} onChange={handleChange} />
-      </div>
+      <TopFields
+        formData={form}
+        onChange={handleChange}
+        postos={postos}
+        postoSelecionado={postoSelecionado}
+        setPostoSelecionado={setPostoSelecionado}
+      />
 
       {/* LISTA */}
       <div className="w-full max-w-4xl space-y-4 max-h-[60vh] overflow-y-auto pr-2">

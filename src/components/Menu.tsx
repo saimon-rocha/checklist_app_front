@@ -18,7 +18,9 @@ import "../styles/Menu.css";
 export default function Menu({ user }: { user?: any }) {
   const router = useRouter();
 
-  const isAdmin = user?.isAdmin === true;
+  const isMaster = user?.role === "master";
+  const isGestor = user?.role === "gestor";
+  const isFuncionario = user?.role === "funcionario";
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -50,17 +52,7 @@ export default function Menu({ user }: { user?: any }) {
           <div>Relatórios</div>
         </Link>
 
-        <Link href="/usuarios" className="navItemCustom">
-          <People size={22} />
-          <div>Usuarios</div>
-        </Link>
-
-        <Link href="/postos" className="navItemCustom">
-          <Fuel size={22} />
-          <div>Postos</div>
-        </Link>
-
-        {isAdmin && (
+        {(isMaster || isGestor) && (
           <>
             <Link href="/usuarios" className="navItemCustom">
               <People size={22} />
