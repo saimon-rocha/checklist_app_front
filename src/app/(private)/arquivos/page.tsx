@@ -59,9 +59,6 @@ export default function Arquivos() {
 
       const response = await api.get("/arquivos");
       const data: Formulario[] = response.data;
-
-      console.log(response.data);
-
       const filtrados =
         usuarioLogado?.role === "master"
           ? data

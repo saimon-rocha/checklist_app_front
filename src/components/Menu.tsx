@@ -10,7 +10,7 @@ import {
   BoxArrowRight,
 } from "react-bootstrap-icons";
 
-import { Fuel } from "lucide-react";
+import { Building2, Fuel } from "lucide-react";
 import { toast } from "react-toastify";
 
 import "../styles/Menu.css";
@@ -54,14 +54,19 @@ export default function Menu({ user }: { user?: any }) {
 
         {(isMaster || isGestor) && (
           <>
-            <Link href="/usuarios" className="navItemCustom">
-              <People size={22} />
-              <div>Usuários</div>
+            <Link href="/empresas" className="navItemCustom">
+              <Building2 size={22} />
+              <div>Empresas</div>
             </Link>
 
             <Link href="/postos" className="navItemCustom">
               <Fuel size={22} />
               <div>Postos</div>
+            </Link>
+
+            <Link href="/usuarios" className="navItemCustom">
+              <People size={22} />
+              <div>Usuários</div>
             </Link>
           </>
         )}
