@@ -6,136 +6,83 @@ import { useRouter } from "next/navigation";
 
 import { toast } from "react-toastify";
 
-export default function ListaUsuarios() {
+import api from "../../../service/api";
+
+export default function ListaFiliais() {
   const router = useRouter();
 
-  const [usuarios, setUsuarios] = useState<any[]>([]);
+  const [filiais, setFiliais] = useState<any[]>([]);
 
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const [usuarioToDelete, setUsuarioToDelete] = useState<any>(null);
+  const [filialToDelete, setFilialToDelete] = useState<any>(null);
 
   const [loading, setLoading] = useState(true);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   // =====================================
   // LOAD
   // =====================================
 
   useEffect(() => {
-    loadUsuarios();
+    loadFiliais();
   }, []);
 
-  async function loadUsuarios() {
+  async function loadFiliais() {
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const response = await api.get("/filiais");
 
-      const response = await fetch(`${API_URL}/usuarios`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const filiaisAtivas = response.data.filter((f: any) =>
+        Boolean(f.id_ativo),
+      );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao carregar usuários");
-      }
-
-      const ativos = data.filter((u: any) => u.id_ativo === true);
-
-      setUsuarios(ativos);
-    } catch {
-      toast.error("Erro ao carregar usuários");
+      setFiliais(filiaisAtivas);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Erro ao carregar filiais");
     } finally {
       setLoading(false);
     }
   }
 
   // =====================================
+  // NAVIGATION
+  // =====================================
+
+  function handleCadastrar() {
+    router.push("/filiais/cadastrar");
+  }
+
+  function handleEditar(id: string) {
+    router.push(`/filiais/editar/${id}`);
+  }
+
+  // =====================================
   // DELETE
   // =====================================
 
-  function handleDeleteClick(usuario: any) {
-    const usuarioLogado = JSON.parse(
-      localStorage.getItem("usuarioLogado") || "null",
-    );
-
-    if (usuarioLogado?.username === usuario.username) {
-      toast.warning("Você não pode excluir seu próprio usuário!");
-
-      return;
-    }
-
-    setUsuarioToDelete(usuario);
+  function handleDeleteClick(filial: any) {
+    setFilialToDelete(filial);
 
     setShowConfirm(true);
   }
 
   async function handleConfirmDelete() {
-    if (!usuarioToDelete) return;
+    if (!filialToDelete) return;
 
     try {
-      const token = localStorage.getItem("token");
+      await api.put(`/filiais/${filialToDelete.id}/desabilitar`);
 
-      const response = await fetch(
-        `${API_URL}/usuarios/${usuarioToDelete.id}/desabilitar`,
-        {
-          method: "PUT",
+      setFiliais((prev) => prev.filter((f) => f.id !== filialToDelete.id));
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      toast.success("Usuário desativado com sucesso!");
-
-      setUsuarios((prev) =>
-        prev.filter((u) => u.id !== usuarioToDelete.id),
-      );
-    } catch {
-      toast.error("Erro ao desativar usuário");
+      toast.success("Filial excluída com sucesso!");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Erro ao excluir filial.");
     } finally {
       setShowConfirm(false);
 
-      setUsuarioToDelete(null);
+      setFilialToDelete(null);
     }
-  }
-
-  // =====================================
-  // ROLE COLOR
-  // =====================================
-
-  function renderRole(role: string) {
-    if (role === "master") {
-      return (
-        <span className="text-red-500 font-bold">
-          Master
-        </span>
-      );
-    }
-
-    if (role === "gestor") {
-      return (
-        <span className="text-blue-500 font-bold">
-          Gestor
-        </span>
-      );
-    }
-
-    return (
-      <span className="text-gray-700">
-        Funcionário
-      </span>
-    );
   }
 
   // =====================================
@@ -146,7 +93,6 @@ export default function ListaUsuarios() {
     <div className="min-h-screen bg-gray-100">
       {/* CONTAINER */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
-
         {/* HEADER */}
         <div
           className="
@@ -160,11 +106,11 @@ export default function ListaUsuarios() {
         "
         >
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Usuários
+            Filiais
           </h1>
 
           <p className="text-sm md:text-base text-gray-500 mt-2">
-            Gerencie os usuários cadastrados no sistema
+            Gerencie as filiais cadastradas no sistema
           </p>
         </div>
 
@@ -173,7 +119,7 @@ export default function ListaUsuarios() {
           <div className="flex justify-center py-14">
             <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
           </div>
-        ) : usuarios.length === 0 ? (
+        ) : filiais.length === 0 ? (
           <div
             className="
             bg-white
@@ -184,16 +130,16 @@ export default function ListaUsuarios() {
             text-gray-500
           "
           >
-            Nenhum usuário cadastrado
+            Nenhuma filial cadastrada
           </div>
         ) : (
           <>
             {/* ================= MOBILE ================= */}
 
             <div className="md:hidden space-y-4 pb-28">
-              {usuarios.map((u) => (
+              {filiais.map((f) => (
                 <div
-                  key={u.id}
+                  key={f.id}
                   className="
                   bg-white
                   rounded-2xl
@@ -204,33 +150,45 @@ export default function ListaUsuarios() {
                 >
                   {/* TOP */}
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800 break-all">
-                      {u.username}
+                    <h2 className="text-lg font-bold text-gray-800">
+                      {f.nome}
                     </h2>
 
-                    <div className="mt-2">
-                      {renderRole(u.role)}
-                    </div>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {f.matriz?.nome || "Sem matriz"}
+                    </p>
                   </div>
 
                   {/* INFO */}
                   <div className="space-y-2 text-sm">
                     <p>
-                      <span className="font-semibold">
-                        Filiais:
-                      </span>{" "}
-                      {u.filiais?.length > 0
-                        ? u.filiais.map((f: any) => f.nome).join(", ")
-                        : "-"}
+                      <span className="font-semibold">CEP:</span> {f.cep || "-"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Rua:</span> {f.rua || "-"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Bairro:</span>{" "}
+                      {f.bairro || "-"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Cidade:</span>{" "}
+                      {f.cidade || "-"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Estado:</span>{" "}
+                      {f.estado || "-"}
                     </p>
                   </div>
 
                   {/* ACTIONS */}
                   <div className="flex gap-2 pt-2">
                     <button
-                      onClick={() =>
-                        router.push(`/usuarios/editar/${u.id}`)
-                      }
+                      onClick={() => handleEditar(f.id)}
                       className="
                       flex-1
                       py-2.5
@@ -246,7 +204,7 @@ export default function ListaUsuarios() {
                     </button>
 
                     <button
-                      onClick={() => handleDeleteClick(u)}
+                      onClick={() => handleDeleteClick(f)}
                       className="
                       flex-1
                       py-2.5
@@ -273,15 +231,27 @@ export default function ListaUsuarios() {
                   <thead className="bg-gray-100 text-left">
                     <tr>
                       <th className="p-4 font-semibold text-gray-700">
-                        Email
+                        Matriz
                       </th>
 
                       <th className="p-4 font-semibold text-gray-700">
-                        Filiais
+                        Filial
+                      </th>
+
+                      <th className="p-4 font-semibold text-gray-700">CEP</th>
+
+                      <th className="p-4 font-semibold text-gray-700">Rua</th>
+
+                      <th className="p-4 font-semibold text-gray-700">
+                        Bairro
                       </th>
 
                       <th className="p-4 font-semibold text-gray-700">
-                        Perfil
+                        Cidade
+                      </th>
+
+                      <th className="p-4 font-semibold text-gray-700">
+                        Estado
                       </th>
 
                       <th className="p-4 text-center font-semibold text-gray-700">
@@ -291,37 +261,33 @@ export default function ListaUsuarios() {
                   </thead>
 
                   <tbody>
-                    {usuarios.map((u) => (
+                    {filiais.map((f) => (
                       <tr
-                        key={u.id}
+                        key={f.id}
                         className="
                         border-t
                         hover:bg-gray-50
                         transition
                       "
                       >
-                        <td className="p-4 max-w-[260px] truncate">
-                          {u.username}
-                        </td>
+                        <td className="p-4">{f.matriz?.nome || "-"}</td>
 
-                        <td className="p-4">
-                          {u.filiais?.length > 0
-                            ? u.filiais
-                                .map((f: any) => f.nome)
-                                .join(", ")
-                            : "-"}
-                        </td>
+                        <td className="p-4 font-medium">{f.nome}</td>
 
-                        <td className="p-4">
-                          {renderRole(u.role)}
-                        </td>
+                        <td className="p-4">{f.cep || "-"}</td>
+
+                        <td className="p-4">{f.rua || "-"}</td>
+
+                        <td className="p-4">{f.bairro || "-"}</td>
+
+                        <td className="p-4">{f.cidade || "-"}</td>
+
+                        <td className="p-4">{f.estado || "-"}</td>
 
                         <td className="p-4">
                           <div className="flex gap-2 justify-center">
                             <button
-                              onClick={() =>
-                                router.push(`/usuarios/editar/${u.id}`)
-                              }
+                              onClick={() => handleEditar(f.id)}
                               className="
                               px-4
                               py-2
@@ -337,7 +303,7 @@ export default function ListaUsuarios() {
                             </button>
 
                             <button
-                              onClick={() => handleDeleteClick(u)}
+                              onClick={() => handleDeleteClick(f)}
                               className="
                               px-4
                               py-2
@@ -362,9 +328,7 @@ export default function ListaUsuarios() {
               {/* BUTTON DESKTOP */}
               <div className="flex justify-center mt-6">
                 <button
-                  onClick={() =>
-                    router.push("/usuarios/cadastrar")
-                  }
+                  onClick={handleCadastrar}
                   className="
                   px-6
                   py-3
@@ -377,7 +341,7 @@ export default function ListaUsuarios() {
                   shadow-md
                 "
                 >
-                  Cadastrar Usuário
+                  Cadastrar Filial
                 </button>
               </div>
             </div>
@@ -388,9 +352,7 @@ export default function ListaUsuarios() {
       {/* FAB MOBILE */}
       {!loading && (
         <button
-          onClick={() =>
-            router.push("/usuarios/cadastrar")
-          }
+          onClick={handleCadastrar}
           className="
           md:hidden
           fixed
@@ -443,12 +405,10 @@ export default function ListaUsuarios() {
               Confirmar exclusão
             </h3>
 
-            <p className="text-gray-600">
-              Deseja realmente excluir o usuário:
-            </p>
+            <p className="text-gray-600">Deseja realmente excluir a filial:</p>
 
-            <div className="bg-gray-100 rounded-xl p-3 font-semibold break-all">
-              {usuarioToDelete?.username}
+            <div className="bg-gray-100 rounded-xl p-3 font-semibold">
+              {filialToDelete?.nome}
             </div>
 
             <div className="flex justify-end gap-3">

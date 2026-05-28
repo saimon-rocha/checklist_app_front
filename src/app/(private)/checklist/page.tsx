@@ -9,13 +9,12 @@ import PerguntaTexto from "../../../components/PerguntaTexto";
 import PerguntaRadioDefeito from "../../../components/PerguntaRadioDefeito";
 import PerguntaRadioNaoAvaliar from "../../../components/PerguntaRadioNaoAvaliar";
 import TopFields from "../../../components/TopFields";
+
 import "../../../styles/ChecklistBomba.css";
 import { checklistItems } from "../../../utils/checklistStructure";
 import { toast } from "react-toastify";
 
-const getToday = () => {
-  return new Date().toLocaleDateString("pt-BR");
-};
+const getToday = () => new Date().toLocaleDateString("pt-BR");
 
 /* ================= FIELD ================= */
 function ChecklistField({ item, formData, onChange }: any) {
@@ -63,9 +62,12 @@ function ChecklistField({ item, formData, onChange }: any) {
 
 /* ================= PAGE ================= */
 export default function ChecklistBomba() {
-  const [postos, setPostos] = useState<any[]>([]);
-  const [postoSelecionado, setPostoSelecionado] = useState<number | null>(null);
   const router = useRouter();
+
+  const [filiais, setFiliais] = useState<any[]>([]);
+  const [filialSelecionada, setFilialSelecionada] = useState<number | null>(
+    null,
+  );
 
   const initialState = checklistItems.reduce(
     (acc: any, item: any) => {
@@ -78,18 +80,18 @@ export default function ChecklistBomba() {
     {
       bombaId: "",
       data: getToday(),
-      id_posto:""
+      id_filial: "",
     },
   );
 
-  const [form, setForm] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("checklistBombaForm");
-      return saved ? JSON.parse(saved) : initialState;
-    }
-    return initialState;
+  const [form, setForm] = useState<any>(() => {
+    if (typeof window === "undefined") return initialState;
+
+    const saved = localStorage.getItem("checklistBombaForm");
+    return saved ? JSON.parse(saved) : initialState;
   });
 
+  /* ================= LOAD USER ================= */
   useEffect(() => {
     setForm((prev: any) => ({
       ...prev,
@@ -98,11 +100,26 @@ export default function ChecklistBomba() {
 
     const user = JSON.parse(localStorage.getItem("usuarioLogado") || "null");
 
-    if (user?.postos) {
-      setPostos(user.postos);
+    // GARANTIA TOTAL CONTRA UNDEFINED
+    const userFiliais = Array.isArray(user?.filiais) ? user.filiais : [];
+
+    setFiliais(userFiliais);
+
+    if (userFiliais.length > 0) {
+      const filialId = userFiliais[0]?.id;
+
+      if (filialId) {
+        setFilialSelecionada(filialId);
+
+        setForm((prev: any) => ({
+          ...prev,
+          id_filial: filialId,
+        }));
+      }
     }
   }, []);
 
+  /* ================= CHANGE ================= */
   function handleChange(field: string, value: any) {
     const newForm = {
       ...form,
@@ -113,11 +130,24 @@ export default function ChecklistBomba() {
     localStorage.setItem("checklistBombaForm", JSON.stringify(newForm));
   }
 
+  /* ================= AVANÇAR ================= */
   function handleAvancar() {
-    localStorage.setItem("checklistBombaForm", JSON.stringify(form));
+    if (!form.id_filial) {
+      toast.warning("Filial não identificada para o usuário.");
+      return;
+    }
+
+    const updatedForm = {
+      ...form,
+      id_filial: filialSelecionada,
+    };
+
+    localStorage.setItem("checklistBombaForm", JSON.stringify(updatedForm));
+
     router.push("/checklist/ensaio");
   }
 
+  /* ================= CANCELAR ================= */
   function handleCancelar() {
     toast.warn("Operação Cancelada");
 
@@ -128,51 +158,190 @@ export default function ChecklistBomba() {
 
     setForm(resetForm);
     localStorage.removeItem("checklistBombaForm");
+    setFilialSelecionada(null);
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 px-4 py-6 flex flex-col items-center">
-      {/* HEADER */}
-      <div className="w-full max-w-4xl text-center mb-6">
-        <h1 className="text-2xl font-bold">Checklist da Bomba Medidora</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Preencha todas as verificações antes de avançar
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-100">
+      {/* CONTAINER */}
+      <div
+        className="
+        w-full
+        max-w-5xl
+        mx-auto
+        px-3
+        sm:px-4
+        md:px-6
+        py-4
+        md:py-6
+      "
+      >
+        {/* HEADER */}
+        <div
+          className="
+          bg-white
+          rounded-3xl
+          shadow-md
+          p-5
+          md:p-7
+          mb-5
+          text-center
+        "
+        >
+          <h1
+            className="
+            text-2xl
+            md:text-3xl
+            font-bold
+            text-gray-800
+          "
+          >
+            Checklist da Bomba Medidora
+          </h1>
 
-      {/* TOP FIELDS */}
-      <TopFields
-        formData={form}
-        onChange={handleChange}
-        postos={postos}
-        postoSelecionado={postoSelecionado}
-        setPostoSelecionado={setPostoSelecionado}
-      />
+          <p
+            className="
+            text-sm
+            md:text-base
+            text-gray-500
+            mt-2
+          "
+          >
+            Preencha todas as verificações antes de avançar
+          </p>
+        </div>
 
-      {/* LISTA */}
-      <div className="w-full max-w-4xl space-y-4 max-h-[60vh] overflow-y-auto pr-2">
-        {checklistItems.map((item: any) => (
-          <ChecklistField
-            key={item.id}
-            item={item}
+        {/* TOP FIELDS */}
+        <div className="mb-5">
+          <TopFields
             formData={form}
             onChange={handleChange}
+            filiais={filiais}
+            filialSelecionada={filialSelecionada}
+            setFilialSelecionada={setFilialSelecionada}
           />
-        ))}
+        </div>
+
+        {/* LISTA */}
+        <div
+          className="
+          space-y-4
+          md:space-y-5
+          pb-28
+        "
+        >
+          {checklistItems.map((item: any) => (
+            <div
+              key={item.id}
+              className="
+              bg-white
+              rounded-2xl
+              shadow-sm
+              p-4
+              md:p-5
+            "
+            >
+              <ChecklistField
+                item={item}
+                formData={form}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* BOTÕES FIXOS VISUAIS */}
-      <div className="w-full max-w-4xl flex justify-end gap-3 mt-6">
+      {/* BOTÕES MOBILE FIXOS */}
+      <div
+        className="
+        fixed
+        bottom-0
+        left-0
+        right-0
+        bg-white
+        border-t
+        shadow-2xl
+        p-3
+        md:hidden
+        z-50
+      "
+      >
+        <div className="flex gap-3">
+          <button
+            onClick={handleCancelar}
+            className="
+            flex-1
+            py-3
+            rounded-2xl
+            bg-gray-500
+            hover:bg-gray-600
+            text-white
+            font-semibold
+            transition
+          "
+          >
+            Cancelar
+          </button>
+
+          <button
+            onClick={handleAvancar}
+            className="
+            flex-1
+            py-3
+            rounded-2xl
+            bg-blue-600
+            hover:bg-blue-700
+            text-white
+            font-semibold
+            transition
+          "
+          >
+            Avançar
+          </button>
+        </div>
+      </div>
+
+      {/* BOTÕES DESKTOP */}
+      <div
+        className="
+        hidden
+        md:flex
+        justify-end
+        gap-3
+        max-w-5xl
+        mx-auto
+        px-6
+        py-6
+      "
+      >
         <button
           onClick={handleCancelar}
-          className="px-5 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white font-medium transition"
+          className="
+          px-6
+          py-3
+          rounded-xl
+          bg-gray-500
+          hover:bg-gray-600
+          text-white
+          font-medium
+          transition
+        "
         >
           Cancelar
         </button>
 
         <button
           onClick={handleAvancar}
-          className="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition"
+          className="
+          px-6
+          py-3
+          rounded-xl
+          bg-blue-600
+          hover:bg-blue-700
+          text-white
+          font-medium
+          transition
+        "
         >
           Avançar
         </button>

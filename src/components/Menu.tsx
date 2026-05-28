@@ -42,7 +42,7 @@ export default function Menu({ user }: { user?: any }) {
           <div>Home</div>
         </Link>
 
-        <Link href="/arquivos" className="navItemCustom">
+        <Link href="/formularios" className="navItemCustom">
           <FileEarmarkText size={22} />
           <div>Formulários</div>
         </Link>
@@ -54,14 +54,14 @@ export default function Menu({ user }: { user?: any }) {
 
         {(isMaster || isGestor) && (
           <>
-            <Link href="/empresas" className="navItemCustom">
+            <Link href="/matriz" className="navItemCustom">
               <Building2 size={22} />
-              <div>Empresas</div>
+              <div>Matriz</div>
             </Link>
 
-            <Link href="/postos" className="navItemCustom">
+            <Link href="/filiais" className="navItemCustom">
               <Fuel size={22} />
-              <div>Postos</div>
+              <div>Filiais</div>
             </Link>
 
             <Link href="/usuarios" className="navItemCustom">

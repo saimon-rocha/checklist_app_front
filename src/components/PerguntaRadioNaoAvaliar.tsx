@@ -13,7 +13,6 @@ export default function PerguntaRadioNaoAvaliar({
   selectedValue,
   onChange,
 }: PerguntaRadioNaoAvaliarProps) {
-
   const value = selectedValue || "sim";
 
   const isDisabled = value === "NAO_AVALIADO";
@@ -36,21 +35,27 @@ export default function PerguntaRadioNaoAvaliar({
 
   return (
     <div
-      className="perguntaContainer"
-      style={{
-        opacity: isDisabled ? 0.45 : 1,
-        transition: "0.2s",
-      }}
+      className={`
+        bg-white
+        rounded-2xl
+        border
+        border-gray-200
+        p-4
+        shadow-sm
+        transition
+        ${isDisabled ? "opacity-50" : ""}
+      `}
     >
-      <span className="questionLabel">{label}</span>
+      {/* LABEL */}
+      <div className="mb-4">
+        <span className="text-sm md:text-base font-semibold text-gray-800">
+          {label}
+        </span>
+      </div>
 
-      <div
-        style={{
-          display: "flex",
-          gap: "10px",
-          alignItems: "center",
-        }}
-      >
+      {/* CONTENT */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+        {/* TOGGLE */}
         <div
           className="toggleSwitch"
           onClick={handleToggle}
@@ -68,35 +73,58 @@ export default function PerguntaRadioNaoAvaliar({
 
           <div className="toggleLabels">
             <span className="labelSim">Sim</span>
+
             <span className="labelNao">Não</span>
           </div>
         </div>
 
-        {!isDisabled && (
+        {/* BUTTON */}
+        {!isDisabled ? (
           <button
-            className="btn btn-outline-secondary btn-sm btnNaoAvaliar"
-            onClick={handleNaoAvaliar}
             type="button"
+            onClick={handleNaoAvaliar}
+            className="
+              px-4
+              py-2
+              rounded-xl
+              border
+              border-gray-300
+              hover:bg-gray-100
+              text-sm
+              font-medium
+              transition
+            "
           >
             Não avaliar
           </button>
-        )}
-
-        {isDisabled && (
+        ) : (
           <button
-            className="btn btn-secondary btn-sm btnNaoAvaliar"
-            onClick={handleVoltar}
             type="button"
+            onClick={handleVoltar}
+            className="
+              px-4
+              py-2
+              rounded-xl
+              bg-blue-600
+              hover:bg-blue-700
+              text-white
+              text-sm
+              font-medium
+              transition
+            "
           >
             Avaliar
           </button>
         )}
       </div>
 
+      {/* STATUS */}
       {isDisabled && (
-        <small style={{ color: "#6c757d" }}>
-          Não avaliado
-        </small>
+        <div className="mt-3">
+          <span className="text-sm text-gray-500 italic">
+            Pergunta não avaliada
+          </span>
+        </div>
       )}
     </div>
   );

@@ -1,152 +1,77 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { useRouter } from "next/navigation";
-
 import { toast } from "react-toastify";
 
-export default function ListaUsuarios() {
+import api from "../../../service/api";
+
+export default function ListaEmpresas() {
   const router = useRouter();
 
-  const [usuarios, setUsuarios] = useState<any[]>([]);
-
+  const [matriz, setEmpresas] = useState<any[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
-
-  const [usuarioToDelete, setUsuarioToDelete] = useState<any>(null);
-
-  const [loading, setLoading] = useState(true);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-  // =====================================
-  // LOAD
-  // =====================================
+  const [empresaToDelete, setEmpresaToDelete] = useState<any>(null);
 
   useEffect(() => {
-    loadUsuarios();
+    loadEmpresas();
   }, []);
 
-  async function loadUsuarios() {
+  async function loadEmpresas() {
     try {
-      setLoading(true);
-
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`${API_URL}/usuarios`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao carregar usuários");
-      }
-
-      const ativos = data.filter((u: any) => u.id_ativo === true);
-
-      setUsuarios(ativos);
-    } catch {
-      toast.error("Erro ao carregar usuários");
-    } finally {
-      setLoading(false);
+      const response = await api.get("/matriz");
+      const data = response.data;
+      const empresasAtivas = data.filter((e: any) => Boolean(e.id_ativo));
+      setEmpresas(empresasAtivas);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Erro ao carregar matriz");
     }
   }
 
-  // =====================================
-  // DELETE
-  // =====================================
+  function handleCadastrar() {
+    router.push("/matriz/cadastrar");
+  }
 
-  function handleDeleteClick(usuario: any) {
-    const usuarioLogado = JSON.parse(
-      localStorage.getItem("usuarioLogado") || "null",
-    );
+  function handleEditar(id: string) {
+    router.push(`/matriz/editar/${id}`);
+  }
 
-    if (usuarioLogado?.username === usuario.username) {
-      toast.warning("Você não pode excluir seu próprio usuário!");
-
-      return;
-    }
-
-    setUsuarioToDelete(usuario);
-
+  function handleDeleteClick(empresa: any) {
+    setEmpresaToDelete(empresa);
     setShowConfirm(true);
   }
 
   async function handleConfirmDelete() {
-    if (!usuarioToDelete) return;
+    if (!empresaToDelete) return;
 
     try {
-      const token = localStorage.getItem("token");
+      await api.put(`/matriz/${empresaToDelete.id}/desabilitar`);
 
-      const response = await fetch(
-        `${API_URL}/usuarios/${usuarioToDelete.id}/desabilitar`,
-        {
-          method: "PUT",
+      setEmpresas((prev) => prev.filter((e) => e.id !== empresaToDelete.id));
 
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error();
-      }
-
-      toast.success("Usuário desativado com sucesso!");
-
-      setUsuarios((prev) =>
-        prev.filter((u) => u.id !== usuarioToDelete.id),
-      );
+      toast.success("Matriz excluída com sucesso!");
     } catch {
-      toast.error("Erro ao desativar usuário");
+      toast.error("Erro ao excluir empresa.");
     } finally {
       setShowConfirm(false);
-
-      setUsuarioToDelete(null);
+      setEmpresaToDelete(null);
     }
   }
-
-  // =====================================
-  // ROLE COLOR
-  // =====================================
-
-  function renderRole(role: string) {
-    if (role === "master") {
-      return (
-        <span className="text-red-500 font-bold">
-          Master
-        </span>
-      );
-    }
-
-    if (role === "gestor") {
-      return (
-        <span className="text-blue-500 font-bold">
-          Gestor
-        </span>
-      );
-    }
-
-    return (
-      <span className="text-gray-700">
-        Funcionário
-      </span>
-    );
-  }
-
-  // =====================================
-  // UI
-  // =====================================
 
   return (
     <div className="min-h-screen bg-gray-100">
       {/* CONTAINER */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
-
+      <div
+        className="
+        max-w-7xl
+        mx-auto
+        px-3
+        sm:px-4
+        md:px-6
+        py-4
+        md:py-6
+      "
+      >
         {/* HEADER */}
         <div
           className="
@@ -160,20 +85,16 @@ export default function ListaUsuarios() {
         "
         >
           <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-            Usuários
+            Empresas / Matriz
           </h1>
 
           <p className="text-sm md:text-base text-gray-500 mt-2">
-            Gerencie os usuários cadastrados no sistema
+            Gerencie as matrizes cadastradas no sistema
           </p>
         </div>
 
-        {/* LOADING */}
-        {loading ? (
-          <div className="flex justify-center py-14">
-            <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
-          </div>
-        ) : usuarios.length === 0 ? (
+        {/* EMPTY */}
+        {matriz.length === 0 ? (
           <div
             className="
             bg-white
@@ -184,16 +105,16 @@ export default function ListaUsuarios() {
             text-gray-500
           "
           >
-            Nenhum usuário cadastrado
+            Nenhuma empresa cadastrada
           </div>
         ) : (
           <>
             {/* ================= MOBILE ================= */}
 
             <div className="md:hidden space-y-4 pb-28">
-              {usuarios.map((u) => (
+              {matriz.map((e) => (
                 <div
-                  key={u.id}
+                  key={e.id}
                   className="
                   bg-white
                   rounded-2xl
@@ -204,33 +125,30 @@ export default function ListaUsuarios() {
                 >
                   {/* TOP */}
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800 break-all">
-                      {u.username}
+                    <h2 className="text-lg font-bold text-gray-800">
+                      {e.nome}
                     </h2>
 
-                    <div className="mt-2">
-                      {renderRole(u.role)}
-                    </div>
+                    <p className="text-sm text-gray-500 mt-1">CNPJ: {e.cnpj}</p>
                   </div>
 
                   {/* INFO */}
                   <div className="space-y-2 text-sm">
                     <p>
-                      <span className="font-semibold">
-                        Filiais:
-                      </span>{" "}
-                      {u.filiais?.length > 0
-                        ? u.filiais.map((f: any) => f.nome).join(", ")
-                        : "-"}
+                      <span className="font-semibold">Responsável:</span>{" "}
+                      {e.responsavel || "-"}
+                    </p>
+
+                    <p>
+                      <span className="font-semibold">Contato:</span>{" "}
+                      {e.contato_responsavel || "-"}
                     </p>
                   </div>
 
                   {/* ACTIONS */}
                   <div className="flex gap-2 pt-2">
                     <button
-                      onClick={() =>
-                        router.push(`/usuarios/editar/${u.id}`)
-                      }
+                      onClick={() => handleEditar(e.id)}
                       className="
                       flex-1
                       py-2.5
@@ -246,7 +164,7 @@ export default function ListaUsuarios() {
                     </button>
 
                     <button
-                      onClick={() => handleDeleteClick(u)}
+                      onClick={() => handleDeleteClick(e)}
                       className="
                       flex-1
                       py-2.5
@@ -272,16 +190,16 @@ export default function ListaUsuarios() {
                 <table className="w-full">
                   <thead className="bg-gray-100 text-left">
                     <tr>
+                      <th className="p-4 font-semibold text-gray-700">Nome</th>
+
+                      <th className="p-4 font-semibold text-gray-700">CNPJ</th>
+
                       <th className="p-4 font-semibold text-gray-700">
-                        Email
+                        Responsável
                       </th>
 
                       <th className="p-4 font-semibold text-gray-700">
-                        Filiais
-                      </th>
-
-                      <th className="p-4 font-semibold text-gray-700">
-                        Perfil
+                        Contato
                       </th>
 
                       <th className="p-4 text-center font-semibold text-gray-700">
@@ -291,37 +209,27 @@ export default function ListaUsuarios() {
                   </thead>
 
                   <tbody>
-                    {usuarios.map((u) => (
+                    {matriz.map((e) => (
                       <tr
-                        key={u.id}
+                        key={e.id}
                         className="
                         border-t
                         hover:bg-gray-50
                         transition
                       "
                       >
-                        <td className="p-4 max-w-[260px] truncate">
-                          {u.username}
-                        </td>
+                        <td className="p-4 font-medium">{e.nome}</td>
 
-                        <td className="p-4">
-                          {u.filiais?.length > 0
-                            ? u.filiais
-                                .map((f: any) => f.nome)
-                                .join(", ")
-                            : "-"}
-                        </td>
+                        <td className="p-4">{e.cnpj}</td>
 
-                        <td className="p-4">
-                          {renderRole(u.role)}
-                        </td>
+                        <td className="p-4">{e.responsavel}</td>
+
+                        <td className="p-4">{e.contato_responsavel}</td>
 
                         <td className="p-4">
                           <div className="flex gap-2 justify-center">
                             <button
-                              onClick={() =>
-                                router.push(`/usuarios/editar/${u.id}`)
-                              }
+                              onClick={() => handleEditar(e.id)}
                               className="
                               px-4
                               py-2
@@ -337,7 +245,7 @@ export default function ListaUsuarios() {
                             </button>
 
                             <button
-                              onClick={() => handleDeleteClick(u)}
+                              onClick={() => handleDeleteClick(e)}
                               className="
                               px-4
                               py-2
@@ -362,9 +270,7 @@ export default function ListaUsuarios() {
               {/* BUTTON DESKTOP */}
               <div className="flex justify-center mt-6">
                 <button
-                  onClick={() =>
-                    router.push("/usuarios/cadastrar")
-                  }
+                  onClick={handleCadastrar}
                   className="
                   px-6
                   py-3
@@ -377,7 +283,7 @@ export default function ListaUsuarios() {
                   shadow-md
                 "
                 >
-                  Cadastrar Usuário
+                  Cadastrar Empresa
                 </button>
               </div>
             </div>
@@ -386,33 +292,29 @@ export default function ListaUsuarios() {
       </div>
 
       {/* FAB MOBILE */}
-      {!loading && (
-        <button
-          onClick={() =>
-            router.push("/usuarios/cadastrar")
-          }
-          className="
-          md:hidden
-          fixed
-          bottom-5
-          right-5
-          w-16
-          h-16
-          rounded-full
-          bg-blue-600
-          hover:bg-blue-700
-          text-white
-          text-3xl
-          shadow-2xl
-          flex
-          items-center
-          justify-center
-          z-50
-        "
-        >
-          +
-        </button>
-      )}
+      <button
+        onClick={handleCadastrar}
+        className="
+        md:hidden
+        fixed
+        bottom-5
+        right-5
+        w-16
+        h-16
+        rounded-full
+        bg-blue-600
+        hover:bg-blue-700
+        text-white
+        text-3xl
+        shadow-2xl
+        flex
+        items-center
+        justify-center
+        z-50
+      "
+      >
+        +
+      </button>
 
       {/* MODAL */}
       {showConfirm && (
@@ -443,12 +345,10 @@ export default function ListaUsuarios() {
               Confirmar exclusão
             </h3>
 
-            <p className="text-gray-600">
-              Deseja realmente excluir o usuário:
-            </p>
+            <p className="text-gray-600">Deseja realmente excluir a empresa:</p>
 
-            <div className="bg-gray-100 rounded-xl p-3 font-semibold break-all">
-              {usuarioToDelete?.username}
+            <div className="bg-gray-100 rounded-xl p-3 font-semibold">
+              {empresaToDelete?.nome}
             </div>
 
             <div className="flex justify-end gap-3">

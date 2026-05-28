@@ -17,27 +17,27 @@ export default function CustomButton({
   className = "",
   type = "button",
 }: CustomButtonProps) {
-  const buttonStyle = {
-    backgroundColor: "#3b71f3",
-    width: "100%",
-    padding: "8px",
-    margin: "10px 0",
-    border: "none",
-    borderRadius: "10px",
-    color: "white",
-    fontWeight: "bold",
-    fontSize: "14px",
-    cursor: loading || disabled ? "not-allowed" : "pointer",
-    opacity: loading || disabled ? 0.7 : 1,
-  };
-
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={loading || disabled}
-      style={buttonStyle}
-      className={className}
+      className={`
+        w-full
+        py-3
+        px-4
+        rounded-2xl
+        font-semibold
+        text-white
+        transition
+        shadow-md
+        ${
+          loading || disabled
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+        }
+        ${className}
+      `}
     >
       {loading ? "Carregando..." : text}
     </button>

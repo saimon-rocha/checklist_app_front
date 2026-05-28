@@ -1,66 +1,99 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+
 import { useRouter } from "next/navigation";
+
 import { toast } from "react-toastify";
 
 import validarCPF from "../../../../utils/validarCPF";
+
 import api from "../../../../service/api";
 
 export default function CadastroUsuario() {
   const router = useRouter();
 
   const [email, setEmail] = useState("");
+
   const [senha, setSenha] = useState("");
+
   const [cpf, setCpf] = useState("");
 
-  const [postosSelecionados, setPostosSelecionados] = useState<number[]>([]);
   const [role, setRole] = useState("funcionario");
 
-  const [postos, setPostos] = useState<any[]>([]);
+  const [filialSelecionada, setFilialSelecionada] = useState("");
+
+  const [filiais, setFiliais] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    async function carregarPostos() {
-      try {
-        const [postosResponse] = await Promise.all([api.get("/postos")]);
-        const postosAtivos = postosResponse.data.filter((p: any) =>
-          Boolean(p.id_ativo),
-        );
-        setPostos(postosAtivos);
-      } catch {
-        toast.error("Erro ao carregar postos");
-      }
-    }
+  const [loadingPage, setLoadingPage] = useState(true);
 
-    carregarPostos();
+  const usuarioLogado =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
+      : {};
+
+  const isMaster = usuarioLogado?.role === "master";
+
+  // =========================================
+  // LOAD FILIAIS
+  // =========================================
+
+  useEffect(() => {
+    carregarFiliais();
   }, []);
 
+  async function carregarFiliais() {
+    try {
+      setLoadingPage(true);
+
+      const response = await api.get("/filiais");
+
+      const filiaisAtivas = response.data.filter((f: any) =>
+        Boolean(f.id_ativo),
+      );
+
+      setFiliais(filiaisAtivas);
+    } catch {
+      toast.error("Erro ao carregar filiais");
+    } finally {
+      setLoadingPage(false);
+    }
+  }
+
+  // =========================================
+  // CPF
+  // =========================================
+
   function handleCpfChange(e: any) {
-    setCpf(e.target.value.replace(/\D/g, ""));
+    const value = e.target.value.replace(/\D/g, "");
+
+    setCpf(value);
   }
 
-  function handlePostoChange(postoId: number) {
-    setPostosSelecionados((prev) => {
-      if (prev.includes(postoId)) {
-        return prev.filter((id) => id !== postoId);
-      }
-
-      return [...prev, postoId];
-    });
-  }
+  // =========================================
+  // SUBMIT
+  // =========================================
 
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (!email || !senha || !cpf || postosSelecionados.length === 0) {
+    if (!email || !senha || !cpf || !role || !filialSelecionada) {
       toast.warning("Preencha todos os campos!");
+
       return;
     }
 
     if (!validarCPF(cpf)) {
       toast.warning("CPF inválido!");
+
+      return;
+    }
+
+    if (senha.trim().length < 6) {
+      toast.warning("A senha deve ter no mínimo 6 caracteres!");
+
       return;
     }
 
@@ -72,11 +105,14 @@ export default function CadastroUsuario() {
         password: senha.trim(),
         cpf: cpf.trim(),
         role,
-        postos: postosSelecionados, // array de IDs
+        filiais: Number(filialSelecionada),
       });
 
       toast.success("Usuário cadastrado com sucesso!");
-      router.push("/usuarios");
+
+      setTimeout(() => {
+        router.push("/usuarios");
+      }, 1200);
     } catch (err: any) {
       toast.error(err?.response?.data?.error || "Erro ao cadastrar usuário");
     } finally {
@@ -84,98 +120,248 @@ export default function CadastroUsuario() {
     }
   }
 
+  // =========================================
+  // LOADING
+  // =========================================
+
+  if (loadingPage) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // =========================================
+  // UI
+  // =========================================
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-6 space-y-4"
-      >
-        <h2 className="text-2xl font-bold text-center">Cadastro de Usuário</h2>
-
-        {/* EMAIL */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Email</label>
-
-          <input
-            className="border rounded-lg px-3 py-2 mt-1"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-          />
-        </div>
-
-        {/* SENHA + CPF */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="flex flex-col">
-            <label className="text-sm font-medium">Senha</label>
-
-            <input
-              type="password"
-              className="border rounded-lg px-3 py-2 mt-1"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium">CPF</label>
-
-            <input
-              className="border rounded-lg px-3 py-2 mt-1"
-              value={cpf}
-              onChange={handleCpfChange}
-              maxLength={11}
-            />
-          </div>
-        </div>
-
-        {/* PERFIL */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Perfil</label>
-
-          <select
-            className="border rounded-lg px-3 py-2 mt-1"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
-          >
-            <option value="funcionario">Funcionário</option>
-
-            <option value="gestor">Gestor</option>
-
-            <option value="master">Master</option>
-          </select>
-        </div>
-
-        {/* POSTOS */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium mb-2">Postos</label>
-
-          <div className="space-y-2 border rounded-lg p-3 max-h-52 overflow-y-auto">
-            {postos.map((p) => (
-              <label key={p.id} className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={postosSelecionados.includes(p.id)}
-                  onChange={() => handlePostoChange(p.id)}
-                />
-
-                {p.nome}
-              </label>
-            ))}
-          </div>
-        </div>
-
-        {/* BUTTON */}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 rounded-lg font-semibold transition ${
-            loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700 text-white"
-          }`}
+    <div className="min-h-screen bg-gray-100">
+      {/* CONTAINER */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* HEADER */}
+        <div
+          className="
+            bg-blue-600
+            rounded-3xl
+            px-5
+            md:px-8
+            py-6
+            text-center
+            shadow-lg
+            mb-6
+          "
         >
-          {loading ? "Salvando..." : "Cadastrar"}
-        </button>
-      </form>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">
+            Cadastro de Usuário
+          </h2>
+
+          <p className="text-blue-100 mt-2 text-sm md:text-base">
+            Cadastre novos usuários no sistema
+          </p>
+        </div>
+
+        {/* FORM */}
+        <form
+          onSubmit={handleSubmit}
+          className="
+            bg-white
+            rounded-3xl
+            shadow-lg
+            p-5
+            md:p-8
+            space-y-6
+          "
+        >
+          {/* EMAIL */}
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-700 mb-2">
+              Email
+            </label>
+
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Digite o email"
+              className="
+                border
+                border-gray-300
+                rounded-2xl
+                px-4
+                py-3
+                outline-none
+                focus:ring-2
+                focus:ring-blue-500
+                text-base
+                bg-white
+              "
+            />
+          </div>
+
+          {/* SENHA + CPF */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* SENHA */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Senha
+              </label>
+
+              <input
+                type="password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                placeholder="Digite a senha"
+                className="
+                  border
+                  border-gray-300
+                  rounded-2xl
+                  px-4
+                  py-3
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  text-base
+                  bg-white
+                "
+              />
+            </div>
+
+            {/* CPF */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                CPF
+              </label>
+
+              <input
+                value={cpf}
+                onChange={handleCpfChange}
+                maxLength={11}
+                placeholder="Somente números"
+                className="
+                  border
+                  border-gray-300
+                  rounded-2xl
+                  px-4
+                  py-3
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  text-base
+                  bg-white
+                "
+              />
+            </div>
+          </div>
+
+          {/* PERFIL + FILIAL */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* PERFIL */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Perfil
+              </label>
+
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="
+                  border
+                  border-gray-300
+                  rounded-2xl
+                  px-4
+                  py-3
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  bg-white
+                "
+              >
+                <option value="funcionario">Funcionário</option>
+
+                <option value="gestor">Gestor</option>
+
+                {isMaster && <option value="master">Master</option>}
+              </select>
+            </div>
+
+            {/* FILIAL */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Filial
+              </label>
+
+              <select
+                value={filialSelecionada}
+                onChange={(e) => setFilialSelecionada(e.target.value)}
+                className="
+                  border
+                  border-gray-300
+                  rounded-2xl
+                  px-4
+                  py-3
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  bg-white
+                "
+              >
+                <option value="">Selecione uma filial</option>
+
+                {filiais.map((filial) => (
+                  <option key={filial.id} value={filial.id}>
+                    {filial.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex flex-col md:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => router.push("/usuarios")}
+              className="
+                w-full
+                md:w-auto
+                px-6
+                py-3
+                rounded-2xl
+                bg-gray-400
+                hover:bg-gray-500
+                text-white
+                font-semibold
+                transition
+              "
+            >
+              Voltar
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`
+                flex-1
+                py-3
+                rounded-2xl
+                font-semibold
+                text-white
+                transition
+                shadow-md
+                ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }
+              `}
+            >
+              {loading ? "Salvando..." : "Cadastrar Usuário"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

@@ -1,208 +1,381 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { useRouter, useParams } from "next/navigation";
+
 import { toast } from "react-toastify";
 
 import validarCPF from "../../../../../utils/validarCPF";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import api from "../../../../../service/api";
 
 export default function EditarUsuario() {
   const router = useRouter();
+
   const params = useParams();
 
   const id = params.id;
 
   const [email, setEmail] = useState("");
+
   const [senha, setSenha] = useState("");
+
   const [cpf, setCpf] = useState("");
+
+  const [role, setRole] = useState("funcionario");
+
   const [filialSelecionada, setFilialSelecionada] = useState("");
+
   const [filiais, setFiliais] = useState<any[]>([]);
+
   const [loading, setLoading] = useState(false);
 
+  const [loadingPage, setLoadingPage] = useState(true);
+
+  // =========================================
+  // USUARIO LOGADO
+  // =========================================
+
+  const usuarioLogado =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
+      : {};
+
+  const isMaster = usuarioLogado?.role === "master";
+
+  // =========================================
+  // LOAD
+  // =========================================
+
   useEffect(() => {
-    loadPostos();
-    loadUsuario();
+    async function loadData() {
+      try {
+        setLoadingPage(true);
+
+        await Promise.all([loadFiliais(), loadUsuario()]);
+      } finally {
+        setLoadingPage(false);
+      }
+    }
+
+    loadData();
   }, []);
 
-  async function loadPostos() {
+  async function loadFiliais() {
     try {
-      const token = localStorage.getItem("token");
+      const response = await api.get("/filiais");
 
-      const res = await fetch(`${API_URL}/postos`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const filiaisAtivas = response.data.filter((f: any) =>
+        Boolean(f.id_ativo),
+      );
 
-      const data = await res.json();
-      setFiliais(data);
+      setFiliais(filiaisAtivas);
     } catch {
-      toast.error("Erro ao carregar postos");
+      toast.error("Erro ao carregar filiais");
     }
   }
 
   async function loadUsuario() {
     try {
-      const token = localStorage.getItem("token");
+      const response = await api.get(`/usuarios/${id}`);
 
-      const res = await fetch(`${API_URL}/usuarios/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const usuario = response.data;
 
-      if (!res.ok) throw new Error();
 
-      const usuario = await res.json();
 
-      setEmail(usuario.username);
-      setCpf(usuario.cpf);
-      setFilialSelecionada(usuario.id_posto);
+      setEmail(usuario.username || "");
+
+      setCpf(usuario.cpf || "");
+
+      setRole(usuario.role || "funcionario");
+
+      // FILIAL
+      if (usuario.filiais?.length > 0) {
+        setFilialSelecionada(String(usuario.filiais[0].id));
+      }
     } catch {
       toast.error("Usuário não encontrado!");
+
+      router.push("/usuarios");
     }
   }
+
+  // =========================================
+  // SUBMIT
+  // =========================================
 
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (!email || !cpf || !filialSelecionada) {
-      toast.warning("Preencha todos os campos!");
+    if (!validarCPF(cpf)) {
+      toast.warning("CPF inválido!");
+
       return;
     }
 
-    if (!validarCPF(cpf)) {
-      toast.warning("CPF inválido!");
+    if (!isMaster && role === "master") {
+      toast.error("Você não possui permissão para definir perfil master.");
+
+      return;
+    }
+
+    if (senha && senha.trim().length < 6) {
+      toast.warning("A senha deve ter no mínimo 6 caracteres.");
+
       return;
     }
 
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
-
       const body: any = {
         username: email.trim(),
         cpf,
-        id_posto: filialSelecionada,
+        role,
+        filiais: Number(filialSelecionada),
       };
+
+      // SENHA OPCIONAL
 
       if (senha.trim()) {
         body.password = senha.trim();
       }
 
-      const res = await fetch(`${API_URL}/usuarios/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Erro ao atualizar");
-      }
+      await api.put(`/usuarios/${id}`, body);
 
       toast.success("Usuário atualizado com sucesso!");
 
-      setTimeout(() => router.push("/usuarios"), 1200);
+      setTimeout(() => {
+        router.push("/usuarios");
+      }, 1200);
     } catch (err: any) {
-      toast.error(err.message || "Erro ao atualizar usuário.");
+      toast.error(err?.response?.data?.error || "Erro ao atualizar usuário.");
     } finally {
       setLoading(false);
     }
   }
 
+  // =========================================
+  // LOADING
+  // =========================================
+
+  if (loadingPage) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // =========================================
+  // UI
+  // =========================================
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-lg bg-white shadow-lg rounded-2xl p-6 space-y-4"
-      >
-        {/* TITLE */}
-        <h2 className="text-2xl font-bold text-center">
-          Editar Usuário
-        </h2>
-
-        {/* EMAIL */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Email</label>
-
-          <input
-            type="email"
-            className="border rounded-lg px-3 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
+    <div className="min-h-screen bg-gray-100">
+      {/* CONTAINER */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
+        {/* HEADER */}
+        <div className="bg-blue-600 px-5 md:px-8 py-6 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white">
+            {" "}
+            Editar Usuario{" "}
+          </h2>
+          <p className="text-blue-100 mt-2 text-sm md:text-base">
+            Atualize as informações do usuario
+          </p>
         </div>
 
-        {/* SENHA + CPF */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {/* FORM */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-3xl shadow-lg p-5 md:p-8 space-y-6"
+        >
+          {/* EMAIL */}
           <div className="flex flex-col">
-            <label className="text-sm font-medium">
-              Nova senha (opcional)
+            <label className="text-sm font-semibold text-gray-700 mb-2">
+              Email
             </label>
 
             <input
-              type="password"
-              placeholder="Deixe em branco para manter"
-              className="border rounded-lg px-3 py-2 mt-1 focus:ring-2 focus:ring-blue-500"
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Digite o email"
+              className="
+                border
+                border-gray-300
+                rounded-2xl
+                px-4
+                py-3
+                outline-none
+                focus:ring-2
+                focus:ring-blue-500
+                text-base
+                bg-white
+              "
             />
           </div>
 
-          <div className="flex flex-col">
-            <label className="text-sm font-medium">CPF</label>
+          {/* SENHA + CPF */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* SENHA */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Nova senha
+              </label>
 
-            <input
-              type="text"
-              className="border rounded-lg px-3 py-2 mt-1 bg-gray-100 cursor-not-allowed"
-              value={cpf}
-              disabled
-            />
+              <input
+                type="password"
+                placeholder="Deixe em branco para manter"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                className="
+                  border
+                  border-gray-300
+                  rounded-2xl
+                  px-4
+                  py-3
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  transition
+                "
+              />
+            </div>
+
+            {/* CPF */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                CPF
+              </label>
+
+              <input
+                type="text"
+                value={cpf}
+                disabled
+                className="
+                  border
+                  border-gray-200
+                  rounded-2xl
+                  px-4
+                  py-3
+                  bg-gray-100
+                  text-gray-500
+                  cursor-not-allowed
+                "
+              />
+            </div>
           </div>
-        </div>
 
-        {/* POSTO */}
-        <div className="flex flex-col">
-          <label className="text-sm font-medium">Posto</label>
+          {/* PERFIL + FILIAL */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* PERFIL */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Perfil
+              </label>
 
-          <select
-            className="border rounded-lg px-3 py-2 mt-1"
-            value={filialSelecionada}
-            onChange={(e) => setFilialSelecionada(e.target.value)}
-            required
-          >
-            <option value="">Selecione...</option>
+              <select
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="
+                  border
+                  border-gray-300
+                  rounded-2xl
+                  px-4
+                  py-3
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  transition
+                "
+              >
+                <option value="funcionario">Funcionário</option>
 
-            {filiais.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.nome}
-              </option>
-            ))}
-          </select>
-        </div>
+                <option value="gestor">Gestor</option>
 
-        {/* BUTTON */}
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 rounded-lg font-semibold transition ${
-            loading
-              ? "bg-gray-400"
-              : "bg-blue-600 hover:bg-blue-700 text-white"
-          }`}
-        >
-          {loading ? "Salvando..." : "Salvar Alterações"}
-        </button>
-      </form>
+                {isMaster && <option value="master">Master</option>}
+              </select>
+            </div>
+
+            {/* FILIAL */}
+            <div className="flex flex-col">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Filial
+              </label>
+
+              <select
+                value={filialSelecionada}
+                onChange={(e) => setFilialSelecionada(e.target.value)}
+                className="
+                  border
+                  border-gray-300
+                  rounded-2xl
+                  px-4
+                  py-3
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  transition
+                "
+              >
+                <option value="">Selecione uma filial</option>
+
+                {filiais.map((filial) => (
+                  <option key={filial.id} value={filial.id}>
+                    {filial.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex flex-col md:flex-row gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => router.push("/usuarios")}
+              className="
+                w-full
+                md:w-auto
+                px-6
+                py-3
+                rounded-2xl
+                bg-gray-400
+                hover:bg-gray-500
+                text-white
+                font-semibold
+                transition
+              "
+            >
+              Voltar
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className={`
+                flex-1
+                py-3
+                rounded-2xl
+                font-semibold
+                text-white
+                transition
+                shadow-md
+                ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                }
+              `}
+            >
+              {loading ? "Salvando..." : "Salvar Alterações"}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

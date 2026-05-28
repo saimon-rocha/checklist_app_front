@@ -10,9 +10,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+      <body className="min-h-screen bg-gray-100 text-gray-900 antialiased">
         {children}
-        <ToastContainer />
+
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          pauseOnHover
+          draggable
+          theme="light"
+          toastClassName="rounded-2xl shadow-lg"
+        />
       </body>
     </html>
   );

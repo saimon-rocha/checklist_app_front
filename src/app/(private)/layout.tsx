@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
+
 import Menu from "../../components/Menu";
+
 import { parseJwt } from "../../utils/jwt";
+
 import { toast } from "react-toastify";
 
 export default function PrivateLayout({
@@ -20,39 +24,75 @@ export default function PrivateLayout({
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    // sem token
+    // =====================================
+    // SEM TOKEN
+    // =====================================
+
     if (!token) {
       toast.warning("Por favor, faça login.");
 
       setTimeout(() => {
         router.replace("/login");
-      }, 1500);
+      }, 1200);
 
       return;
     }
+
+    // =====================================
+    // TOKEN
+    // =====================================
 
     const payload = parseJwt(token);
 
-    // token inválido
+    // TOKEN INVALIDO
+
     if (!payload) {
       localStorage.removeItem("token");
+
       localStorage.removeItem("usuarioLogado");
+
       localStorage.removeItem("checklistBombaForm");
+
       localStorage.removeItem("ensaioForm");
+
+      localStorage.setItem(
+        "sessionExpired",
+        "Sessão inválida. Faça login novamente.",
+      );
+
       router.replace("/login");
+
       return;
     }
 
-    // verifica expiração JWT
+    // =====================================
+    // TOKEN EXPIRADO
+    // =====================================
+
     if (payload.exp) {
       const currentTime = Date.now() / 1000;
 
       if (payload.exp < currentTime) {
+        // LIMPA STORAGE
+
         localStorage.removeItem("token");
 
         localStorage.removeItem("usuarioLogado");
 
         localStorage.removeItem("expiresAt");
+
+        localStorage.removeItem("checklistBombaForm");
+
+        localStorage.removeItem("ensaioForm");
+
+        // SALVA MSG
+
+        localStorage.setItem(
+          "sessionExpired",
+          "Tempo expirado. Faça login novamente.",
+        );
+
+        // REDIRECIONA
 
         router.replace("/login");
 
@@ -60,12 +100,19 @@ export default function PrivateLayout({
       }
     }
 
+    // =====================================
+    // AUTORIZADO
+    // =====================================
+
     setUser(payload);
 
     setAuthorized(true);
   }, [router]);
 
-  // loading
+  // =====================================
+  // LOADING
+  // =====================================
+
   if (!authorized) {
     return (
       <div

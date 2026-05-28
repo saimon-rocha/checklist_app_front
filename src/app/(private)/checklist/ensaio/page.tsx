@@ -26,7 +26,7 @@ function ChecklistField({ item, formData, onChange }: any) {
   }
 
   return (
-    <Card>
+    <>
       {item.type === "radio" && !item.dangerOnSim && (
         <PerguntaRadio
           label={item.label}
@@ -62,7 +62,7 @@ function ChecklistField({ item, formData, onChange }: any) {
           onChange={(vals) => onChange(item.id, vals)}
         />
       )}
-    </Card>
+    </>
   );
 }
 
@@ -156,16 +156,25 @@ export default function EnsaioAfericaoPage() {
         resposta: checklistObj[item.id] ?? "—",
       }));
 
-      const ensaioArray = ensaioAfericaoItems.map((item: any) => ({
-        id: item.id,
-        label: item.label || item.placeholder || item.id,
-        resposta: form[item.id] ?? "—",
-      }));
+      const ensaioArray = [
+        ...ensaioAfericaoItems.map((item: any) => ({
+          id: item.id,
+          label: item.label || item.placeholder || item.id,
+          resposta: form[item.id] ?? "—",
+        })),
+
+        // OBSERVAÇÕES
+        {
+          id: "observacoes",
+          label: "Observações",
+          resposta: form.observacoes || "—",
+        },
+      ];
 
       const dadosCompletos = {
         titulo: checklistObj.bombaId || "Checklist Bomba",
         usuario_id: payload?.id,
-        id_posto: combinedForm.id_posto,
+        id_filial: combinedForm.id_filial,
         respostas: {
           checklist: checklistArray,
           ensaio: ensaioArray,
@@ -173,7 +182,7 @@ export default function EnsaioAfericaoPage() {
         id_ativo: true,
       };
 
-      await api.post("/arquivos", dadosCompletos);
+      await api.post("/formularios", dadosCompletos);
 
       setForm(initialState);
       localStorage.removeItem("checklistBombaForm");
@@ -189,50 +198,228 @@ export default function EnsaioAfericaoPage() {
 
   /* ================= UI ================= */
   return (
-    <div className="min-h-screen px-4 py-6 flex flex-col items-center">
-      <h1 className="text-2xl font-bold mb-6 text-center">
-        Ensaio / Aferição
-      </h1>
+    <div className="min-h-screen bg-gray-100">
+      {/* CONTAINER */}
+      <div
+        className="
+        max-w-5xl
+        mx-auto
+        px-3
+        sm:px-4
+        md:px-6
+        py-4
+        md:py-6
+      "
+      >
+        {/* HEADER */}
+        <div
+          className="
+          bg-white
+          rounded-3xl
+          shadow-md
+          p-5
+          md:p-7
+          mb-5
+          text-center
+        "
+        >
+          <h1
+            className="
+            text-2xl
+            md:text-3xl
+            font-bold
+            text-gray-800
+          "
+          >
+            Ensaio / Aferição
+          </h1>
 
-      <div className="w-full max-w-3xl max-h-[60vh] overflow-y-auto space-y-4 pr-2">
-        {ensaioAfericaoItems.map((item: any) => (
-          <ChecklistField
-            key={item.id}
-            item={item}
-            formData={combinedForm}
-            onChange={handleChange}
-          />
-        ))}
+          <p className="text-sm md:text-base text-gray-500 mt-2">
+            Preencha os dados do ensaio antes de concluir
+          </p>
+        </div>
 
-        <div className="mt-4">
-          <h2 className="text-lg font-semibold mb-2">Observações</h2>
+        {/* FORM */}
+        <div className="space-y-4 md:space-y-5 pb-32">
+          {ensaioAfericaoItems.map((item: any) => (
+            <div
+              key={item.id}
+              className="
+              bg-white
+              rounded-2xl
+              shadow-sm
+              p-4
+              md:p-5
+            "
+            >
+              <ChecklistField
+                item={item}
+                formData={combinedForm}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
 
-          <textarea
-            value={form.observacoes || ""}
-            onChange={(e) => handleChange("observacoes", e.target.value)}
-            className="w-full border rounded-lg p-3 min-h-[100px] focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          {/* OBSERVAÇÕES */}
+          <div
+            className="
+            bg-white
+            rounded-2xl
+            shadow-sm
+            p-4
+            md:p-5
+          "
+          >
+            <h2 className="text-lg font-semibold text-gray-800 mb-3">
+              Observações
+            </h2>
+
+            <textarea
+              value={form.observacoes || ""}
+              onChange={(e) => handleChange("observacoes", e.target.value)}
+              placeholder="Digite observações adicionais..."
+              className="
+              w-full
+              border
+              border-gray-300
+              rounded-2xl
+              p-4
+              min-h-[140px]
+              resize-none
+              focus:outline-none
+              focus:ring-2
+              focus:ring-blue-500
+              text-sm
+              md:text-base
+            "
+            />
+          </div>
         </div>
       </div>
 
-      <div className="w-full max-w-3xl flex justify-end gap-3 mt-6">
+      {/* ACTIONS MOBILE */}
+      <div
+        className="
+        fixed
+        bottom-0
+        left-0
+        right-0
+        bg-white
+        border-t
+        shadow-2xl
+        p-3
+        md:hidden
+        z-50
+      "
+      >
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            onClick={handleBack}
+            className="
+            py-3
+            rounded-2xl
+            bg-gray-400
+            hover:bg-gray-500
+            text-white
+            font-semibold
+            transition
+            text-sm
+          "
+          >
+            Voltar
+          </button>
+
+          <button
+            onClick={handleCancel}
+            className="
+            py-3
+            rounded-2xl
+            bg-red-500
+            hover:bg-red-600
+            text-white
+            font-semibold
+            transition
+            text-sm
+          "
+          >
+            Cancelar
+          </button>
+
+          <button
+            onClick={handleConclude}
+            className="
+            py-3
+            rounded-2xl
+            bg-blue-600
+            hover:bg-blue-700
+            text-white
+            font-semibold
+            transition
+            text-sm
+          "
+          >
+            Concluir
+          </button>
+        </div>
+      </div>
+
+      {/* ACTIONS DESKTOP */}
+      <div
+        className="
+        hidden
+        md:flex
+        justify-end
+        gap-3
+        max-w-5xl
+        mx-auto
+        px-6
+        py-6
+      "
+      >
         <button
           onClick={handleBack}
-          className="px-4 py-2 rounded-lg bg-gray-400 hover:bg-gray-500 text-white font-semibold"
+          className="
+          px-6
+          py-3
+          rounded-xl
+          bg-gray-400
+          hover:bg-gray-500
+          text-white
+          font-medium
+          transition
+        "
         >
           Voltar
         </button>
 
         <button
           onClick={handleCancel}
-          className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-semibold"
+          className="
+          px-6
+          py-3
+          rounded-xl
+          bg-red-500
+          hover:bg-red-600
+          text-white
+          font-medium
+          transition
+        "
         >
           Cancelar
         </button>
 
         <button
           onClick={handleConclude}
-          className="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold"
+          className="
+          px-6
+          py-3
+          rounded-xl
+          bg-blue-600
+          hover:bg-blue-700
+          text-white
+          font-medium
+          transition
+        "
         >
           Concluir
         </button>

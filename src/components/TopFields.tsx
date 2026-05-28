@@ -1,29 +1,25 @@
 "use client";
 
 import { useEffect, useState } from "react";
+
 import PerguntaTexto from "../components/PerguntaTexto";
-import "../styles/TopFields.css";
 
 interface TopFieldsProps {
   formData: {
     bombaId?: string;
     data?: string;
-    id_posto?: number;
+    id_filial?: number;
   };
 
   onChange: (field: string, value: any) => void;
 
-  postos: { id: number; nome: string }[];
-  postoSelecionado: number | null;
-  setPostoSelecionado: (id: number) => void;
+  filiais: { id: number; nome: string }[];
 }
 
 export default function TopFields({
   formData,
   onChange,
-  postos,
-  postoSelecionado,
-  setPostoSelecionado,
+  filiais = [],
 }: TopFieldsProps) {
   const [today, setToday] = useState("");
 
@@ -42,38 +38,38 @@ export default function TopFields({
   }, [onChange, formData.data]);
 
   return (
-    <div className="topFieldsContainer">
-      
-      {/* POSTO */}
-      <div className="topField">
-        <label>Posto</label>
+    <div
+      className="
+        bg-white
+        rounded-3xl
+        shadow-lg
+        p-4
+        md:p-6
+        space-y-4
+      "
+    >
+      {/* HEADER */}
+      <div>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800">
+          Informações iniciais
+        </h2>
 
-        <select
-          value={formData.id_posto || ""}
-          onChange={(e) => onChange("id_posto", Number(e.target.value))}
-        >
-          <option value="">Selecione</option>
-
-          {postos.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.nome}
-            </option>
-          ))}
-        </select>
+        <p className="text-sm text-gray-500 mt-1">
+          Preencha os dados básicos da aferição
+        </p>
       </div>
 
-      {/* BICO */}
-      <div className="topField">
+      {/* GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* BICO */}
         <PerguntaTexto
           label="Identificação do Bico"
-          placeholder="Bico...."
+          placeholder="Digite o identificador"
           value={formData.bombaId || ""}
           onChange={(val) => onChange("bombaId", val)}
         />
-      </div>
 
-      {/* DATA */}
-      <div className="topField">
+        {/* DATA */}
         <PerguntaTexto
           label="Data"
           value={formData.data || today}
