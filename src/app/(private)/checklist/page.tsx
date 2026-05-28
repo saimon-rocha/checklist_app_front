@@ -217,8 +217,6 @@ export default function ChecklistBomba() {
             formData={form}
             onChange={handleChange}
             filiais={filiais}
-            filialSelecionada={filialSelecionada}
-            setFilialSelecionada={setFilialSelecionada}
           />
         </div>
 
