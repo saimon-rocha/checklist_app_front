@@ -98,14 +98,37 @@ export default function Arquivos() {
       const ativos = data.filter((f) => Boolean(f.id_ativo));
 
       // ROLE
-      const filtrados =
-        usuarioLogado?.role === "master"
-          ? ativos
-          : usuarioLogado?.role === "gestor"
-            ? ativos
-            : ativos.filter(
-                (f) => String(f.usuario_id) === String(usuarioLogado?.id),
-              );
+      // FILIAIS DO GESTOR
+      const filiaisGestor = usuarioLogado?.filiais?.map((f: any) => f.id) || [];
+
+      // =====================================
+      // MASTER
+      // =====================================
+
+      let filtrados = ativos;
+
+      if (usuarioLogado?.role === "master") {
+        filtrados = ativos;
+      }
+
+      // =====================================
+      // GESTOR
+      // =====================================
+      else if (usuarioLogado?.role === "gestor") {
+        filtrados = ativos.filter((formulario) =>
+          filiaisGestor.includes(formulario.id_filial),
+        );
+      }
+
+      // =====================================
+      // FUNCIONÁRIO
+      // =====================================
+      else {
+        filtrados = ativos.filter(
+          (formulario) =>
+            String(formulario.usuario_id) === String(usuarioLogado?.id),
+        );
+      }
 
       setFormularios(filtrados);
     } catch (error: any) {

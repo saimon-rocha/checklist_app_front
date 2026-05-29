@@ -19,8 +19,7 @@ export default function Menu({ user }: { user?: any }) {
   const router = useRouter();
 
   const isMaster = user?.role === "master";
-  const isGestor = user?.role === "gestor";
-  const isFuncionario = user?.role === "funcionario";
+  // const isGestor = user?.role === "gestor";
 
   function handleLogout() {
     localStorage.removeItem("token");
@@ -52,7 +51,7 @@ export default function Menu({ user }: { user?: any }) {
           <div>Relatórios</div>
         </Link>
 
-        {(isMaster || isGestor) && (
+        {(isMaster) && (
           <>
             <Link href="/matriz" className="navItemCustom">
               <Building2 size={22} />

@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 
 import { toast } from "react-toastify";
 
+import api from "../../../service/api";
+
 export default function ListaUsuarios() {
   const router = useRouter();
 
@@ -16,8 +18,6 @@ export default function ListaUsuarios() {
   const [usuarioToDelete, setUsuarioToDelete] = useState<any>(null);
 
   const [loading, setLoading] = useState(true);
-
-  const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   // =====================================
   // LOAD
@@ -31,25 +31,44 @@ export default function ListaUsuarios() {
     try {
       setLoading(true);
 
-      const token = localStorage.getItem("token");
+      const response = await api.get("/usuarios");
 
-      const response = await fetch(`${API_URL}/usuarios`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Erro ao carregar usuários");
-      }
+      const data = response.data;
 
       const ativos = data.filter((u: any) => u.id_ativo === true);
 
-      setUsuarios(ativos);
-    } catch {
-      toast.error("Erro ao carregar usuários");
+      const usuarioLogado = JSON.parse(
+        localStorage.getItem("usuarioLogado") || "{}",
+      );
+
+      const filiaisGestor = usuarioLogado?.filiais?.map((f: any) => f.id) || [];
+
+      let usuariosFiltrados = ativos;
+
+      // =====================================
+      // GESTOR
+      // =====================================
+
+      if (usuarioLogado?.role === "gestor") {
+        usuariosFiltrados = ativos.filter((usuario: any) => {
+          // NÃO MOSTRA MASTER
+          if (usuario.role === "master") {
+            return false;
+          }
+
+          // FILIAIS DO USUÁRIO
+          const filiaisUsuario = usuario?.filiais?.map((f: any) => f.id) || [];
+
+          // TEM FILIAL EM COMUM
+          return filiaisUsuario.some((id: number) =>
+            filiaisGestor.includes(id),
+          );
+        });
+      }
+
+      setUsuarios(usuariosFiltrados);
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Erro ao carregar usuários");
     } finally {
       setLoading(false);
     }
@@ -61,11 +80,35 @@ export default function ListaUsuarios() {
 
   function handleDeleteClick(usuario: any) {
     const usuarioLogado = JSON.parse(
-      localStorage.getItem("usuarioLogado") || "null",
+      localStorage.getItem("usuarioLogado") || "{}",
     );
 
-    if (usuarioLogado?.username === usuario.username) {
+    // =====================================
+    // NÃO PODE EXCLUIR A SI MESMO
+    // =====================================
+
+    if (Number(usuarioLogado?.id) === Number(usuario.id)) {
       toast.warning("Você não pode excluir seu próprio usuário!");
+
+      return;
+    }
+
+    // =====================================
+    // GESTOR NÃO PODE EXCLUIR MASTER
+    // =====================================
+
+    if (usuarioLogado?.role === "gestor" && usuario.role === "master") {
+      toast.warning("Gestores não podem excluir usuários master!");
+
+      return;
+    }
+
+    // =====================================
+    // GESTOR NÃO PODE EXCLUIR GESTOR
+    // =====================================
+
+    if (usuarioLogado?.role === "gestor" && usuario.role === "gestor") {
+      toast.warning("Gestores não podem excluir outros gestores!");
 
       return;
     }
@@ -79,30 +122,13 @@ export default function ListaUsuarios() {
     if (!usuarioToDelete) return;
 
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(
-        `${API_URL}/usuarios/${usuarioToDelete.id}/desabilitar`,
-        {
-          method: "PUT",
-
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error();
-      }
+      await api.put(`/usuarios/${usuarioToDelete.id}/desabilitar`);
 
       toast.success("Usuário desativado com sucesso!");
 
-      setUsuarios((prev) =>
-        prev.filter((u) => u.id !== usuarioToDelete.id),
-      );
-    } catch {
-      toast.error("Erro ao desativar usuário");
+      setUsuarios((prev) => prev.filter((u) => u.id !== usuarioToDelete.id));
+    } catch (error: any) {
+      toast.error(error?.response?.data?.error || "Erro ao desativar usuário");
     } finally {
       setShowConfirm(false);
 
@@ -116,26 +142,14 @@ export default function ListaUsuarios() {
 
   function renderRole(role: string) {
     if (role === "master") {
-      return (
-        <span className="text-red-500 font-bold">
-          Master
-        </span>
-      );
+      return <span className="text-red-500 font-bold">Master</span>;
     }
 
     if (role === "gestor") {
-      return (
-        <span className="text-blue-500 font-bold">
-          Gestor
-        </span>
-      );
+      return <span className="text-blue-500 font-bold">Gestor</span>;
     }
 
-    return (
-      <span className="text-gray-700">
-        Funcionário
-      </span>
-    );
+    return <span className="text-gray-700">Funcionário</span>;
   }
 
   // =====================================
@@ -146,7 +160,6 @@ export default function ListaUsuarios() {
     <div className="min-h-screen bg-gray-100">
       {/* CONTAINER */}
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
-
         {/* HEADER */}
         <div
           className="
@@ -208,17 +221,13 @@ export default function ListaUsuarios() {
                       {u.username}
                     </h2>
 
-                    <div className="mt-2">
-                      {renderRole(u.role)}
-                    </div>
+                    <div className="mt-2">{renderRole(u.role)}</div>
                   </div>
 
                   {/* INFO */}
                   <div className="space-y-2 text-sm">
                     <p>
-                      <span className="font-semibold">
-                        Filiais:
-                      </span>{" "}
+                      <span className="font-semibold">Filiais:</span>{" "}
                       {u.filiais?.length > 0
                         ? u.filiais.map((f: any) => f.nome).join(", ")
                         : "-"}
@@ -228,9 +237,7 @@ export default function ListaUsuarios() {
                   {/* ACTIONS */}
                   <div className="flex gap-2 pt-2">
                     <button
-                      onClick={() =>
-                        router.push(`/usuarios/editar/${u.id}`)
-                      }
+                      onClick={() => router.push(`/usuarios/editar/${u.id}`)}
                       className="
                       flex-1
                       py-2.5
@@ -272,9 +279,7 @@ export default function ListaUsuarios() {
                 <table className="w-full">
                   <thead className="bg-gray-100 text-left">
                     <tr>
-                      <th className="p-4 font-semibold text-gray-700">
-                        Email
-                      </th>
+                      <th className="p-4 font-semibold text-gray-700">Email</th>
 
                       <th className="p-4 font-semibold text-gray-700">
                         Filiais
@@ -306,15 +311,11 @@ export default function ListaUsuarios() {
 
                         <td className="p-4">
                           {u.filiais?.length > 0
-                            ? u.filiais
-                                .map((f: any) => f.nome)
-                                .join(", ")
+                            ? u.filiais.map((f: any) => f.nome).join(", ")
                             : "-"}
                         </td>
 
-                        <td className="p-4">
-                          {renderRole(u.role)}
-                        </td>
+                        <td className="p-4">{renderRole(u.role)}</td>
 
                         <td className="p-4">
                           <div className="flex gap-2 justify-center">
@@ -362,9 +363,7 @@ export default function ListaUsuarios() {
               {/* BUTTON DESKTOP */}
               <div className="flex justify-center mt-6">
                 <button
-                  onClick={() =>
-                    router.push("/usuarios/cadastrar")
-                  }
+                  onClick={() => router.push("/usuarios/cadastrar")}
                   className="
                   px-6
                   py-3
@@ -388,9 +387,7 @@ export default function ListaUsuarios() {
       {/* FAB MOBILE */}
       {!loading && (
         <button
-          onClick={() =>
-            router.push("/usuarios/cadastrar")
-          }
+          onClick={() => router.push("/usuarios/cadastrar")}
           className="
           md:hidden
           fixed
@@ -443,9 +440,7 @@ export default function ListaUsuarios() {
               Confirmar exclusão
             </h3>
 
-            <p className="text-gray-600">
-              Deseja realmente excluir o usuário:
-            </p>
+            <p className="text-gray-600">Deseja realmente excluir o usuário:</p>
 
             <div className="bg-gray-100 rounded-xl p-3 font-semibold break-all">
               {usuarioToDelete?.username}

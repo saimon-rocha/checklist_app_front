@@ -27,6 +27,8 @@ export default function EditarUsuario() {
 
   const [filialSelecionada, setFilialSelecionada] = useState("");
 
+  const [filiaisSelecionadas, setFiliaisSelecionadas] = useState<number[]>([]);
+
   const [filiais, setFiliais] = useState<any[]>([]);
 
   const [loading, setLoading] = useState(false);
@@ -82,17 +84,22 @@ export default function EditarUsuario() {
 
       const usuario = response.data;
 
-
-
       setEmail(usuario.username || "");
 
       setCpf(usuario.cpf || "");
 
       setRole(usuario.role || "funcionario");
 
-      // FILIAL
+      // =========================================
+      // FILIAIS
+      // =========================================
+
       if (usuario.filiais?.length > 0) {
-        setFilialSelecionada(String(usuario.filiais[0].id));
+        const ids = usuario.filiais.map((f: any) => Number(f.id));
+
+        setFiliaisSelecionadas(ids);
+
+        setFilialSelecionada(String(ids[0]));
       }
     } catch {
       toast.error("Usuário não encontrado!");
@@ -108,41 +115,143 @@ export default function EditarUsuario() {
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (!validarCPF(cpf)) {
-      toast.warning("CPF inválido!");
+    // =========================================
+    // VALIDA FILIAIS
+    // =========================================
 
+    if (role === "funcionario" && !filialSelecionada) {
+      toast.warning("Selecione uma filial.");
       return;
     }
+
+    if (
+      (role === "gestor" || role === "master") &&
+      filiaisSelecionadas.length === 0
+    ) {
+      toast.warning("Selecione ao menos uma filial.");
+      return;
+    }
+
+    // =========================================
+    // CPF
+    // =========================================
+
+    if (!validarCPF(cpf)) {
+      toast.warning("CPF inválido!");
+      return;
+    }
+
+    // =========================================
+    // MASTER
+    // =========================================
 
     if (!isMaster && role === "master") {
       toast.error("Você não possui permissão para definir perfil master.");
-
       return;
     }
 
+    // =========================================
+    // SENHA
+    // =========================================
+
     if (senha && senha.trim().length < 6) {
       toast.warning("A senha deve ter no mínimo 6 caracteres.");
-
       return;
     }
 
     setLoading(true);
 
     try {
+      // =========================================
+      // USUARIO ORIGINAL
+      // =========================================
+
+      const responseUsuario = await api.get(`/usuarios/${id}`);
+
+      const usuarioOriginal = responseUsuario.data;
+
+      // =========================================
+      // BODY
+      // =========================================
+
       const body: any = {
         username: email.trim(),
-        cpf,
-        role,
-        filiais: Number(filialSelecionada),
-      };
 
-      // SENHA OPCIONAL
+        cpf,
+
+        role,
+
+        filiais:
+          role === "gestor" || role === "master"
+            ? filiaisSelecionadas
+            : [Number(filialSelecionada)],
+      };
 
       if (senha.trim()) {
         body.password = senha.trim();
       }
 
+      // =========================================
+      // UPDATE
+      // =========================================
+
       await api.put(`/usuarios/${id}`, body);
+
+      // =========================================
+      // VERIFICA SE EDITOU A SI MESMO
+      // =========================================
+
+      const editouProprioUsuario = String(usuarioLogado?.id) === String(id);
+
+      // =========================================
+      // ALTERAÇÕES SENSÍVEIS
+      // =========================================
+
+      const emailAlterado = usuarioOriginal.username !== email.trim();
+
+      const senhaAlterada = senha.trim().length > 0;
+
+      const roleAlterado = usuarioOriginal.role !== role;
+
+      const filiaisOriginais =
+        usuarioOriginal?.filiais?.map((f: any) => Number(f.id)) || [];
+
+      const filiaisAtuais =
+        role === "gestor" || role === "master"
+          ? filiaisSelecionadas
+          : [Number(filialSelecionada)];
+
+      const filialAlterada =
+        JSON.stringify(filiaisOriginais.sort()) !==
+        JSON.stringify(filiaisAtuais.sort());
+
+      // =========================================
+      // LOGOFF OBRIGATÓRIO
+      // =========================================
+
+      if (
+        editouProprioUsuario &&
+        (emailAlterado ||
+          senhaAlterada ||
+          roleAlterado ||
+          filialAlterada)
+      ) {
+        toast.success("Dados alterados. Faça login novamente.");
+
+        localStorage.removeItem("token");
+
+        localStorage.removeItem("usuarioLogado");
+
+        setTimeout(() => {
+          router.replace("/login");
+        }, 1500);
+
+        return;
+      }
+
+      // =========================================
+      // SUCESSO
+      // =========================================
 
       toast.success("Usuário atualizado com sucesso!");
 
@@ -177,11 +286,11 @@ export default function EditarUsuario() {
       {/* CONTAINER */}
       <div className="max-w-4xl mx-auto px-4 py-6">
         {/* HEADER */}
-        <div className="bg-blue-600 px-5 md:px-8 py-6 text-center">
+        <div className="bg-blue-600 px-5 md:px-8 py-6 text-center rounded-t-3xl">
           <h2 className="text-2xl md:text-3xl font-bold text-white">
-            {" "}
-            Editar Usuario{" "}
+            Editar Usuario
           </h2>
+
           <p className="text-blue-100 mt-2 text-sm md:text-base">
             Atualize as informações do usuario
           </p>
@@ -190,7 +299,7 @@ export default function EditarUsuario() {
         {/* FORM */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-3xl shadow-lg p-5 md:p-8 space-y-6"
+          className="bg-white rounded-b-3xl shadow-lg p-5 md:p-8 space-y-6"
         >
           {/* EMAIL */}
           <div className="flex flex-col">
@@ -269,7 +378,7 @@ export default function EditarUsuario() {
             </div>
           </div>
 
-          {/* PERFIL + FILIAL */}
+          {/* PERFIL + FILIAIS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* PERFIL */}
             <div className="flex flex-col">
@@ -300,35 +409,102 @@ export default function EditarUsuario() {
               </select>
             </div>
 
-            {/* FILIAL */}
+            {/* FILIAIS */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">
-                Filial
+                {role === "gestor" || role === "master"
+                  ? "Filiais Vinculadas"
+                  : "Filial"}
               </label>
 
-              <select
-                value={filialSelecionada}
-                onChange={(e) => setFilialSelecionada(e.target.value)}
-                className="
-                  border
-                  border-gray-300
-                  rounded-2xl
-                  px-4
-                  py-3
-                  focus:outline-none
-                  focus:ring-2
-                  focus:ring-blue-500
-                  transition
-                "
-              >
-                <option value="">Selecione uma filial</option>
+              {/* FUNCIONÁRIO */}
+              {role === "funcionario" && (
+                <select
+                  value={filialSelecionada}
+                  onChange={(e) => setFilialSelecionada(e.target.value)}
+                  className="
+                    border
+                    border-gray-300
+                    rounded-2xl
+                    px-4
+                    py-3
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-blue-500
+                    transition
+                  "
+                >
+                  <option value="">Selecione uma filial</option>
 
-                {filiais.map((filial) => (
-                  <option key={filial.id} value={filial.id}>
-                    {filial.nome}
-                  </option>
-                ))}
-              </select>
+                  {filiais.map((filial) => (
+                    <option key={filial.id} value={filial.id}>
+                      {filial.nome}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              {/* GESTOR / MASTER */}
+              {(role === "gestor" || role === "master") && (
+                <div
+                  className="
+                    border
+                    border-gray-300
+                    rounded-2xl
+                    p-4
+                    bg-gray-50
+                    max-h-64
+                    overflow-y-auto
+                    space-y-3
+                  "
+                >
+                  {filiais.map((filial) => {
+                    const checked = filiaisSelecionadas.includes(filial.id);
+
+                    return (
+                      <label
+                        key={filial.id}
+                        className="
+                          flex
+                          items-center
+                          gap-3
+                          cursor-pointer
+                          p-2
+                          rounded-xl
+                          hover:bg-white
+                          transition
+                        "
+                      >
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setFiliaisSelecionadas((prev) => [
+                                ...prev,
+                                filial.id,
+                              ]);
+                            } else {
+                              setFiliaisSelecionadas((prev) =>
+                                prev.filter((id) => id !== filial.id),
+                              );
+                            }
+                          }}
+                          className="
+                            w-5
+                            h-5
+                            accent-blue-600
+                          "
+                        />
+
+                        <span className="text-gray-700 font-medium">
+                          {filial.nome}
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
 

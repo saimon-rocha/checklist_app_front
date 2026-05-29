@@ -29,7 +29,18 @@ export default function CadastroFilial() {
   });
 
   // =========================================
-  // CARREGA EMPRESAS
+  // USUARIO LOGADO
+  // =========================================
+
+  const usuarioLogado =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
+      : {};
+
+  const isMaster = usuarioLogado?.role === "master";
+
+  // =========================================
+  // CARREGA MATRIZES
   // =========================================
 
   useEffect(() => {
@@ -40,11 +51,36 @@ export default function CadastroFilial() {
     try {
       const response = await api.get("/matriz");
 
-      const empresasAtivas = response.data.filter((e: any) =>
+      let empresasAtivas = response.data.filter((e: any) =>
         Boolean(e.id_ativo),
       );
 
+      // =========================================
+      // GESTOR -> SOMENTE MATRIZES VINCULADAS
+      // =========================================
+
+      if (!isMaster) {
+        const filiaisUsuario = Array.isArray(usuarioLogado?.filiais)
+          ? usuarioLogado.filiais
+          : [];
+
+        const matrizesPermitidas = [
+          ...new Set(
+            filiaisUsuario.map((f: any) => f.matriz_id).filter(Boolean),
+          ),
+        ];
+
+        empresasAtivas = empresasAtivas.filter((empresa: any) =>
+          matrizesPermitidas.includes(empresa.id),
+        );
+      }
+
       setEmpresas(empresasAtivas);
+
+      // AUTO SELECT QUANDO EXISTE APENAS 1 MATRIZ
+      if (empresasAtivas.length === 1) {
+        setEmpresaId(String(empresasAtivas[0].id));
+      }
     } catch {
       toast.error("Erro ao carregar empresas");
     }
@@ -143,8 +179,12 @@ export default function CadastroFilial() {
       toast.success("Filial cadastrada com sucesso!");
 
       setNomeFilial("");
-      setEmpresaId("");
       setCep("");
+
+      // mantém matriz selecionada caso tenha apenas uma
+      if (empresas.length !== 1) {
+        setEmpresaId("");
+      }
 
       setEndereco({
         rua: "",
@@ -242,7 +282,7 @@ export default function CadastroFilial() {
                 bg-white
               "
               >
-                <option value="">Selecione uma empresa</option>
+                <option value="">Selecione uma matriz</option>
 
                 {empresas.map((empresa) => (
                   <option key={empresa.id} value={empresa.id}>

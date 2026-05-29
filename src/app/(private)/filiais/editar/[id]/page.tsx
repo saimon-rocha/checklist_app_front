@@ -40,6 +40,17 @@ export default function EditarFilial() {
   });
 
   // =========================================
+  // USUARIO LOGADO
+  // =========================================
+
+  const usuarioLogado =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
+      : {};
+
+  const isMaster = usuarioLogado?.role === "master";
+
+  // =========================================
   // LOAD FILIAL + MATRIZES
   // =========================================
 
@@ -65,11 +76,40 @@ export default function EditarFilial() {
           return;
         }
 
-        const matrizesAtivas = matrizesResponse.data.filter((m: any) =>
+        // =========================================
+        // MATRIZES ATIVAS
+        // =========================================
+
+        let matrizesAtivas = matrizesResponse.data.filter((m: any) =>
           Boolean(m.id_ativo),
         );
 
+        // =========================================
+        // SE FOR GESTOR
+        // MOSTRA APENAS MATRIZES DAS FILIAIS VINCULADAS
+        // =========================================
+
+        if (!isMaster) {
+          const filiaisUsuario = Array.isArray(usuarioLogado?.filiais)
+            ? usuarioLogado.filiais
+            : [];
+
+          const matrizesPermitidas = [
+            ...new Set(
+              filiaisUsuario.map((f: any) => f.matriz_id).filter(Boolean),
+            ),
+          ];
+
+          matrizesAtivas = matrizesAtivas.filter((matriz: any) =>
+            matrizesPermitidas.includes(matriz.id),
+          );
+        }
+
         setMatrizes(matrizesAtivas);
+
+        // =========================================
+        // DADOS FILIAL
+        // =========================================
 
         setNomeFilial(filial.nome || "");
 
@@ -144,14 +184,12 @@ export default function EditarFilial() {
       cidade: data.cidade || "",
       estado: data.uf || "",
 
-      // libera edição somente do que faltou
       ruaReadOnly: !ruaFaltando,
       bairroReadOnly: !bairroFaltando,
       cidadeReadOnly: !cidadeFaltando,
       estadoReadOnly: !estadoFaltando,
     });
 
-    // TOAST AZUL
     if (cepParcial) {
       toast.info("CEP parcial encontrado. Complete os dados manualmente.");
     }
@@ -484,7 +522,7 @@ export default function EditarFilial() {
             >
               <button
                 type="button"
-                onClick={() => router.push("/filial")}
+                onClick={() => router.push("/filiais")}
                 className="
                 w-full
                 md:w-auto

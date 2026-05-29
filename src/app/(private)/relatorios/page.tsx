@@ -50,7 +50,43 @@ export default function Relatorio() {
         },
       });
 
-      const formatado: RelatorioItem[] = response.data.map((item: any) => {
+      const usuarioLogado = JSON.parse(
+        localStorage.getItem("usuarioLogado") || "{}",
+      );
+
+      const filiaisUsuario =
+        usuarioLogado?.filiais?.map((f: any) => f.id) || [];
+
+      let dados = response.data;
+
+      // =====================================
+      // FUNCIONÁRIO
+      // Só vê os relatórios criados por ele
+      // =====================================
+
+      if (usuarioLogado?.role === "funcionario") {
+        dados = dados.filter(
+          (item: any) => item.usuario_id === usuarioLogado.id,
+        );
+      }
+
+      // =====================================
+      // GESTOR
+      // Vê relatórios das filiais vinculadas
+      // =====================================
+
+      if (usuarioLogado?.role === "gestor") {
+        dados = dados.filter((item: any) =>
+          filiaisUsuario.includes(item.filial?.id),
+        );
+      }
+
+      // =====================================
+      // MASTER
+      // vê tudo
+      // =====================================
+
+      const formatado: RelatorioItem[] = dados.map((item: any) => {
         const respostas = Array.isArray(item.respostas?.ensaio)
           ? item.respostas.ensaio
           : [];

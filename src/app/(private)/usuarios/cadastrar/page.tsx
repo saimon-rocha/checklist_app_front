@@ -22,6 +22,7 @@ export default function CadastroUsuario() {
   const [role, setRole] = useState("funcionario");
 
   const [filialSelecionada, setFilialSelecionada] = useState("");
+  const [filiaisGestor, setFiliaisGestor] = useState<number[]>([]);
 
   const [filiais, setFiliais] = useState<any[]>([]);
 
@@ -62,6 +63,15 @@ export default function CadastroUsuario() {
     }
   }
 
+  function handleToggleFilialGestor(id: number) {
+    setFiliaisGestor((prev) => {
+      if (prev.includes(id)) {
+        return prev.filter((f) => f !== id);
+      }
+
+      return [...prev, id];
+    });
+  }
   // =========================================
   // CPF
   // =========================================
@@ -79,12 +89,20 @@ export default function CadastroUsuario() {
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (!email || !senha || !cpf || !role || !filialSelecionada) {
+    if (!email || !senha || !cpf || !role) {
       toast.warning("Preencha todos os campos!");
 
       return;
     }
+    if (role === "gestor" && filiaisGestor.length === 0) {
+      toast.warning("Selecione ao menos uma filial para o gestor!");
+      return;
+    }
 
+    if (role !== "gestor" && !filialSelecionada) {
+      toast.warning("Selecione uma filial!");
+      return;
+    }
     if (!validarCPF(cpf)) {
       toast.warning("CPF inválido!");
 
@@ -105,7 +123,9 @@ export default function CadastroUsuario() {
         password: senha.trim(),
         cpf: cpf.trim(),
         role,
-        filiais: Number(filialSelecionada),
+
+        filiais:
+          role === "gestor" ? filiaisGestor : [Number(filialSelecionada)],
       });
 
       toast.success("Usuário cadastrado com sucesso!");
@@ -287,34 +307,70 @@ export default function CadastroUsuario() {
             </div>
 
             {/* FILIAL */}
+            {/* FILIAL */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">
-                Filial
+                {role === "gestor" ? "Filiais do Gestor" : "Filial"}
               </label>
 
-              <select
-                value={filialSelecionada}
-                onChange={(e) => setFilialSelecionada(e.target.value)}
-                className="
-                  border
-                  border-gray-300
-                  rounded-2xl
-                  px-4
-                  py-3
-                  outline-none
-                  focus:ring-2
-                  focus:ring-blue-500
-                  bg-white
-                "
-              >
-                <option value="">Selecione uma filial</option>
+              {role === "gestor" ? (
+                <div
+                  className="
+        border
+        border-gray-300
+        rounded-2xl
+        p-4
+        max-h-64
+        overflow-y-auto
+        space-y-3
+      "
+                >
+                  {filiais.map((filial) => (
+                    <label
+                      key={filial.id}
+                      className="
+            flex
+            items-center
+            gap-3
+            cursor-pointer
+          "
+                    >
+                      <input
+                        type="checkbox"
+                        checked={filiaisGestor.includes(filial.id)}
+                        onChange={() => handleToggleFilialGestor(filial.id)}
+                        className="w-4 h-4"
+                      />
 
-                {filiais.map((filial) => (
-                  <option key={filial.id} value={filial.id}>
-                    {filial.nome}
-                  </option>
-                ))}
-              </select>
+                      <span className="text-gray-700">{filial.nome}</span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <select
+                  value={filialSelecionada}
+                  onChange={(e) => setFilialSelecionada(e.target.value)}
+                  className="
+        border
+        border-gray-300
+        rounded-2xl
+        px-4
+        py-3
+        outline-none
+        focus:ring-2
+        focus:ring-blue-500
+        bg-white
+      "
+                >
+                  <option value="">Selecione uma filial</option>
+
+                  {filiais.map((filial) => (
+                    <option key={filial.id} value={filial.id}>
+                      {filial.nome}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 

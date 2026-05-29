@@ -37,14 +37,55 @@ export default function ListaFiliais() {
         Boolean(f.id_ativo),
       );
 
-      setFiliais(filiaisAtivas);
+      // =====================================
+      // USUARIO LOGADO
+      // =====================================
+
+      const usuarioLogado = JSON.parse(
+        localStorage.getItem("usuarioLogado") || "{}",
+      );
+
+      let filiaisFiltradas = filiaisAtivas;
+
+      // =====================================
+      // GESTOR
+      // Só vê filiais vinculadas
+      // =====================================
+
+      if (usuarioLogado?.role === "gestor") {
+        const filiaisUsuario =
+          usuarioLogado?.filiais?.map((f: any) => Number(f.id)) || [];
+
+        filiaisFiltradas = filiaisAtivas.filter((filial: any) =>
+          filiaisUsuario.includes(Number(filial.id)),
+        );
+      }
+
+      // =====================================
+      // FUNCIONARIO
+      // vê apenas sua filial
+      // =====================================
+
+      if (usuarioLogado?.role === "funcionario") {
+        const filialUsuario = usuarioLogado?.filiais?.[0]?.id;
+
+        filiaisFiltradas = filiaisAtivas.filter(
+          (filial: any) => Number(filial.id) === Number(filialUsuario),
+        );
+      }
+
+      // =====================================
+      // MASTER
+      // vê tudo
+      // =====================================
+
+      setFiliais(filiaisFiltradas);
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Erro ao carregar filiais");
     } finally {
       setLoading(false);
     }
   }
-
   // =====================================
   // NAVIGATION
   // =====================================

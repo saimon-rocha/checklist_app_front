@@ -127,8 +127,9 @@ export default function LoginPage() {
               priority
             />
 
-            <h1 className="text-2xl font-bold text-gray-800">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-tight max-w-md">
               Sistema Checklist
+              <span className="block">Bomba Medidora</span>
             </h1>
 
             <p className="text-sm text-gray-500 mt-1">
@@ -138,13 +139,9 @@ export default function LoginPage() {
 
           {/* TÍTULO DESKTOP */}
           <div className="hidden md:block text-center">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Bem-vindo
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800">Bem-vindo</h1>
 
-            <p className="text-gray-500 mt-2">
-              Entre com suas credenciais
-            </p>
+            <p className="text-gray-500 mt-2">Entre com suas credenciais</p>
           </div>
 
           {/* USERNAME */}
@@ -226,11 +223,7 @@ export default function LoginPage() {
           </button>
 
           {/* MENSAGEM */}
-          {msg && (
-            <p className="text-red-500 text-sm text-center">
-              {msg}
-            </p>
-          )}
+          {msg && <p className="text-red-500 text-sm text-center">{msg}</p>}
         </form>
       </div>
     </div>

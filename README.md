@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Regras de Negócio Implementadas
 
-## Getting Started
+## Gestão de Filiais por Perfil
 
-First, run the development server:
+### Funcionário
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+* O funcionário possui vínculo com apenas uma filial.
+* Ao gerar checklist, a filial é atribuída automaticamente.
+* O funcionário visualiza apenas os relatórios/checklists criados por ele.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Gestor
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+* O gestor pode possuir vínculo com múltiplas filiais.
+* O gestor visualiza relatórios e checklists de todas as filiais vinculadas a ele.
+* Ao gerar checklist, o gestor pode selecionar qual filial vinculada será utilizada.
+* O gestor só consegue visualizar filiais pertencentes às matrizes das quais possui vínculo.
+* O gestor só consegue cadastrar ou editar filiais vinculadas às matrizes permitidas para ele.
+* O gestor não visualiza matrizes de outros grupos/empresas no sistema.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+### Master
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+* O usuário master possui acesso total ao sistema.
+* O master pode visualizar todas as filiais, matrizes, relatórios e usuários.
+* O master pode selecionar qualquer matriz ao cadastrar ou editar filiais.
+* O master pode criar usuários com qualquer perfil.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+# Checklist e Relatórios
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+* O checklist agora salva corretamente a filial selecionada.
+* Relatórios filtram os dados conforme as permissões do usuário logado.
+* Gestores conseguem visualizar checklists de todas as filiais vinculadas.
+* Funcionários continuam limitados apenas aos próprios registros.
+* O PDF do relatório utiliza os dados filtrados pelas permissões do usuário.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+# Cadastro e Edição de Usuários
+
+* Usuários do tipo gestor podem possuir múltiplas filiais.
+* Funcionários permanecem vinculados a apenas uma filial.
+* A interface de seleção de filiais foi ajustada dinamicamente conforme o perfil escolhido.
+* Alterações sensíveis no próprio usuário (senha, email, perfil ou filiais) obrigam novo login.
+
+---
+
+# Cadastro e Edição de Filiais
+
+* O sistema limita as matrizes disponíveis conforme o vínculo do usuário.
+* Gestores visualizam apenas matrizes relacionadas às suas filiais.
+* Masters visualizam todas as matrizes.
+* Caso exista apenas uma matriz disponível, ela é selecionada automaticamente.
+
+---
+
+# Melhorias de Interface (UI/UX)
+
+* O seletor de filial foi movido para a área de informações iniciais do checklist.
+* O sistema exibe seleção de filial apenas para gestores e masters.
+* A interface foi simplificada para funcionários, evitando opções desnecessárias.
+* As listagens foram ajustadas para manter visual mais limpo e contextualizado conforme permissões.
