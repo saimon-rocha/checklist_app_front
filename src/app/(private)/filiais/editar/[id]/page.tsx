@@ -40,17 +40,6 @@ export default function EditarFilial() {
   });
 
   // =========================================
-  // USUARIO LOGADO
-  // =========================================
-
-  const usuarioLogado =
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
-      : {};
-
-  const isMaster = usuarioLogado?.role === "master";
-
-  // =========================================
   // LOAD FILIAL + MATRIZES
   // =========================================
 
@@ -59,57 +48,16 @@ export default function EditarFilial() {
       try {
         if (!id) return;
 
-        const [filiaisResponse, matrizesResponse] = await Promise.all([
-          api.get("/filiais"),
+        const [filialResponse, matrizesResponse] = await Promise.all([
+          api.get(`/filiais/${id}`),
           api.get("/matriz"),
         ]);
 
-        const filial = filiaisResponse.data.find(
-          (f: any) => String(f.id) === String(id),
+        const filial = filialResponse.data;
+
+        setMatrizes(
+          matrizesResponse.data.filter((m: any) => Boolean(m.id_ativo)),
         );
-
-        if (!filial) {
-          toast.error("Filial não encontrada");
-
-          router.push("/filiais");
-
-          return;
-        }
-
-        // =========================================
-        // MATRIZES ATIVAS
-        // =========================================
-
-        let matrizesAtivas = matrizesResponse.data.filter((m: any) =>
-          Boolean(m.id_ativo),
-        );
-
-        // =========================================
-        // SE FOR GESTOR
-        // MOSTRA APENAS MATRIZES DAS FILIAIS VINCULADAS
-        // =========================================
-
-        if (!isMaster) {
-          const filiaisUsuario = Array.isArray(usuarioLogado?.filiais)
-            ? usuarioLogado.filiais
-            : [];
-
-          const matrizesPermitidas = [
-            ...new Set(
-              filiaisUsuario.map((f: any) => f.matriz_id).filter(Boolean),
-            ),
-          ];
-
-          matrizesAtivas = matrizesAtivas.filter((matriz: any) =>
-            matrizesPermitidas.includes(matriz.id),
-          );
-        }
-
-        setMatrizes(matrizesAtivas);
-
-        // =========================================
-        // DADOS FILIAL
-        // =========================================
 
         setNomeFilial(filial.nome || "");
 
@@ -130,6 +78,8 @@ export default function EditarFilial() {
         });
       } catch (error: any) {
         toast.error(error?.response?.data?.error || "Erro ao carregar filial");
+
+        router.push("/filiais");
       }
     }
 

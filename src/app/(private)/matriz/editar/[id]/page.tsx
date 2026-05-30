@@ -159,35 +159,16 @@ export default function EditarEmpresa() {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      <div
-        className="
-        max-w-4xl
-        mx-auto
-        px-3
-        sm:px-4
-        md:px-6
-        py-4
-        md:py-8
-      "
-      >
+      {/* CONTAINER */}
+      <div className="max-w-4xl mx-auto px-4 py-6">
         {/* HEADER */}
-        <div
-          className="
-          bg-gradient-to-r
-          from-blue-600
-          to-blue-700
-          rounded-3xl
-          shadow-xl
-          p-6
-          md:p-8
-          text-white
-          mb-6
-        "
-        >
-          <h1 className="text-2xl md:text-3xl font-bold">Editar Matriz</h1>
+        <div className="bg-blue-600 px-5 md:px-8 py-6 text-center rounded-t-3xl">
+          <h2 className="text-2xl md:text-3xl font-bold text-white">
+            Editar Matriz
+          </h2>
 
           <p className="text-blue-100 mt-2 text-sm md:text-base">
-            Atualize os dados da empresa cadastrada
+            Atualize as informações da matriz
           </p>
         </div>
 

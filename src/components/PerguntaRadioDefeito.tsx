@@ -98,7 +98,7 @@ export default function PerguntaRadioDefeito({
             }
           `}
         >
-          {hasDefeito ? "Com defeito" : "Sem defeito"}
+          {hasDefeito ? "Sim" : "Não"}
         </span>
       </button>
     </div>

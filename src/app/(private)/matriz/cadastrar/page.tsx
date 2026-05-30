@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useRouter } from "next/navigation";
 
@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 
 import api from "../../../../service/api";
 
-export default function CadastroEmpresa() {
+export default function CadastrarMatriz() {
   const router = useRouter();
 
   const [nome, setNome] = useState("");
@@ -25,6 +25,7 @@ export default function CadastroEmpresa() {
 
   const [loading, setLoading] = useState(false);
 
+  const [loadingPage] = useState(false);
   // =========================================
   // FORMATA CNPJ
   // =========================================
@@ -44,13 +45,11 @@ export default function CadastroEmpresa() {
 
     if (!nome || !cnpj || !responsavel || !contatoResponsavel) {
       toast.warning("Preencha todos os campos!");
-
       return;
     }
 
     if (cnpj.length !== 14) {
       toast.warning("CNPJ inválido!");
-
       return;
     }
 
@@ -62,9 +61,7 @@ export default function CadastroEmpresa() {
         cnpj: cnpj.trim(),
         responsavel: responsavel.trim(),
         contato_responsavel: contatoResponsavel.trim(),
-
         assinatura_ativa: assinaturaAtiva,
-
         vencimento_assinatura: vencimentoAssinatura || null,
       });
 
@@ -74,25 +71,31 @@ export default function CadastroEmpresa() {
         router.push("/matriz");
       }, 1200);
     } catch (err: any) {
-      toast.error(err?.response?.data?.error || "Erro ao cadastrar empresa");
+      toast.error(err?.response?.data?.error || "Erro ao cadastrar matriz");
     } finally {
       setLoading(false);
     }
   }
 
+  // =========================================
+  // LOADING
+  // =========================================
+
+  if (loadingPage) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
+
+          <p className="text-gray-600 font-medium">Carregando matriz...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-100">
-      <div
-        className="
-        max-w-4xl
-        mx-auto
-        px-3
-        sm:px-4
-        md:px-6
-        py-4
-        md:py-8
-      "
-      >
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-8">
         {/* HEADER */}
         <div
           className="
@@ -107,10 +110,10 @@ export default function CadastroEmpresa() {
           mb-6
         "
         >
-          <h1 className="text-2xl md:text-3xl font-bold">Cadastro de Matriz</h1>
+          <h1 className="text-2xl md:text-3xl font-bold">Cadastrar Matriz</h1>
 
           <p className="text-blue-100 mt-2 text-sm md:text-base">
-            Cadastre uma nova empresa no sistema
+            Cadastre nova matriz no sistema
           </p>
         </div>
 

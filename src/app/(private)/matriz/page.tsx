@@ -21,30 +21,7 @@ export default function ListaEmpresas() {
     try {
       const response = await api.get("/matriz");
 
-      const data = response.data;
-
-      const empresasAtivas = data.filter((e: any) => Boolean(e.id_ativo));
-
-      const usuarioLogado = JSON.parse(
-        localStorage.getItem("usuarioLogado") || "{}",
-      );
-
-      let empresasFiltradas = empresasAtivas;
-      // =====================================
-      // GESTOR
-      // =====================================
-
-      if (usuarioLogado?.role === "gestor") {
-        // PEGA MATRIZES DAS FILIAIS DO GESTOR
-        const matrizesPermitidas =
-          usuarioLogado?.filiais?.map((f: any) => f.matriz_id) || [];
-
-        empresasFiltradas = empresasAtivas.filter((empresa: any) =>
-          matrizesPermitidas.includes(empresa.id),
-        );
-      }
-
-      setEmpresas(empresasFiltradas);
+      setEmpresas(response.data);
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Erro ao carregar matriz");
     }

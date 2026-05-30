@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { toast } from "react-toastify";
 
@@ -44,18 +44,6 @@ type Formulario = {
   };
 };
 
-// =====================================
-// JWT
-// =====================================
-
-function parseJwt(token: string) {
-  try {
-    return JSON.parse(atob(token.split(".")[1]));
-  } catch {
-    return null;
-  }
-}
-
 export default function Arquivos() {
   const [formularios, setFormularios] = useState<Formulario[]>([]);
 
@@ -66,71 +54,23 @@ export default function Arquivos() {
   const [formularioToDelete, setFormularioToDelete] =
     useState<Formulario | null>(null);
 
-  const [usuarioLogado, setUsuarioLogado] = useState<any>(null);
-
-  // =====================================
-  // USER LOGADO
-  // =====================================
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (!token) return;
-
-    const payload = parseJwt(token);
-
-    setUsuarioLogado(payload);
-  }, []);
+  const [filtroFilial, setFiltroFilial] = useState("");
 
   // =====================================
   // FETCH
   // =====================================
 
-  async function fetchFormularios() {
+  async function fetchFormularios(filialId?: string) {
     try {
       setLoading(true);
 
-      const response = await api.get("/formularios");
+      const url = filialId
+        ? `/formularios?id_filial=${filialId}`
+        : "/formularios";
 
-      const data: Formulario[] = response.data;
+      const response = await api.get(url);
 
-      // FILTRA SOMENTE ATIVOS
-      const ativos = data.filter((f) => Boolean(f.id_ativo));
-
-      // ROLE
-      // FILIAIS DO GESTOR
-      const filiaisGestor = usuarioLogado?.filiais?.map((f: any) => f.id) || [];
-
-      // =====================================
-      // MASTER
-      // =====================================
-
-      let filtrados = ativos;
-
-      if (usuarioLogado?.role === "master") {
-        filtrados = ativos;
-      }
-
-      // =====================================
-      // GESTOR
-      // =====================================
-      else if (usuarioLogado?.role === "gestor") {
-        filtrados = ativos.filter((formulario) =>
-          filiaisGestor.includes(formulario.id_filial),
-        );
-      }
-
-      // =====================================
-      // FUNCIONÁRIO
-      // =====================================
-      else {
-        filtrados = ativos.filter(
-          (formulario) =>
-            String(formulario.usuario_id) === String(usuarioLogado?.id),
-        );
-      }
-
-      setFormularios(filtrados);
+      setFormularios(response.data);
     } catch (error: any) {
       toast.error(
         error?.response?.data?.error || "Erro ao carregar formulários",
@@ -141,10 +81,35 @@ export default function Arquivos() {
   }
 
   useEffect(() => {
-    if (usuarioLogado) {
-      fetchFormularios();
-    }
-  }, [usuarioLogado]);
+    fetchFormularios();
+  }, []);
+
+  // =====================================
+  // FILTRO
+  // =====================================
+
+  const filiais = useMemo(() => {
+    const unicas = formularios.reduce((acc: any[], item) => {
+      if (
+        item.filial &&
+        !acc.find((f) => String(f.id) === String(item.filial?.id))
+      ) {
+        acc.push(item.filial);
+      }
+
+      return acc;
+    }, []);
+
+    return unicas;
+  }, [formularios]);
+
+  const formulariosFiltrados = useMemo(() => {
+    if (!filtroFilial) return formularios;
+
+    return formularios.filter(
+      (f) => String(f.id_filial) === String(filtroFilial),
+    );
+  }, [formularios, filtroFilial]);
 
   // =====================================
   // DELETE
@@ -177,6 +142,7 @@ export default function Arquivos() {
       const response = await api.get(`/formularios/${id}/pdf`);
 
       const dados = response.data;
+
       gerarPDF({
         titulo: dados.titulo,
 
@@ -214,6 +180,43 @@ export default function Arquivos() {
         </p>
       </div>
 
+      {/* FILTRO */}
+      <div className="max-w-6xl mx-auto mb-5">
+        <div className="bg-white rounded-2xl shadow-sm p-4">
+          <div className="flex flex-col md:flex-row gap-3 items-start md:items-end">
+            <div className="flex flex-col w-full md:max-w-sm">
+              <label className="text-sm font-semibold text-gray-700 mb-2">
+                Filtrar por filial
+              </label>
+
+              <select
+                value={filtroFilial}
+                onChange={(e) => setFiltroFilial(e.target.value)}
+                className="
+                  border
+                  border-gray-300
+                  rounded-xl
+                  px-4
+                  py-3
+                  outline-none
+                  focus:ring-2
+                  focus:ring-blue-500
+                  bg-white
+                "
+              >
+                <option value="">Todas as filiais</option>
+
+                {filiais.map((filial: any) => (
+                  <option key={filial.id} value={filial.id}>
+                    {filial.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* LOADING */}
       {loading ? (
         <div className="flex justify-center py-10">
@@ -221,22 +224,19 @@ export default function Arquivos() {
         </div>
       ) : (
         <div className="max-w-6xl mx-auto">
-          {/* ========================= */}
           {/* MOBILE */}
-          {/* ========================= */}
-
           <div className="md:hidden space-y-4">
-            {formularios.length > 0 ? (
-              formularios.map((f) => (
+            {formulariosFiltrados.length > 0 ? (
+              formulariosFiltrados.map((f) => (
                 <div
                   key={f.id}
                   className="
-                  bg-white
-                  rounded-2xl
-                  shadow-md
-                  p-4
-                  space-y-3
-                "
+                    bg-white
+                    rounded-2xl
+                    shadow-md
+                    p-4
+                    space-y-3
+                  "
                 >
                   <div>
                     <h3 className="text-lg font-bold text-gray-800">
@@ -266,15 +266,15 @@ export default function Arquivos() {
                     <button
                       onClick={() => downloadPdf(f.id)}
                       className="
-                      flex-1
-                      py-2
-                      rounded-xl
-                      bg-blue-500
-                      hover:bg-blue-600
-                      text-white
-                      font-medium
-                      transition
-                    "
+                        flex-1
+                        py-2
+                        rounded-xl
+                        bg-blue-500
+                        hover:bg-blue-600
+                        text-white
+                        font-medium
+                        transition
+                      "
                     >
                       PDF
                     </button>
@@ -285,15 +285,15 @@ export default function Arquivos() {
                         setShowConfirm(true);
                       }}
                       className="
-                      flex-1
-                      py-2
-                      rounded-xl
-                      bg-red-500
-                      hover:bg-red-600
-                      text-white
-                      font-medium
-                      transition
-                    "
+                        flex-1
+                        py-2
+                        rounded-xl
+                        bg-red-500
+                        hover:bg-red-600
+                        text-white
+                        font-medium
+                        transition
+                      "
                     >
                       Excluir
                     </button>
@@ -302,15 +302,12 @@ export default function Arquivos() {
               ))
             ) : (
               <div className="bg-white rounded-2xl p-6 text-center shadow">
-                Nenhum formulário cadastrado
+                Nenhum formulário encontrado
               </div>
             )}
           </div>
 
-          {/* ========================= */}
           {/* DESKTOP */}
-          {/* ========================= */}
-
           <div className="hidden md:block overflow-x-auto">
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               <table className="w-full">
@@ -331,15 +328,15 @@ export default function Arquivos() {
                 </thead>
 
                 <tbody>
-                  {formularios.length > 0 ? (
-                    formularios.map((f) => (
+                  {formulariosFiltrados.length > 0 ? (
+                    formulariosFiltrados.map((f) => (
                       <tr
                         key={f.id}
                         className="
-                        border-t
-                        hover:bg-gray-50
-                        transition
-                      "
+                          border-t
+                          hover:bg-gray-50
+                          transition
+                        "
                       >
                         <td className="p-4">{f.titulo}</td>
 
@@ -358,15 +355,15 @@ export default function Arquivos() {
                             <button
                               onClick={() => downloadPdf(f.id)}
                               className="
-                              px-4
-                              py-2
-                              rounded-xl
-                              bg-blue-500
-                              hover:bg-blue-600
-                              text-white
-                              text-sm
-                              transition
-                            "
+                                px-4
+                                py-2
+                                rounded-xl
+                                bg-blue-500
+                                hover:bg-blue-600
+                                text-white
+                                text-sm
+                                transition
+                              "
                             >
                               PDF
                             </button>
@@ -377,15 +374,15 @@ export default function Arquivos() {
                                 setShowConfirm(true);
                               }}
                               className="
-                              px-4
-                              py-2
-                              rounded-xl
-                              bg-red-500
-                              hover:bg-red-600
-                              text-white
-                              text-sm
-                              transition
-                            "
+                                px-4
+                                py-2
+                                rounded-xl
+                                bg-red-500
+                                hover:bg-red-600
+                                text-white
+                                text-sm
+                                transition
+                              "
                             >
                               Excluir
                             </button>
@@ -396,7 +393,7 @@ export default function Arquivos() {
                   ) : (
                     <tr>
                       <td colSpan={5} className="text-center p-8 text-gray-500">
-                        Nenhum formulário cadastrado
+                        Nenhum formulário encontrado
                       </td>
                     </tr>
                   )}
@@ -412,14 +409,14 @@ export default function Arquivos() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center px-4 z-50">
           <div
             className="
-            bg-white
-            w-full
-            max-w-md
-            rounded-2xl
-            p-6
-            shadow-2xl
-            space-y-5
-          "
+              bg-white
+              w-full
+              max-w-md
+              rounded-2xl
+              p-6
+              shadow-2xl
+              space-y-5
+            "
           >
             <h3 className="text-xl font-bold text-gray-800">
               Confirmar exclusão
@@ -437,14 +434,14 @@ export default function Arquivos() {
               <button
                 onClick={() => setShowConfirm(false)}
                 className="
-                px-4
-                py-2
-                rounded-xl
-                bg-gray-400
-                hover:bg-gray-500
-                text-white
-                transition
-              "
+                  px-4
+                  py-2
+                  rounded-xl
+                  bg-gray-400
+                  hover:bg-gray-500
+                  text-white
+                  transition
+                "
               >
                 Cancelar
               </button>
@@ -452,14 +449,14 @@ export default function Arquivos() {
               <button
                 onClick={handleConfirmDelete}
                 className="
-                px-4
-                py-2
-                rounded-xl
-                bg-red-500
-                hover:bg-red-600
-                text-white
-                transition
-              "
+                  px-4
+                  py-2
+                  rounded-xl
+                  bg-red-500
+                  hover:bg-red-600
+                  text-white
+                  transition
+                "
               >
                 Excluir
               </button>

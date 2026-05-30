@@ -33,53 +33,7 @@ export default function ListaFiliais() {
 
       const response = await api.get("/filiais");
 
-      const filiaisAtivas = response.data.filter((f: any) =>
-        Boolean(f.id_ativo),
-      );
-
-      // =====================================
-      // USUARIO LOGADO
-      // =====================================
-
-      const usuarioLogado = JSON.parse(
-        localStorage.getItem("usuarioLogado") || "{}",
-      );
-
-      let filiaisFiltradas = filiaisAtivas;
-
-      // =====================================
-      // GESTOR
-      // Só vê filiais vinculadas
-      // =====================================
-
-      if (usuarioLogado?.role === "gestor") {
-        const filiaisUsuario =
-          usuarioLogado?.filiais?.map((f: any) => Number(f.id)) || [];
-
-        filiaisFiltradas = filiaisAtivas.filter((filial: any) =>
-          filiaisUsuario.includes(Number(filial.id)),
-        );
-      }
-
-      // =====================================
-      // FUNCIONARIO
-      // vê apenas sua filial
-      // =====================================
-
-      if (usuarioLogado?.role === "funcionario") {
-        const filialUsuario = usuarioLogado?.filiais?.[0]?.id;
-
-        filiaisFiltradas = filiaisAtivas.filter(
-          (filial: any) => Number(filial.id) === Number(filialUsuario),
-        );
-      }
-
-      // =====================================
-      // MASTER
-      // vê tudo
-      // =====================================
-
-      setFiliais(filiaisFiltradas);
+      setFiliais(response.data);
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Erro ao carregar filiais");
     } finally {

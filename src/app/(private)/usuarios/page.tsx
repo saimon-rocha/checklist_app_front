@@ -33,40 +33,7 @@ export default function ListaUsuarios() {
 
       const response = await api.get("/usuarios");
 
-      const data = response.data;
-
-      const ativos = data.filter((u: any) => u.id_ativo === true);
-
-      const usuarioLogado = JSON.parse(
-        localStorage.getItem("usuarioLogado") || "{}",
-      );
-
-      const filiaisGestor = usuarioLogado?.filiais?.map((f: any) => f.id) || [];
-
-      let usuariosFiltrados = ativos;
-
-      // =====================================
-      // GESTOR
-      // =====================================
-
-      if (usuarioLogado?.role === "gestor") {
-        usuariosFiltrados = ativos.filter((usuario: any) => {
-          // NÃO MOSTRA MASTER
-          if (usuario.role === "master") {
-            return false;
-          }
-
-          // FILIAIS DO USUÁRIO
-          const filiaisUsuario = usuario?.filiais?.map((f: any) => f.id) || [];
-
-          // TEM FILIAL EM COMUM
-          return filiaisUsuario.some((id: number) =>
-            filiaisGestor.includes(id),
-          );
-        });
-      }
-
-      setUsuarios(usuariosFiltrados);
+      setUsuarios(response.data);
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Erro ao carregar usuários");
     } finally {

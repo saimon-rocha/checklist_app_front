@@ -11,17 +11,12 @@ import PerguntaRadioNaoAvaliar from "../../../components/PerguntaRadioNaoAvaliar
 import TopFields from "../../../components/TopFields";
 
 import "../../../styles/ChecklistBomba.css";
-
 import { checklistItems } from "../../../utils/checklistStructure";
-
 import { toast } from "react-toastify";
-
-import api from "../../../service/api";
 
 const getToday = () => new Date().toLocaleDateString("pt-BR");
 
 /* ================= FIELD ================= */
-
 function ChecklistField({ item, formData, onChange }: any) {
   if (item.dependsOn && formData[item.dependsOn] !== item.showIf) {
     return null;
@@ -37,15 +32,13 @@ function ChecklistField({ item, formData, onChange }: any) {
         />
       )}
 
-      {item.type === "radio" &&
-        !item.allowNotEvaluate &&
-        !item.dangerOnSim && (
-          <PerguntaRadio
-            label={item.label}
-            selectedValue={formData[item.id]}
-            onChange={(val: string) => onChange(item.id, val)}
-          />
-        )}
+      {item.type === "radio" && !item.allowNotEvaluate && !item.dangerOnSim && (
+        <PerguntaRadio
+          label={item.label}
+          selectedValue={formData[item.id]}
+          onChange={(val: string) => onChange(item.id, val)}
+        />
+      )}
 
       {item.type === "radio" && item.dangerOnSim && (
         <PerguntaRadioDefeito
@@ -68,13 +61,13 @@ function ChecklistField({ item, formData, onChange }: any) {
 }
 
 /* ================= PAGE ================= */
-
 export default function ChecklistBomba() {
   const router = useRouter();
 
   const [filiais, setFiliais] = useState<any[]>([]);
-
-  const [role, setRole] = useState("");
+  const [filialSelecionada, setFilialSelecionada] = useState<number | null>(
+    null,
+  );
 
   const initialState = checklistItems.reduce(
     (acc: any, item: any) => {
@@ -95,84 +88,38 @@ export default function ChecklistBomba() {
     if (typeof window === "undefined") return initialState;
 
     const saved = localStorage.getItem("checklistBombaForm");
-
     return saved ? JSON.parse(saved) : initialState;
   });
 
   /* ================= LOAD USER ================= */
-
   useEffect(() => {
     setForm((prev: any) => ({
       ...prev,
       data: getToday(),
     }));
 
-    carregarDadosUsuario();
-  }, []);
+    const user = JSON.parse(localStorage.getItem("usuarioLogado") || "null");
 
-  async function carregarDadosUsuario() {
-    const user = JSON.parse(
-      localStorage.getItem("usuarioLogado") || "null",
-    );
-
-    const userRole = user?.role || "";
-
-    setRole(userRole);
-
-    // =====================================
-    // MASTER
-    // =====================================
-
-    if (userRole === "master") {
-      await carregarTodasFiliais();
-
-      return;
-    }
-
-    // =====================================
-    // GESTOR / FUNCIONÁRIO
-    // =====================================
-
-    const userFiliais = Array.isArray(user?.filiais)
-      ? user.filiais
-      : [];
+    // GARANTIA TOTAL CONTRA UNDEFINED
+    const userFiliais = Array.isArray(user?.filiais) ? user.filiais : [];
 
     setFiliais(userFiliais);
 
-    // =====================================
-    // FUNCIONÁRIO
-    // =====================================
-
-    if (userRole === "funcionario") {
+    if (userFiliais.length > 0) {
       const filialId = userFiliais[0]?.id;
 
       if (filialId) {
+        setFilialSelecionada(filialId);
+
         setForm((prev: any) => ({
           ...prev,
           id_filial: filialId,
         }));
       }
     }
-  }
-
-  /* ================= LOAD FILIAIS ================= */
-
-  async function carregarTodasFiliais() {
-    try {
-      const response = await api.get("/filiais");
-
-      const filiaisAtivas = response.data.filter((f: any) =>
-        Boolean(f.id_ativo),
-      );
-
-      setFiliais(filiaisAtivas);
-    } catch {
-      toast.error("Erro ao carregar filiais");
-    }
-  }
+  }, []);
 
   /* ================= CHANGE ================= */
-
   function handleChange(field: string, value: any) {
     const newForm = {
       ...form,
@@ -180,32 +127,27 @@ export default function ChecklistBomba() {
     };
 
     setForm(newForm);
-
-    localStorage.setItem(
-      "checklistBombaForm",
-      JSON.stringify(newForm),
-    );
+    localStorage.setItem("checklistBombaForm", JSON.stringify(newForm));
   }
 
   /* ================= AVANÇAR ================= */
-
   function handleAvancar() {
     if (!form.id_filial) {
-      toast.warning("Selecione uma filial.");
-
+      toast.warning("Filial não identificada para o usuário.");
       return;
     }
 
-    localStorage.setItem(
-      "checklistBombaForm",
-      JSON.stringify(form),
-    );
+    const updatedForm = {
+      ...form,
+      id_filial: filialSelecionada,
+    };
+
+    localStorage.setItem("checklistBombaForm", JSON.stringify(updatedForm));
 
     router.push("/checklist/ensaio");
   }
 
   /* ================= CANCELAR ================= */
-
   function handleCancelar() {
     toast.warn("Operação Cancelada");
 
@@ -215,8 +157,8 @@ export default function ChecklistBomba() {
     };
 
     setForm(resetForm);
-
     localStorage.removeItem("checklistBombaForm");
+    setFilialSelecionada(null);
   }
 
   return (
@@ -275,7 +217,6 @@ export default function ChecklistBomba() {
             formData={form}
             onChange={handleChange}
             filiais={filiais}
-            role={role}
           />
         </div>
 

@@ -29,17 +29,6 @@ export default function CadastroFilial() {
   });
 
   // =========================================
-  // USUARIO LOGADO
-  // =========================================
-
-  const usuarioLogado =
-    typeof window !== "undefined"
-      ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
-      : {};
-
-  const isMaster = usuarioLogado?.role === "master";
-
-  // =========================================
   // CARREGA MATRIZES
   // =========================================
 
@@ -51,38 +40,27 @@ export default function CadastroFilial() {
     try {
       const response = await api.get("/matriz");
 
-      let empresasAtivas = response.data.filter((e: any) =>
+      const empresasAtivas = response.data.filter((e: any) =>
         Boolean(e.id_ativo),
       );
 
-      // =========================================
-      // GESTOR -> SOMENTE MATRIZES VINCULADAS
-      // =========================================
-
-      if (!isMaster) {
-        const filiaisUsuario = Array.isArray(usuarioLogado?.filiais)
-          ? usuarioLogado.filiais
-          : [];
-
-        const matrizesPermitidas = [
-          ...new Set(
-            filiaisUsuario.map((f: any) => f.matriz_id).filter(Boolean),
-          ),
-        ];
-
-        empresasAtivas = empresasAtivas.filter((empresa: any) =>
-          matrizesPermitidas.includes(empresa.id),
-        );
-      }
-
       setEmpresas(empresasAtivas);
 
-      // AUTO SELECT QUANDO EXISTE APENAS 1 MATRIZ
       if (empresasAtivas.length === 1) {
         setEmpresaId(String(empresasAtivas[0].id));
       }
-    } catch {
-      toast.error("Erro ao carregar empresas");
+    } catch (err: any) {
+      if (err?.response?.status === 403) {
+        toast.error("Você não possui permissão para cadastrar filiais.");
+
+        setTimeout(() => {
+          router.push("/filiais");
+        }, 1500);
+
+        return;
+      }
+
+      toast.error(err?.response?.data?.error || "Erro ao carregar empresas.");
     }
   }
 

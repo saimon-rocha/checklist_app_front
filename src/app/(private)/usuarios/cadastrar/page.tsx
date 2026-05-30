@@ -36,6 +36,7 @@ export default function CadastroUsuario() {
       : {};
 
   const isMaster = usuarioLogado?.role === "master";
+  const isGestor = usuarioLogado?.role === "gestor";
 
   // =========================================
   // LOAD FILIAIS
@@ -54,6 +55,19 @@ export default function CadastroUsuario() {
       const filiaisAtivas = response.data.filter((f: any) =>
         Boolean(f.id_ativo),
       );
+
+      if (isGestor) {
+        const filiaisPermitidas =
+          usuarioLogado?.filiais?.map((f: any) => Number(f.id)) || [];
+
+        const filiaisFiltradas = filiaisAtivas.filter((f: any) =>
+          filiaisPermitidas.includes(Number(f.id)),
+        );
+
+        setFiliais(filiaisFiltradas);
+
+        return;
+      }
 
       setFiliais(filiaisAtivas);
     } catch {
@@ -94,12 +108,16 @@ export default function CadastroUsuario() {
 
       return;
     }
-    if (role === "gestor" && filiaisGestor.length === 0) {
-      toast.warning("Selecione ao menos uma filial para o gestor!");
+    if (
+      (role === "gestor" || role === "master") &&
+      filiaisGestor.length === 0
+    ) {
+      toast.warning("Selecione ao menos uma filial.");
+
       return;
     }
 
-    if (role !== "gestor" && !filialSelecionada) {
+    if (role === "funcionario" && !filialSelecionada) {
       toast.warning("Selecione uma filial!");
       return;
     }
@@ -125,7 +143,9 @@ export default function CadastroUsuario() {
         role,
 
         filiais:
-          role === "gestor" ? filiaisGestor : [Number(filialSelecionada)],
+          role === "gestor" || role === "master"
+            ? filiaisGestor
+            : [Number(filialSelecionada)],
       });
 
       toast.success("Usuário cadastrado com sucesso!");
@@ -287,22 +307,25 @@ export default function CadastroUsuario() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 className="
-                  border
-                  border-gray-300
-                  rounded-2xl
-                  px-4
-                  py-3
-                  outline-none
-                  focus:ring-2
-                  focus:ring-blue-500
-                  bg-white
-                "
+    border
+    border-gray-300
+    rounded-2xl
+    px-4
+    py-3
+    outline-none
+    focus:ring-2
+    focus:ring-blue-500
+    bg-white
+  "
               >
                 <option value="funcionario">Funcionário</option>
 
-                <option value="gestor">Gestor</option>
-
-                {isMaster && <option value="master">Master</option>}
+                {isMaster && (
+                  <>
+                    <option value="gestor">Gestor</option>
+                    <option value="master">Master</option>
+                  </>
+                )}
               </select>
             </div>
 
@@ -310,10 +333,12 @@ export default function CadastroUsuario() {
             {/* FILIAL */}
             <div className="flex flex-col">
               <label className="text-sm font-semibold text-gray-700 mb-2">
-                {role === "gestor" ? "Filiais do Gestor" : "Filial"}
+                {role === "gestor" || role === "master"
+                  ? "Filiais Vinculadas"
+                  : "Filial"}
               </label>
 
-              {role === "gestor" ? (
+              {role === "gestor" || role === "master" ? (
                 <div
                   className="
         border

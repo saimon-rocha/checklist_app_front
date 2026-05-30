@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import moment from "moment";
 import { toast } from "react-toastify";
 
 import api from "../../../service/api";
@@ -50,79 +50,11 @@ export default function Relatorio() {
         },
       });
 
-      const usuarioLogado = JSON.parse(
-        localStorage.getItem("usuarioLogado") || "{}",
-      );
-
-      const filiaisUsuario =
-        usuarioLogado?.filiais?.map((f: any) => f.id) || [];
-
-      let dados = response.data;
-
-      // =====================================
-      // FUNCIONÁRIO
-      // Só vê os relatórios criados por ele
-      // =====================================
-
-      if (usuarioLogado?.role === "funcionario") {
-        dados = dados.filter(
-          (item: any) => item.usuario_id === usuarioLogado.id,
-        );
-      }
-
-      // =====================================
-      // GESTOR
-      // Vê relatórios das filiais vinculadas
-      // =====================================
-
-      if (usuarioLogado?.role === "gestor") {
-        dados = dados.filter((item: any) =>
-          filiaisUsuario.includes(item.filial?.id),
-        );
-      }
-
-      // =====================================
-      // MASTER
-      // vê tudo
-      // =====================================
-
-      const formatado: RelatorioItem[] = dados.map((item: any) => {
-        const respostas = Array.isArray(item.respostas?.ensaio)
-          ? item.respostas.ensaio
-          : [];
-
-        return {
-          bomba: item.titulo || "Não definido",
-
-          filial: item.filial?.nome || "-",
-
-          dataRelatorio: item.created_at
-            ? new Date(item.created_at).toLocaleDateString("pt-BR")
-            : "-",
-
-          totalVazaoMax: Number(
-            respostas.find((e: any) => e.id === "vazaoMax")?.resposta || 0,
-          ),
-
-          totalVazaoMin: Number(
-            respostas.find((e: any) => e.id === "vazaoMin")?.resposta || 0,
-          ),
-
-          vazamentoBico: Number(
-            respostas.find((e: any) => e.id === "vazamentoBico")?.resposta || 0,
-          ),
-
-          vazaoBomba: Number(
-            respostas.find((e: any) => e.id === "vazaoBomba")?.resposta || 0,
-          ),
-        };
-      });
-
-      if (formatado.length === 0) {
+      if (response.data.length === 0) {
         toast.warning("Nenhum dado encontrado no período");
       }
 
-      setResultado(formatado);
+      setResultado(response.data);
     } catch (err) {
       console.error(err);
 
@@ -298,7 +230,10 @@ export default function Relatorio() {
                   </h3>
 
                   <span className="text-sm text-gray-500">
-                    {item.dataRelatorio}
+                    {moment
+                      .utc(item.dataRelatorio)
+                      .local()
+                      .format("DD/MM/YYYY HH:mm")}
                   </span>
                 </div>
 
@@ -367,7 +302,7 @@ export default function Relatorio() {
 
                       <td className="p-4 font-medium">{item.bomba}</td>
 
-                      <td className="p-4">{item.dataRelatorio}</td>
+                      <td className="p-4">{ moment.utc(item.dataRelatorio).local().format("DD/MM/YYYY HH:mm") }</td>
 
                       <td className="p-4">{item.totalVazaoMax}</td>
 
