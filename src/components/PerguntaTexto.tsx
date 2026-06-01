@@ -39,23 +39,23 @@ export default function PerguntaTexto({
       className="
         bg-white
         border
-        border-gray-200
+        border-slate-100
         rounded-2xl
-        p-4
-        shadow-sm
+        p-5
+        shadow-[0_4px_20px_rgba(0,0,0,0.02)]
         space-y-2
       "
     >
       {/* LABEL */}
       {label && (
-        <label className="text-sm md:text-base font-semibold text-gray-800">
+        <label className="text-sm md:text-base font-bold text-slate-700">
           {label}
         </label>
       )}
 
       {/* SUBTITLE */}
       {subtitle && (
-        <span className="block text-sm text-gray-500">{subtitle}</span>
+        <span className="block text-xs font-medium text-slate-400">{subtitle}</span>
       )}
 
       {/* INPUT */}
@@ -70,19 +70,22 @@ export default function PerguntaTexto({
           rounded-2xl
           border
           px-4
-          py-3
+          py-3.5
           text-base
-          transition
+          transition-all
+          duration-300
           outline-none
           ${
             readOnly
-              ? "bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed"
+              ? "bg-slate-100/70 border-slate-200 text-slate-400 cursor-not-allowed"
               : `
-                bg-white
-                border-gray-300
-                focus:ring-2
-                focus:ring-blue-500
-                focus:border-blue-500
+                bg-slate-50/50
+                border-slate-200
+                focus:bg-white
+                focus:border-indigo-500
+                focus:ring-4
+                focus:ring-indigo-500/10
+                placeholder-slate-400
               `
           }
         `}

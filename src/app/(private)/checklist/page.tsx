@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
-import Card from "../../../components/Card";
 import PerguntaRadio from "../../../components/PerguntaRadio";
 import PerguntaTexto from "../../../components/PerguntaTexto";
 import PerguntaRadioDefeito from "../../../components/PerguntaRadioDefeito";
@@ -23,7 +22,7 @@ function ChecklistField({ item, formData, onChange }: any) {
   }
 
   return (
-    <Card>
+    <>
       {item.type === "radio" && item.allowNotEvaluate && (
         <PerguntaRadioNaoAvaliar
           label={item.label}
@@ -56,7 +55,7 @@ function ChecklistField({ item, formData, onChange }: any) {
           onChange={(val: string) => onChange(item.id, val)}
         />
       )}
-    </Card>
+    </>
   );
 }
 
@@ -162,29 +161,30 @@ export default function ChecklistBomba() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-50/50">
       {/* CONTAINER */}
       <div
         className="
         w-full
         max-w-5xl
         mx-auto
-        px-3
-        sm:px-4
-        md:px-6
-        py-4
-        md:py-6
+        px-4
+        sm:px-6
+        py-6
+        md:py-8
       "
       >
         {/* HEADER */}
         <div
           className="
           bg-white
-          rounded-3xl
-          shadow-md
-          p-5
-          md:p-7
-          mb-5
+          rounded-[2rem]
+          border
+          border-slate-100
+          shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+          p-6
+          md:p-8
+          mb-6
           text-center
         "
         >
@@ -192,8 +192,9 @@ export default function ChecklistBomba() {
             className="
             text-2xl
             md:text-3xl
-            font-bold
-            text-gray-800
+            font-extrabold
+            text-slate-800
+            tracking-tight
           "
           >
             Checklist da Bomba Medidora
@@ -203,16 +204,17 @@ export default function ChecklistBomba() {
             className="
             text-sm
             md:text-base
-            text-gray-500
+            text-slate-400
+            font-medium
             mt-2
           "
           >
-            Preencha todas as verificações antes de avançar
+            Preencha todas as verificações antes de avançar para a próxima etapa
           </p>
         </div>
 
         {/* TOP FIELDS */}
-        <div className="mb-5">
+        <div className="mb-6">
           <TopFields
             formData={form}
             onChange={handleChange}
@@ -224,27 +226,16 @@ export default function ChecklistBomba() {
         <div
           className="
           space-y-4
-          md:space-y-5
           pb-28
         "
         >
           {checklistItems.map((item: any) => (
-            <div
+            <ChecklistField
               key={item.id}
-              className="
-              bg-white
-              rounded-2xl
-              shadow-sm
-              p-4
-              md:p-5
-            "
-            >
-              <ChecklistField
-                item={item}
-                formData={form}
-                onChange={handleChange}
-              />
-            </div>
+              item={item}
+              formData={form}
+              onChange={handleChange}
+            />
           ))}
         </div>
       </div>
@@ -256,10 +247,12 @@ export default function ChecklistBomba() {
         bottom-0
         left-0
         right-0
-        bg-white
+        bg-white/90
+        backdrop-blur-md
         border-t
+        border-slate-100
         shadow-2xl
-        p-3
+        p-4
         md:hidden
         z-50
       "
@@ -268,15 +261,18 @@ export default function ChecklistBomba() {
           <button
             onClick={handleCancelar}
             className="
-            flex-1
-            py-3
-            rounded-2xl
-            bg-gray-500
-            hover:bg-gray-600
-            text-white
-            font-semibold
-            transition
-          "
+              flex-1
+              py-3.5
+              rounded-2xl
+              bg-slate-100
+              hover:bg-slate-200
+              text-slate-600
+              font-bold
+              transition-all
+              duration-200
+              active:scale-[0.98]
+              cursor-pointer
+            "
           >
             Cancelar
           </button>
@@ -284,15 +280,20 @@ export default function ChecklistBomba() {
           <button
             onClick={handleAvancar}
             className="
-            flex-1
-            py-3
-            rounded-2xl
-            bg-blue-600
-            hover:bg-blue-700
-            text-white
-            font-semibold
-            transition
-          "
+              flex-1
+              py-3.5
+              rounded-2xl
+              premium-gradient-bg
+              hover:opacity-95
+              text-white
+              font-bold
+              transition-all
+              duration-200
+              active:scale-[0.98]
+              shadow-lg
+              shadow-indigo-500/10
+              cursor-pointer
+            "
           >
             Avançar
           </button>
@@ -310,20 +311,24 @@ export default function ChecklistBomba() {
         mx-auto
         px-6
         py-6
+        mb-6
       "
       >
         <button
           onClick={handleCancelar}
           className="
-          px-6
-          py-3
-          rounded-xl
-          bg-gray-500
-          hover:bg-gray-600
-          text-white
-          font-medium
-          transition
-        "
+            px-6
+            py-3
+            rounded-xl
+            bg-slate-100
+            hover:bg-slate-200
+            text-slate-600
+            font-bold
+            transition-all
+            duration-200
+            active:scale-[0.98]
+            cursor-pointer
+          "
         >
           Cancelar
         </button>
@@ -331,15 +336,20 @@ export default function ChecklistBomba() {
         <button
           onClick={handleAvancar}
           className="
-          px-6
-          py-3
-          rounded-xl
-          bg-blue-600
-          hover:bg-blue-700
-          text-white
-          font-medium
-          transition
-        "
+            px-6
+            py-3
+            rounded-xl
+            premium-gradient-bg
+            hover:opacity-95
+            text-white
+            font-bold
+            transition-all
+            duration-200
+            active:scale-[0.98]
+            shadow-lg
+            shadow-indigo-500/10
+            cursor-pointer
+          "
         >
           Avançar
         </button>

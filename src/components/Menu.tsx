@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import {
   House,
@@ -17,61 +17,85 @@ import "../styles/Menu.css";
 
 export default function Menu({ user }: { user?: any }) {
   const router = useRouter();
+  const pathname = usePathname() || "";
 
   const isMaster = user?.role === "master";
   const isGestor = user?.role === "gestor";
 
   function handleLogout() {
     localStorage.removeItem("token");
-
     localStorage.removeItem("usuarioLogado");
-
     localStorage.removeItem("expiresAt");
 
     toast.success("Logout realizado!");
-
     router.replace("/login");
   }
+
+  // Active status helper
+  const isActive = (path: string) => {
+    if (path === "/checklist") {
+      return pathname === "/checklist" || pathname === "/checklist/ensaio";
+    }
+    return pathname.startsWith(path);
+  };
 
   return (
     <div className="navbarCustom">
       <div className="container-menu">
-        <Link href="/checklist" className="navItemCustom">
-          <House size={22} />
+        <Link 
+          href="/checklist" 
+          className={`navItemCustom ${isActive("/checklist") ? "active" : ""}`}
+        >
+          <House size={20} />
           <div>Home</div>
         </Link>
 
-        <Link href="/formularios" className="navItemCustom">
-          <FileEarmarkText size={22} />
+        <Link 
+          href="/formularios" 
+          className={`navItemCustom ${isActive("/formularios") ? "active" : ""}`}
+        >
+          <FileEarmarkText size={20} />
           <div>Formulários</div>
         </Link>
 
-        <Link href="/relatorios" className="navItemCustom">
-          <FileEarmarkText size={22} />
+        <Link 
+          href="/relatorios" 
+          className={`navItemCustom ${isActive("/relatorios") ? "active" : ""}`}
+        >
+          <FileEarmarkText size={20} />
           <div>Relatórios</div>
         </Link>
 
         {(isMaster || isGestor) && (
           <>
-            <Link href="/matriz" className="navItemCustom">
-              <Building2 size={22} />
+            <Link 
+              href="/matriz" 
+              className={`navItemCustom ${isActive("/matriz") ? "active" : ""}`}
+            >
+              <Building2 size={20} />
               <div>Matriz</div>
             </Link>
 
-            <Link href="/filiais" className="navItemCustom">
-              <Fuel size={22} />
+            <Link 
+              href="/filiais" 
+              className={`navItemCustom ${isActive("/filiais") ? "active" : ""}`}
+            >
+              <Fuel size={20} />
               <div>Filiais</div>
             </Link>
 
-            <Link href="/usuarios" className="navItemCustom">
-              <People size={22} />
+            <Link 
+              href="/usuarios" 
+              className={`navItemCustom ${isActive("/usuarios") ? "active" : ""}`}
+            >
+              <People size={20} />
               <div>Usuários</div>
             </Link>
           </>
         )}
 
         <button onClick={handleLogout} className="navItemCustom">
-          <BoxArrowRight size={22} />
+          <BoxArrowRight size={20} />
           <div>Sair</div>
         </button>
       </div>

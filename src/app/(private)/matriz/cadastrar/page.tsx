@@ -52,6 +52,12 @@ export default function CadastrarMatriz() {
       toast.warning("CNPJ inválido!");
       return;
     }
+    const telefoneLimpo = contatoResponsavel.replace(/\D/g, "");
+
+    if (telefoneLimpo.length !== 11) {
+      toast.warning("Telefone inválido!");
+      return;
+    }
 
     setLoading(true);
 
@@ -60,7 +66,7 @@ export default function CadastrarMatriz() {
         nome: nome.trim(),
         cnpj: cnpj.trim(),
         responsavel: responsavel.trim(),
-        contato_responsavel: contatoResponsavel.trim(),
+        contato_responsavel: contatoResponsavel.replace(/\D/g, ""),
         assinatura_ativa: assinaturaAtiva,
         vencimento_assinatura: vencimentoAssinatura || null,
       });
@@ -93,27 +99,47 @@ export default function CadastrarMatriz() {
     );
   }
 
+  function handleContatoChange(e: any) {
+    let value = e.target.value.replace(/\D/g, "");
+
+    value = value.slice(0, 11);
+
+    if (value.length > 2) {
+      value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    }
+
+    setContatoResponsavel(value);
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-8">
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         {/* HEADER */}
         <div
           className="
-          bg-gradient-to-r
-          from-blue-600
-          to-blue-700
-          rounded-3xl
-          shadow-xl
+          bg-gradient-to-tr
+          from-slate-950
+          via-slate-900
+          to-indigo-950
+          rounded-[2rem]
+          shadow-lg
           p-6
           md:p-8
           text-white
           mb-6
+          relative
+          overflow-hidden
         "
         >
-          <h1 className="text-2xl md:text-3xl font-bold">Cadastrar Matriz</h1>
+          {/* Subtle decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
 
-          <p className="text-blue-100 mt-2 text-sm md:text-base">
-            Cadastre nova matriz no sistema
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+            Cadastrar Matriz
+          </h1>
+
+          <p className="text-indigo-200/80 mt-2 text-sm md:text-base font-medium">
+            Cadastre uma nova empresa matriz no sistema
           </p>
         </div>
 
@@ -122,151 +148,90 @@ export default function CadastrarMatriz() {
           onSubmit={handleSubmit}
           className="
           bg-white
-          rounded-3xl
-          shadow-lg
-          p-5
-          md:p-8
-          space-y-5
+          rounded-[2rem]
+          border
+          border-slate-100
+          shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+          p-6
+          md:p-10
+          space-y-6
         "
         >
           {/* NOME */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-bold text-slate-700">
               Nome da Matriz
             </label>
 
             <input
               value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              onChange={(e) => setNome(e.target.value.slice(0, 100))}
+              maxLength={25}
               placeholder="Digite o nome da empresa"
-              className="
-              w-full
-              border
-              border-gray-300
-              rounded-2xl
-              px-4
-              py-3
-              text-sm
-              md:text-base
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              transition
-            "
+              className="input-premium"
             />
           </div>
 
           {/* CNPJ + RESPONSÁVEL */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* CNPJ */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
-                CNPJ
-              </label>
+              <label className="text-sm font-bold text-slate-700">CNPJ</label>
 
               <input
                 value={cnpj}
                 onChange={handleCnpjChange}
                 maxLength={14}
+                inputMode="numeric"
                 placeholder="Somente números"
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-              "
+                className="input-premium"
               />
             </div>
 
             {/* RESPONSÁVEL */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-bold text-slate-700">
                 Responsável
               </label>
 
               <input
                 value={responsavel}
-                onChange={(e) => setResponsavel(e.target.value)}
+                onChange={(e) => setResponsavel(e.target.value.slice(0, 80))}
+                maxLength={20}
                 placeholder="Nome do responsável"
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-              "
+                className="input-premium"
               />
             </div>
           </div>
 
           {/* CONTATO */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-bold text-slate-700">
               Contato do Responsável
             </label>
 
             <input
               value={contatoResponsavel}
-              onChange={(e) => setContatoResponsavel(e.target.value)}
-              placeholder="Telefone ou email"
-              className="
-              w-full
-              border
-              border-gray-300
-              rounded-2xl
-              px-4
-              py-3
-              text-sm
-              md:text-base
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              transition
-            "
+              onChange={handleContatoChange}
+              maxLength={15}
+              inputMode="numeric"
+              placeholder="(54) 999999999"
+              className="input-premium"
             />
           </div>
 
           {/* ASSINATURA */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* STATUS */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-bold text-slate-700">
                 Assinatura Ativa
               </label>
 
               <select
                 value={assinaturaAtiva ? "true" : "false"}
                 onChange={(e) => setAssinaturaAtiva(e.target.value === "true")}
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                bg-white
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-              "
+                className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
               >
                 <option value="true">Sim</option>
 
@@ -276,7 +241,7 @@ export default function CadastrarMatriz() {
 
             {/* DATA */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-bold text-slate-700">
                 Vencimento da Assinatura
               </label>
 
@@ -284,20 +249,7 @@ export default function CadastrarMatriz() {
                 type="date"
                 value={vencimentoAssinatura}
                 onChange={(e) => setVencimentoAssinatura(e.target.value)}
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-              "
+                className="input-premium"
               />
             </div>
           </div>
@@ -320,13 +272,16 @@ export default function CadastrarMatriz() {
               w-full
               md:w-auto
               px-6
-              py-3
+              py-3.5
               rounded-2xl
-              bg-gray-200
-              hover:bg-gray-300
-              text-gray-700
-              font-semibold
-              transition
+              bg-slate-100
+              hover:bg-slate-200
+              text-slate-600
+              font-bold
+              transition-all
+              duration-200
+              active:scale-[0.98]
+              cursor-pointer
             "
             >
               Cancelar
@@ -339,20 +294,23 @@ export default function CadastrarMatriz() {
               w-full
               md:w-auto
               px-6
-              py-3
+              py-3.5
               rounded-2xl
-              font-semibold
+              font-bold
               text-white
-              transition
-              shadow-md
+              transition-all
+              duration-200
+              active:scale-[0.98]
+              shadow-lg
+              cursor-pointer
               ${
                 loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-slate-300 shadow-none cursor-not-allowed text-slate-500"
+                  : "premium-gradient-bg hover:opacity-95 shadow-indigo-500/15"
               }
             `}
             >
-              {loading ? "Salvando..." : "Cadastrar"}
+              {loading ? "Salvando..." : "Cadastrar Matriz"}
             </button>
           </div>
         </form>

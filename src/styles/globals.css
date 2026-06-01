@@ -1,33 +1,44 @@
 @import "tailwindcss";
 
-/* ===============================
-   BASE GLOBAL (RESET + TIPOGRAFIA)
-   =============================== */
 @layer base {
   html,
   body {
     @apply m-0 p-0 w-full min-h-screen antialiased;
-    @apply bg-gray-50 text-gray-900 leading-relaxed;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    @apply bg-slate-50/50 text-slate-800 leading-relaxed scroll-smooth;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
       "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
       "Helvetica Neue", sans-serif;
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-100/50 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 hover:bg-slate-400 rounded-full transition-colors;
   }
 }
 
 /* ===============================
-   VARIÁVEIS (opcional moderno)
+   THEME VARIABLE CONFIGURATION
    =============================== */
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --color-indigo-gradient: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+  --color-slate-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --color-emerald-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --color-rose-gradient: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%);
 }
 
 /* ===============================
-   UTILITÁRIOS CUSTOM (casos raros)
+   PREMIUM UTILITIES
    =============================== */
 @layer utilities {
   .btn-icon {
-    @apply bg-transparent border-0 cursor-pointer text-[20px] mx-1 text-inherit;
+    @apply bg-transparent border-0 cursor-pointer text-[20px] mx-1 text-inherit transition-transform active:scale-95;
   }
 
   .table-button-group {
@@ -35,40 +46,60 @@
   }
 
   .table-button-group button {
-    @apply min-w-[60px];
+    @apply min-w-[70px];
   }
 
   .action-button {
-    @apply px-4 py-2 rounded-lg font-bold text-white border-0 cursor-pointer;
+    @apply px-4 py-2 rounded-xl font-semibold text-white border-0 cursor-pointer transition-all duration-200 active:scale-[0.98] shadow-sm hover:shadow-md;
+  }
+
+  .premium-gradient-bg {
+    background: var(--color-indigo-gradient);
+  }
+
+  .premium-dark-bg {
+    background: var(--color-slate-gradient);
+  }
+
+  .premium-card {
+    @apply bg-white rounded-3xl border border-slate-100 shadow-md transition-all duration-300 hover:shadow-xl;
+  }
+
+  .premium-glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-lg rounded-3xl;
+  }
+
+  .input-premium {
+    @apply w-full border border-slate-200 rounded-2xl px-4 py-3.5 text-base outline-none bg-slate-50/50 transition-all duration-300 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 placeholder-slate-400;
   }
 
   .saveButton {
-    @apply bg-green-600;
+    background: var(--color-emerald-gradient);
   }
 
   .cancelButton {
-    @apply bg-gray-400;
+    @apply bg-slate-400 hover:bg-slate-500;
   }
 
   .editButton {
-    @apply bg-blue-500;
+    @apply bg-amber-500 hover:bg-amber-600;
   }
 
   .closeButton {
-    @apply bg-red-500;
+    background: var(--color-rose-gradient);
   }
 
   .exportButton {
-    @apply bg-blue-500;
+    @apply bg-blue-500 hover:bg-blue-600;
   }
 
   .deleteButton {
-    @apply bg-red-500;
+    background: var(--color-rose-gradient);
   }
 }
 
 /* ===============================
-   ANIMAÇÕES (logo spin)
+   ANIMATIONS
    =============================== */
 @keyframes App-logo-spin {
   from {
@@ -83,4 +114,13 @@
   .animate-logo-spin {
     animation: App-logo-spin 20s linear infinite;
   }
+}
+
+/* Custom styles for select option appearance */
+select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 0.75rem center;
+  background-size: 1.25rem;
+  background-repeat: no-repeat;
+  appearance: none;
 }

@@ -168,41 +168,51 @@ export default function Arquivos() {
   // =====================================
 
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-6">
+    <div className="min-h-screen bg-slate-50/50 px-4 py-6 sm:py-8">
       {/* HEADER */}
       <div className="max-w-6xl mx-auto mb-6">
-        <h2 className="text-3xl font-bold text-gray-800 text-center">
-          Formulários
-        </h2>
+        <div
+          className="
+            bg-gradient-to-tr
+            from-slate-950
+            via-slate-900
+            to-indigo-950
+            rounded-[2rem]
+            px-6
+            md:px-10
+            py-8
+            text-center
+            shadow-lg
+            relative
+            overflow-hidden
+          "
+        >
+          {/* Subtle decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
 
-        <p className="text-center text-gray-500 mt-2">
-          Gerencie os formulários cadastrados
-        </p>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+            Formulários
+          </h2>
+
+          <p className="text-indigo-200/80 mt-2 text-sm md:text-base font-medium">
+            Gerencie e exporte os formulários de checklist salvos
+          </p>
+        </div>
       </div>
 
       {/* FILTRO */}
-      <div className="max-w-6xl mx-auto mb-5">
-        <div className="bg-white rounded-2xl shadow-sm p-4">
+      <div className="max-w-6xl mx-auto mb-6">
+        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6">
           <div className="flex flex-col md:flex-row gap-3 items-start md:items-end">
             <div className="flex flex-col w-full md:max-w-sm">
-              <label className="text-sm font-semibold text-gray-700 mb-2">
+              <label className="text-sm font-bold text-slate-700 mb-2">
                 Filtrar por filial
               </label>
 
               <select
                 value={filtroFilial}
                 onChange={(e) => setFiltroFilial(e.target.value)}
-                className="
-                  border
-                  border-gray-300
-                  rounded-xl
-                  px-4
-                  py-3
-                  outline-none
-                  focus:ring-2
-                  focus:ring-blue-500
-                  bg-white
-                "
+                className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
               >
                 <option value="">Todas as filiais</option>
 
@@ -219,8 +229,11 @@ export default function Arquivos() {
 
       {/* LOADING */}
       {loading ? (
-        <div className="flex justify-center py-10">
-          <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+        <div className="flex justify-center py-20">
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+            <p className="text-slate-500 font-medium animate-pulse">Carregando formulários...</p>
+          </div>
         </div>
       ) : (
         <div className="max-w-6xl mx-auto">
@@ -232,34 +245,39 @@ export default function Arquivos() {
                   key={f.id}
                   className="
                     bg-white
-                    rounded-2xl
-                    shadow-md
-                    p-4
-                    space-y-3
+                    rounded-3xl
+                    border
+                    border-slate-100
+                    shadow-[0_8px_30px_rgb(0,0,0,0.02)]
+                    p-5
+                    space-y-4
+                    hover:shadow-[0_8px_30px_rgb(0,0,0,0.06)]
+                    transition-all
+                    duration-200
                   "
                 >
                   <div>
-                    <h3 className="text-lg font-bold text-gray-800">
+                    <h3 className="text-lg font-bold text-slate-800 tracking-tight">
                       {f.titulo}
                     </h3>
 
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-xs font-semibold text-slate-400 mt-1">
                       {f.createdAt
                         ? new Date(f.createdAt).toLocaleDateString("pt-BR")
                         : "—"}
                     </p>
                   </div>
 
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      <span className="font-semibold">Filial:</span>{" "}
-                      {f.filial?.nome || "—"}
-                    </p>
+                  <div className="space-y-2 text-sm text-slate-600">
+                    <div className="flex justify-between items-center py-1 border-b border-slate-50">
+                      <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">Filial</span>
+                      <span className="font-medium text-slate-800">{f.filial?.nome || "—"}</span>
+                    </div>
 
-                    <p>
-                      <span className="font-semibold">Usuário:</span>{" "}
-                      {f.usuario?.username || "—"}
-                    </p>
+                    <div className="flex justify-between items-center py-1">
+                      <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">Usuário</span>
+                      <span className="font-medium text-slate-800">{f.usuario?.username || "—"}</span>
+                    </div>
                   </div>
 
                   <div className="flex gap-2 pt-2">
@@ -267,16 +285,20 @@ export default function Arquivos() {
                       onClick={() => downloadPdf(f.id)}
                       className="
                         flex-1
-                        py-2
+                        py-2.5
                         rounded-xl
-                        bg-blue-500
-                        hover:bg-blue-600
-                        text-white
-                        font-medium
-                        transition
+                        bg-indigo-50
+                        hover:bg-indigo-100
+                        text-indigo-600
+                        font-bold
+                        text-sm
+                        transition-all
+                        duration-200
+                        active:scale-[0.97]
+                        cursor-pointer
                       "
                     >
-                      PDF
+                      Visualizar PDF
                     </button>
 
                     <button
@@ -286,13 +308,17 @@ export default function Arquivos() {
                       }}
                       className="
                         flex-1
-                        py-2
+                        py-2.5
                         rounded-xl
-                        bg-red-500
-                        hover:bg-red-600
-                        text-white
-                        font-medium
-                        transition
+                        bg-rose-50
+                        hover:bg-rose-100
+                        text-rose-600
+                        font-bold
+                        text-sm
+                        transition-all
+                        duration-200
+                        active:scale-[0.97]
+                        cursor-pointer
                       "
                     >
                       Excluir
@@ -301,146 +327,161 @@ export default function Arquivos() {
                 </div>
               ))
             ) : (
-              <div className="bg-white rounded-2xl p-6 text-center shadow">
+              <div className="bg-white rounded-[2rem] border border-slate-100 p-8 text-center text-slate-500 shadow-[0_8px_30px_rgb(0,0,0,0.02)]">
                 Nenhum formulário encontrado
               </div>
             )}
           </div>
 
           {/* DESKTOP */}
-          <div className="hidden md:block overflow-x-auto">
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-100 text-left">
-                  <tr>
-                    <th className="p-4 font-semibold text-gray-700">Título</th>
+          <div className="hidden md:block overflow-x-auto rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] bg-white">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 text-slate-500 font-bold text-xs uppercase tracking-wider">
+                  <th className="p-5 text-left font-bold">Título</th>
 
-                    <th className="p-4 font-semibold text-gray-700">Filial</th>
+                  <th className="p-5 text-left font-bold">Filial</th>
 
-                    <th className="p-4 font-semibold text-gray-700">Usuário</th>
+                  <th className="p-5 text-left font-bold">Usuário</th>
 
-                    <th className="p-4 font-semibold text-gray-700">Data</th>
+                  <th className="p-5 text-left font-bold">Data</th>
 
-                    <th className="p-4 text-center font-semibold text-gray-700">
-                      Ações
-                    </th>
-                  </tr>
-                </thead>
+                  <th className="p-5 text-center font-bold">Ações</th>
+                </tr>
+              </thead>
 
-                <tbody>
-                  {formulariosFiltrados.length > 0 ? (
-                    formulariosFiltrados.map((f) => (
-                      <tr
-                        key={f.id}
-                        className="
-                          border-t
-                          hover:bg-gray-50
-                          transition
-                        "
-                      >
-                        <td className="p-4">{f.titulo}</td>
+              <tbody className="divide-y divide-slate-50 text-slate-700 text-sm">
+                {formulariosFiltrados.length > 0 ? (
+                  formulariosFiltrados.map((f) => (
+                    <tr
+                      key={f.id}
+                      className="
+                        hover:bg-slate-50/50
+                        transition-all
+                        duration-150
+                      "
+                    >
+                      <td className="p-5 font-medium text-slate-900">{f.titulo}</td>
 
-                        <td className="p-4">{f.filial?.nome || "—"}</td>
+                      <td className="p-5">{f.filial?.nome || "—"}</td>
 
-                        <td className="p-4">{f.usuario?.username || "—"}</td>
+                      <td className="p-5 text-slate-600">{f.usuario?.username || "—"}</td>
 
-                        <td className="p-4">
-                          {f.createdAt
-                            ? new Date(f.createdAt).toLocaleDateString("pt-BR")
-                            : "—"}
-                        </td>
+                      <td className="p-5 text-slate-500 font-medium">
+                        {f.createdAt
+                          ? new Date(f.createdAt).toLocaleDateString("pt-BR")
+                          : "—"}
+                      </td>
 
-                        <td className="p-4">
-                          <div className="flex gap-2 justify-center">
-                            <button
-                              onClick={() => downloadPdf(f.id)}
-                              className="
-                                px-4
-                                py-2
-                                rounded-xl
-                                bg-blue-500
-                                hover:bg-blue-600
-                                text-white
-                                text-sm
-                                transition
-                              "
-                            >
-                              PDF
-                            </button>
+                      <td className="p-5">
+                        <div className="flex gap-2 justify-center">
+                          <button
+                            onClick={() => downloadPdf(f.id)}
+                            className="
+                              px-4
+                              py-2
+                              rounded-xl
+                              bg-indigo-50
+                              hover:bg-indigo-100
+                              text-indigo-600
+                              font-bold
+                              text-xs
+                              transition-all
+                              duration-200
+                              active:scale-[0.96]
+                              cursor-pointer
+                            "
+                          >
+                            PDF
+                          </button>
 
-                            <button
-                              onClick={() => {
-                                setFormularioToDelete(f);
-                                setShowConfirm(true);
-                              }}
-                              className="
-                                px-4
-                                py-2
-                                rounded-xl
-                                bg-red-500
-                                hover:bg-red-600
-                                text-white
-                                text-sm
-                                transition
-                              "
-                            >
-                              Excluir
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={5} className="text-center p-8 text-gray-500">
-                        Nenhum formulário encontrado
+                          <button
+                            onClick={() => {
+                              setFormularioToDelete(f);
+                              setShowConfirm(true);
+                            }}
+                            className="
+                              px-4
+                              py-2
+                              rounded-xl
+                              bg-rose-50
+                              hover:bg-rose-100
+                              text-rose-600
+                              font-bold
+                              text-xs
+                              transition-all
+                              duration-200
+                              active:scale-[0.96]
+                              cursor-pointer
+                            "
+                          >
+                            Excluir
+                          </button>
+                        </div>
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="text-center p-12 text-slate-400 font-medium">
+                      Nenhum formulário cadastrado
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
 
       {/* MODAL */}
       {showConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center px-4 z-50">
+        <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-sm flex items-center justify-center px-4 z-50 animate-fade-in">
           <div
             className="
               bg-white
               w-full
               max-w-md
-              rounded-2xl
+              rounded-[2rem]
               p-6
+              md:p-8
+              border
+              border-slate-100
               shadow-2xl
-              space-y-5
+              space-y-6
+              animate-scale-up
             "
           >
-            <h3 className="text-xl font-bold text-gray-800">
-              Confirmar exclusão
-            </h3>
+            <div>
+              <h3 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                Confirmar exclusão
+              </h3>
 
-            <p className="text-gray-600">
-              Deseja realmente excluir o formulário:
-            </p>
+              <p className="text-slate-500 mt-2 text-sm leading-relaxed">
+                Tem certeza que deseja deletar este formulário? Esta ação não pode ser desfeita.
+              </p>
+            </div>
 
-            <div className="bg-gray-100 rounded-xl p-3 font-semibold">
+            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 font-semibold text-slate-800 text-sm">
               {formularioToDelete?.titulo}
             </div>
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex gap-3 justify-end pt-2">
               <button
                 onClick={() => setShowConfirm(false)}
                 className="
-                  px-4
-                  py-2
+                  px-5
+                  py-2.5
                   rounded-xl
-                  bg-gray-400
-                  hover:bg-gray-500
-                  text-white
-                  transition
+                  bg-slate-100
+                  hover:bg-slate-200
+                  text-slate-600
+                  font-bold
+                  text-sm
+                  transition-all
+                  duration-200
+                  active:scale-[0.98]
+                  cursor-pointer
                 "
               >
                 Cancelar
@@ -449,13 +490,20 @@ export default function Arquivos() {
               <button
                 onClick={handleConfirmDelete}
                 className="
-                  px-4
-                  py-2
+                  px-5
+                  py-2.5
                   rounded-xl
-                  bg-red-500
-                  hover:bg-red-600
+                  bg-rose-600
+                  hover:bg-rose-700
                   text-white
-                  transition
+                  font-bold
+                  text-sm
+                  transition-all
+                  duration-200
+                  active:scale-[0.98]
+                  shadow-lg
+                  shadow-rose-600/10
+                  cursor-pointer
                 "
               >
                 Excluir

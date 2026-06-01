@@ -137,38 +137,60 @@ export default function EditarEmpresa() {
     }
   }
 
-  if (loadingPage) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Carregando empresa...</p>
-      </div>
-    );
+  function handleContatoChange(e: any) {
+    let value = e.target.value.replace(/\D/g, "");
+
+    value = value.slice(0, 11);
+
+    if (value.length > 2) {
+      value = `(${value.slice(0, 2)}) ${value.slice(2)}`;
+    }
+
+    setContatoResponsavel(value);
   }
 
   if (loadingPage) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin" />
-
-          <p className="text-gray-600 font-medium">Carregando matriz...</p>
+          <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
+          <p className="text-slate-500 font-medium animate-pulse">
+            Carregando matriz...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* CONTAINER */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-slate-50/50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         {/* HEADER */}
-        <div className="bg-blue-600 px-5 md:px-8 py-6 text-center rounded-t-3xl">
-          <h2 className="text-2xl md:text-3xl font-bold text-white">
-            Editar Matriz
-          </h2>
+        <div
+          className="
+          bg-gradient-to-tr
+          from-slate-950
+          via-slate-900
+          to-indigo-950
+          rounded-[2rem]
+          shadow-lg
+          p-6
+          md:p-8
+          text-white
+          mb-6
+          relative
+          overflow-hidden
+        "
+        >
+          {/* Subtle decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
 
-          <p className="text-blue-100 mt-2 text-sm md:text-base">
-            Atualize as informações da matriz
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+            Editar Matriz
+          </h1>
+
+          <p className="text-indigo-200/80 mt-2 text-sm md:text-base font-medium">
+            Atualize as informações cadastrais da matriz selecionada
           </p>
         </div>
 
@@ -177,148 +199,90 @@ export default function EditarEmpresa() {
           onSubmit={handleSubmit}
           className="
           bg-white
-          rounded-3xl
-          shadow-lg
-          p-5
-          md:p-8
-          space-y-5
+          rounded-[2rem]
+          border
+          border-slate-100
+          shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+          p-6
+          md:p-10
+          space-y-6
         "
         >
           {/* NOME */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-bold text-slate-700">
               Nome da Matriz
             </label>
 
             <input
               value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              onChange={(e) => setNome(e.target.value.slice(0, 100))}
+              maxLength={25}
               placeholder="Digite o nome da empresa"
-              className="
-              w-full
-              border
-              border-gray-300
-              rounded-2xl
-              px-4
-              py-3
-              text-sm
-              md:text-base
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              transition
-            "
+              className="input-premium"
             />
           </div>
 
           {/* CNPJ + RESPONSÁVEL */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* CNPJ */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
-                CNPJ
-              </label>
+              <label className="text-sm font-bold text-slate-700">CNPJ</label>
 
               <input
                 value={cnpj}
                 onChange={handleCnpjChange}
                 maxLength={14}
+                inputMode="numeric"
                 placeholder="Somente números"
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-              "
+                className="input-premium"
               />
             </div>
 
+            {/* RESPONSÁVEL */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-bold text-slate-700">
                 Responsável
               </label>
 
               <input
                 value={responsavel}
-                onChange={(e) => setResponsavel(e.target.value)}
+                onChange={(e) => setResponsavel(e.target.value.slice(0, 80))}
+                maxLength={20}
                 placeholder="Nome do responsável"
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-              "
+                className="input-premium"
               />
             </div>
           </div>
 
           {/* CONTATO */}
           <div className="space-y-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-bold text-slate-700">
               Contato do Responsável
             </label>
 
             <input
               value={contatoResponsavel}
-              onChange={(e) => setContatoResponsavel(e.target.value)}
-              placeholder="Telefone ou email"
-              className="
-              w-full
-              border
-              border-gray-300
-              rounded-2xl
-              px-4
-              py-3
-              text-sm
-              md:text-base
-              focus:outline-none
-              focus:ring-2
-              focus:ring-blue-500
-              transition
-            "
+              onChange={handleContatoChange}
+              maxLength={15}
+              inputMode="numeric"
+              placeholder="(54) 999999999"
+              className="input-premium"
             />
           </div>
 
           {/* ASSINATURA */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* STATUS */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-bold text-slate-700">
                 Assinatura Ativa
               </label>
 
               <select
                 value={assinaturaAtiva ? "true" : "false"}
                 onChange={(e) => setAssinaturaAtiva(e.target.value === "true")}
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-                bg-white
-              "
+                className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
               >
                 <option value="true">Sim</option>
 
@@ -326,8 +290,9 @@ export default function EditarEmpresa() {
               </select>
             </div>
 
+            {/* DATA */}
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-bold text-slate-700">
                 Vencimento da Assinatura
               </label>
 
@@ -335,20 +300,7 @@ export default function EditarEmpresa() {
                 type="date"
                 value={vencimentoAssinatura}
                 onChange={(e) => setVencimentoAssinatura(e.target.value)}
-                className="
-                w-full
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                text-sm
-                md:text-base
-                focus:outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                transition
-              "
+                className="input-premium"
               />
             </div>
           </div>
@@ -371,13 +323,16 @@ export default function EditarEmpresa() {
               w-full
               md:w-auto
               px-6
-              py-3
+              py-3.5
               rounded-2xl
-              bg-gray-200
-              hover:bg-gray-300
-              text-gray-700
-              font-semibold
-              transition
+              bg-slate-100
+              hover:bg-slate-200
+              text-slate-600
+              font-bold
+              transition-all
+              duration-200
+              active:scale-[0.98]
+              cursor-pointer
             "
             >
               Cancelar
@@ -390,16 +345,19 @@ export default function EditarEmpresa() {
               w-full
               md:w-auto
               px-6
-              py-3
+              py-3.5
               rounded-2xl
-              font-semibold
+              font-bold
               text-white
-              transition
-              shadow-md
+              transition-all
+              duration-200
+              active:scale-[0.98]
+              shadow-lg
+              cursor-pointer
               ${
                 loading
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  ? "bg-slate-300 shadow-none cursor-not-allowed text-slate-500"
+                  : "premium-gradient-bg hover:opacity-95 shadow-indigo-500/15"
               }
             `}
             >

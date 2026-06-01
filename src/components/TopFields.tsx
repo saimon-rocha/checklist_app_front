@@ -41,36 +41,38 @@ export default function TopFields({
       className="
         bg-white
         rounded-3xl
-        shadow-lg
-        p-4
-        md:p-6
-        space-y-4
+        border
+        border-slate-100
+        shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+        p-5
+        md:p-8
+        space-y-6
       "
     >
       {/* HEADER */}
       <div>
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800">
-          Informações iniciais
+        <h2 className="text-xl md:text-2xl font-extrabold text-slate-800 tracking-tight">
+          Informações Iniciais
         </h2>
 
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-slate-400 mt-1 font-medium">
           Preencha os dados básicos da aferição
         </p>
       </div>
 
       {/* GRID */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* BICO */}
         <PerguntaTexto
           label="Identificação do Bico"
-          placeholder="Digite o identificador"
+          placeholder="Digite o identificador do bico"
           value={formData.bombaId || ""}
           onChange={(val) => onChange("bombaId", val)}
         />
 
         {/* DATA */}
         <PerguntaTexto
-          label="Data"
+          label="Data da Aferição"
           value={formData.data || today}
           onChange={() => {}}
           readOnly

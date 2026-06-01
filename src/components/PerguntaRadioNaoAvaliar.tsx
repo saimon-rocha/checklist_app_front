@@ -39,22 +39,23 @@ export default function PerguntaRadioNaoAvaliar({
         bg-white
         rounded-2xl
         border
-        border-gray-200
-        p-4
-        shadow-sm
-        transition
-        ${isDisabled ? "opacity-50" : ""}
+        border-slate-100
+        p-5
+        shadow-[0_4px_20px_rgba(0,0,0,0.02)]
+        transition-all
+        duration-300
+        ${isDisabled ? "opacity-60 bg-slate-50/50" : "hover:border-slate-200/80"}
       `}
     >
       {/* LABEL */}
       <div className="mb-4">
-        <span className="text-sm md:text-base font-semibold text-gray-800">
+        <span className="text-base md:text-lg font-bold text-slate-700">
           {label}
         </span>
       </div>
 
       {/* CONTENT */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="flex items-center gap-4 flex-wrap">
         {/* TOGGLE */}
         <div
           className="toggleSwitch"
@@ -88,11 +89,16 @@ export default function PerguntaRadioNaoAvaliar({
               py-2
               rounded-xl
               border
-              border-gray-300
-              hover:bg-gray-100
-              text-sm
-              font-medium
-              transition
+              border-slate-200
+              hover:bg-slate-50
+              hover:border-slate-300
+              text-xs
+              font-bold
+              text-slate-500
+              hover:text-slate-700
+              transition-all
+              duration-200
+              cursor-pointer
             "
           >
             Não avaliar
@@ -105,23 +111,28 @@ export default function PerguntaRadioNaoAvaliar({
               px-4
               py-2
               rounded-xl
-              bg-blue-600
-              hover:bg-blue-700
+              bg-indigo-600
+              hover:bg-indigo-700
               text-white
-              text-sm
-              font-medium
-              transition
+              text-xs
+              font-bold
+              transition-all
+              duration-200
+              cursor-pointer
+              shadow-sm
+              shadow-indigo-500/10
             "
           >
-            Avaliar
+            Avaliar Item
           </button>
         )}
       </div>
 
       {/* STATUS */}
       {isDisabled && (
-        <div className="mt-3">
-          <span className="text-sm text-gray-500 italic">
+        <div className="mt-3 flex items-center gap-1.5">
+          <div className="w-1.5 h-1.5 rounded-full bg-slate-400" />
+          <span className="text-xs text-slate-400 font-medium italic">
             Pergunta não avaliada
           </span>
         </div>

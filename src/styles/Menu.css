@@ -1,91 +1,174 @@
-/* ============================================== VARIÁVEIS GLOBAIS ============================================== */
+/* ==============================================
+   VARIÁVEIS DO MENU
+   ============================================== */
 :root {
-  --navbar-height: 62px;
-  --navbar-bg-color: #fff;
-  --navbar-text-color: #333;
-  --navbar-hover-color: #4f46e5;
-  --navbar-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  --menu-bg: rgba(255, 255, 255, 0.85);
+  --menu-border: rgba(241, 245, 249, 0.8);
+  --menu-active-color: #4f46e5;
+  --menu-text-color: #475569;
+  --menu-hover-bg: rgba(79, 70, 229, 0.05);
+  --menu-shadow:
+    0 10px 30px -10px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
-/* ============================================== ESTRUTURA PRINCIPAL DA NAVBAR ============================================== */
+/* ==============================================
+   ESTRUTURA PRINCIPAL DA NAVBAR
+   ============================================== */
 .navbarCustom {
   width: 100%;
-  position: static;
-  top: 0; /* ajustei pra top normal */
-  left: 0;
-  min-height: 60px; /* um pouco maior pra dar espaço */
-  z-index: 1000;
-  transition: all 0.3s ease-out;
-  padding: 10px 0; /* mais espaçamento vertical */
-  /*box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* sombra suave */
+  padding: 16px 24px;
   display: flex;
   justify-content: center;
-  backdrop-filter: blur(10px);
 }
 
-/* Container interno mais arredondado */
+/* Floating internal menu container */
 .container-menu {
   width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
+  max-width: 720px;
   display: flex;
-  justify-content: center;
-  background-color: #fff;
-  border-radius: 60px; /* mais redondo */
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1); /* sombra leve */
-  padding: 8px 20px; /* respiração interna */
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--menu-bg);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--menu-border);
+  border-radius: 24px;
+  box-shadow: var(--menu-shadow);
+  padding: 8px 16px;
+  pointer-events: auto; /* Re-enable clicks inside the menu itself */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Centralização do container */
+.container-menu:hover {
+  box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.12);
+  border-color: rgba(79, 70, 229, 0.15);
+}
+
+/* Menu items list wrapper */
 .navbarCustom .nav {
   display: flex;
   flex-direction: row;
-  justify-content: center; /* já centraliza os itens */
-  gap: 40px;
+  align-items: center;
+  gap: 8px;
   width: 100%;
+  justify-content: space-around;
 }
 
-/* ============================================== ITENS DA NAVBAR (ÍCONES E TEXTO) ============================================== */
+/* ==============================================
+   ITENS DO MENU (ÍCONES E TEXTO)
+   ============================================== */
 .navItemCustom {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  color: var(--navbar-text-color);
-  font-size: 13px;
-  transition:
-    color 0.2s,
-    transform 0.2s;
-  padding: 0 10px; /* Adiciona um respiro lateral */
-  min-width: 60px; /* Largura mínima para evitar que os itens fiquem espremidos */
+  color: var(--menu-text-color);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 8px 12px;
+  border-radius: 16px;
+  min-width: 68px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  outline: none;
+  position: relative;
 }
 
-.navItemCustom:hover {
-  color: var(--navbar-hover-color);
-  transform: translateY(-3px); /* Efeito de elevação um pouco maior */
-}
-
-/* Ícone SVG dentro do item */
 .navItemCustom svg {
-  margin-bottom: 5px; /* Aumenta o espaço entre o ícone e o texto */
+  margin-bottom: 4px;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--menu-text-color);
 }
 
-@media (max-width: 600px) {
+/* Hover effects */
+.navItemCustom:hover {
+  color: var(--menu-active-color);
+  background-color: var(--menu-hover-bg);
+}
+
+.navItemCustom:hover svg {
+  transform: translateY(-2px);
+  color: var(--menu-active-color);
+}
+
+/* Active states (we can style active links if we detect pathname) */
+.navItemCustom.active {
+  color: var(--menu-active-color);
+  background-color: rgba(79, 70, 229, 0.08);
+}
+
+.navItemCustom.active svg {
+  color: var(--menu-active-color);
+}
+
+/* Active indicator dot/bar */
+.navItemCustom.active::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  width: 12px;
+  height: 3px;
+  background-color: var(--menu-active-color);
+  border-radius: 99px;
+  animation: barScale 0.3s ease;
+}
+
+@keyframes barScale {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Logout styling */
+.navItemCustom:last-child {
+  color: #ef4444;
+}
+.navItemCustom:last-child:hover {
+  background-color: rgba(239, 68, 68, 0.05);
+  color: #dc2626;
+}
+.navItemCustom:last-child:hover svg {
+  color: #dc2626;
+  transform: translateX(2px);
+}
+
+/* ==============================================
+   RESPONSIVIDADE (MOBILE & TABLET)
+   ============================================== */
+@media (max-width: 768px) {
   .container-menu {
-    max-width: 100%;
-    border-radius: 0;
-    padding: 6px 10px;
+    justify-content: flex-start;
+    gap: 8px;
+    overflow-x: auto;
+
+    border-radius: 20px;
+    padding: 6px 12px;
+
+    box-shadow:
+      0 -10px 30px -10px rgba(0, 0, 0, 0.12),
+      0 10px 30px -10px rgba(0, 0, 0, 0.12);
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
 
-  .navbarCustom .nav {
-    gap: 10px; /* reduz MUITO o espaço */
+  .container-menu::-webkit-scrollbar {
+    display: none;
   }
 
   .navItemCustom {
-    min-width: auto; /* deixa encolher */
-    font-size: 11px;
-    padding: 0 5px;
+    min-width: 50px;
+    font-size: 9px;
+    padding: 6px 8px;
+    border-radius: 12px;
+    flex-shrink: 0;
   }
 
   .navItemCustom svg {

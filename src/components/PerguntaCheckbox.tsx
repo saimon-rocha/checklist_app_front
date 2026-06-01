@@ -27,19 +27,22 @@ export default function PerguntaCheckbox({
         bg-white
         rounded-2xl
         border
-        border-gray-200
+        border-slate-100
         p-5
-        shadow-sm
+        shadow-[0_4px_20px_rgba(0,0,0,0.02)]
+        hover:border-slate-200/80
+        transition-all
+        duration-300
         space-y-4
       "
     >
       {/* LABEL */}
-      <h3 className="text-base md:text-lg font-semibold text-gray-800">
+      <h3 className="text-base md:text-lg font-bold text-slate-700">
         {label}
       </h3>
 
       {/* OPTIONS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         {options.map((option) => {
           const checked = selectedValues.includes(option);
 
@@ -53,14 +56,15 @@ export default function PerguntaCheckbox({
                 border
                 rounded-2xl
                 px-4
-                py-3
+                py-3.5
                 cursor-pointer
-                transition
+                transition-all
+                duration-200
                 select-none
                 ${
                   checked
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-blue-300 hover:bg-gray-50"
+                    ? "border-indigo-500 bg-indigo-50/40 text-indigo-900 font-medium"
+                    : "border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-50/50"
                 }
               `}
             >
@@ -71,12 +75,13 @@ export default function PerguntaCheckbox({
                 className="
                   w-4
                   h-4
-                  accent-blue-600
+                  accent-indigo-600
                   cursor-pointer
+                  rounded-md
                 "
               />
 
-              <span className="text-sm md:text-base text-gray-700">
+              <span className="text-sm md:text-base">
                 {option}
               </span>
             </label>

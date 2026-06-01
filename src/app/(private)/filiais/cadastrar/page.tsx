@@ -187,16 +187,15 @@ export default function CadastroFilial() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-50/50">
       {/* CONTAINER */}
       <div
         className="
         max-w-3xl
         mx-auto
-        px-3
-        sm:px-4
-        md:px-6
-        py-4
+        px-4
+        sm:px-6
+        py-6
         md:py-8
       "
       >
@@ -205,60 +204,60 @@ export default function CadastroFilial() {
           onSubmit={handleSubmit}
           className="
           bg-white
-          rounded-3xl
-          shadow-xl
+          rounded-[2rem]
+          border
+          border-slate-100
+          shadow-[0_8px_30px_rgb(0,0,0,0.04)]
           overflow-hidden
         "
         >
           {/* HEADER */}
           <div
             className="
-            bg-blue-600
-            px-5
-            md:px-8
-            py-6
+            bg-gradient-to-tr
+            from-slate-950
+            via-slate-900
+            to-indigo-950
+            px-6
+            md:px-10
+            py-8
             text-center
+            relative
+            overflow-hidden
           "
           >
+            {/* Subtle decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl" />
+
             <h2
               className="
               text-2xl
               md:text-3xl
-              font-bold
+              font-extrabold
               text-white
+              tracking-tight
             "
             >
               Cadastro de Filial
             </h2>
 
-            <p className="text-blue-100 mt-2 text-sm md:text-base">
-              Cadastre uma nova filial no sistema
+            <p className="text-indigo-200/80 mt-2 text-sm md:text-base font-medium">
+              Cadastre uma nova filial no sistema vinculada a uma matriz
             </p>
           </div>
 
           {/* FORM CONTENT */}
-          <div className="p-4 md:p-8 space-y-5">
+          <div className="p-6 md:p-10 space-y-6">
             {/* MATRIZ */}
             <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">
-                Matriz
+              <label className="text-sm font-bold text-slate-700 mb-2">
+                Matriz vinculada
               </label>
 
               <select
                 value={empresaId}
                 onChange={(e) => setEmpresaId(e.target.value)}
-                className="
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                text-base
-                bg-white
-              "
+                className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
               >
                 <option value="">Selecione uma matriz</option>
 
@@ -272,7 +271,7 @@ export default function CadastroFilial() {
 
             {/* NOME */}
             <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">
+              <label className="text-sm font-bold text-slate-700 mb-2">
                 Nome da Filial
               </label>
 
@@ -280,23 +279,13 @@ export default function CadastroFilial() {
                 value={nomeFilial}
                 onChange={(e) => setNomeFilial(e.target.value)}
                 placeholder="Digite o nome da filial"
-                className="
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                text-base
-              "
+                className="input-premium"
               />
             </div>
 
             {/* CEP */}
             <div className="flex flex-col">
-              <label className="text-sm font-semibold text-gray-700 mb-2">
+              <label className="text-sm font-bold text-slate-700 mb-2">
                 CEP
               </label>
 
@@ -304,25 +293,15 @@ export default function CadastroFilial() {
                 value={cep}
                 onChange={handleCepChange}
                 maxLength={8}
-                placeholder="Digite o CEP"
-                className="
-                border
-                border-gray-300
-                rounded-2xl
-                px-4
-                py-3
-                outline-none
-                focus:ring-2
-                focus:ring-blue-500
-                text-base
-              "
+                placeholder="Digite o CEP (somente números)"
+                className="input-premium"
               />
             </div>
 
             {/* RUA + BAIRRO */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
+                <label className="text-sm font-bold text-slate-700 mb-2">
                   Rua
                 </label>
 
@@ -339,21 +318,22 @@ export default function CadastroFilial() {
                   border
                   rounded-2xl
                   px-4
-                  py-3
+                  py-3.5
                   text-base
                   outline-none
-                  transition
+                  transition-all
+                  duration-300
                   ${
                     endereco.ruaReadOnly
-                      ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-500"
+                      ? "bg-slate-100/70 text-slate-400 cursor-not-allowed border-slate-200"
+                      : "border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
                   }
                 `}
                 />
               </div>
 
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
+                <label className="text-sm font-bold text-slate-700 mb-2">
                   Bairro
                 </label>
 
@@ -370,14 +350,15 @@ export default function CadastroFilial() {
                   border
                   rounded-2xl
                   px-4
-                  py-3
+                  py-3.5
                   text-base
                   outline-none
-                  transition
+                  transition-all
+                  duration-300
                   ${
                     endereco.bairroReadOnly
-                      ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-500"
+                      ? "bg-slate-100/70 text-slate-400 cursor-not-allowed border-slate-200"
+                      : "border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
                   }
                 `}
                 />
@@ -385,9 +366,9 @@ export default function CadastroFilial() {
             </div>
 
             {/* CIDADE + ESTADO */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
+                <label className="text-sm font-bold text-slate-700 mb-2">
                   Cidade
                 </label>
 
@@ -404,21 +385,22 @@ export default function CadastroFilial() {
                   border
                   rounded-2xl
                   px-4
-                  py-3
+                  py-3.5
                   text-base
                   outline-none
-                  transition
+                  transition-all
+                  duration-300
                   ${
                     endereco.cidadeReadOnly
-                      ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-500"
+                      ? "bg-slate-100/70 text-slate-400 cursor-not-allowed border-slate-200"
+                      : "border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
                   }
                 `}
                 />
               </div>
 
               <div className="flex flex-col">
-                <label className="text-sm font-semibold text-gray-700 mb-2">
+                <label className="text-sm font-bold text-slate-700 mb-2">
                   Estado
                 </label>
 
@@ -435,14 +417,15 @@ export default function CadastroFilial() {
                   border
                   rounded-2xl
                   px-4
-                  py-3
+                  py-3.5
                   text-base
                   outline-none
-                  transition
+                  transition-all
+                  duration-300
                   ${
                     endereco.estadoReadOnly
-                      ? "bg-gray-100 text-gray-500 cursor-not-allowed border-gray-200"
-                      : "border-gray-300 focus:ring-2 focus:ring-blue-500"
+                      ? "bg-slate-100/70 text-slate-400 cursor-not-allowed border-slate-200"
+                      : "border-slate-200 focus:bg-white focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
                   }
                 `}
                 />
@@ -466,13 +449,16 @@ export default function CadastroFilial() {
                 w-full
                 md:w-auto
                 px-6
-                py-3
+                py-3.5
                 rounded-2xl
-                bg-gray-300
-                hover:bg-gray-400
-                text-gray-800
-                font-semibold
-                transition
+                bg-slate-100
+                hover:bg-slate-200
+                text-slate-600
+                font-bold
+                transition-all
+                duration-200
+                active:scale-[0.98]
+                cursor-pointer
               "
               >
                 Voltar
@@ -484,16 +470,23 @@ export default function CadastroFilial() {
                 className={`
                 w-full
                 flex-1
-                py-3
+                py-3.5
                 rounded-2xl
-                font-semibold
+                font-bold
                 text-white
-                transition
-                shadow-md
-                ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}
+                transition-all
+                duration-200
+                active:scale-[0.98]
+                shadow-lg
+                cursor-pointer
+                ${
+                  loading 
+                    ? "bg-slate-300 shadow-none cursor-not-allowed text-slate-500" 
+                    : "premium-gradient-bg hover:opacity-95 shadow-indigo-500/15"
+                }
               `}
               >
-                {loading ? "Salvando..." : "Cadastrar"}
+                {loading ? "Salvando..." : "Cadastrar Filial"}
               </button>
             </div>
           </div>

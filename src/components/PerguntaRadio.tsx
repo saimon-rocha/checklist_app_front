@@ -23,16 +23,19 @@ export default function PerguntaRadio({
         bg-white
         rounded-2xl
         border
-        border-gray-200
+        border-slate-100
         p-5
-        shadow-sm
+        shadow-[0_4px_20px_rgba(0,0,0,0.02)]
+        hover:border-slate-200/80
+        transition-all
+        duration-300
         flex
         flex-col
         gap-4
       "
     >
       {/* LABEL */}
-      <h3 className="text-base md:text-lg font-semibold text-gray-800">
+      <h3 className="text-base md:text-lg font-bold text-slate-700">
         {label}
       </h3>
 
@@ -46,6 +49,8 @@ export default function PerguntaRadio({
           gap-4
           w-fit
           select-none
+          cursor-pointer
+          group
         "
       >
         {/* SWITCH */}
@@ -55,9 +60,10 @@ export default function PerguntaRadio({
             w-16
             h-9
             rounded-full
-            transition
+            transition-all
             duration-300
-            ${isSim ? "bg-green-500" : "bg-red-500"}
+            shadow-inner
+            ${isSim ? "bg-emerald-500 shadow-emerald-600/20" : "bg-rose-500 shadow-rose-600/20"}
           `}
         >
           <div
@@ -68,9 +74,11 @@ export default function PerguntaRadio({
               h-7
               bg-white
               rounded-full
-              shadow-md
+              shadow-lg
               transition-all
               duration-300
+              ease-[cubic-bezier(0.34,1.56,0.64,1)]
+              group-active:scale-90
               ${isSim ? "translate-x-8" : "translate-x-1"}
             `}
           />
@@ -81,9 +89,11 @@ export default function PerguntaRadio({
           className={`
             text-sm
             md:text-base
-            font-semibold
-            transition
-            ${isSim ? "text-green-600" : "text-red-500"}
+            font-bold
+            tracking-wide
+            transition-colors
+            duration-300
+            ${isSim ? "text-emerald-600" : "text-rose-600"}
           `}
         >
           {isSim ? "Sim" : "Não"}

@@ -85,44 +85,49 @@ export default function ListaFiliais() {
   // =====================================
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-50/50">
       {/* CONTAINER */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 py-4 md:py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         {/* HEADER */}
         <div
           className="
           bg-white
-          rounded-3xl
-          shadow-md
-          p-5
-          md:p-7
+          rounded-[2rem]
+          border
+          border-slate-100
+          shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+          p-6
+          md:p-8
           mb-6
           text-center
         "
         >
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-800 tracking-tight">
             Filiais
           </h1>
 
-          <p className="text-sm md:text-base text-gray-500 mt-2">
-            Gerencie as filiais cadastradas no sistema
+          <p className="text-sm md:text-base text-slate-400 font-medium mt-2">
+            Gerencie as filiais ativas e suas respectivas localizações
           </p>
         </div>
 
         {/* LOADING */}
         {loading ? (
-          <div className="flex justify-center py-14">
-            <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin" />
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
           </div>
         ) : filiais.length === 0 ? (
           <div
             className="
             bg-white
-            rounded-2xl
-            shadow-sm
-            p-10
+            rounded-[2rem]
+            border
+            border-slate-100
+            shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+            p-12
             text-center
-            text-gray-500
+            text-slate-400
+            font-medium
           "
           >
             Nenhuma filial cadastrada
@@ -137,62 +142,55 @@ export default function ListaFiliais() {
                   key={f.id}
                   className="
                   bg-white
-                  rounded-2xl
-                  shadow-sm
-                  p-4
+                  rounded-[2rem]
+                  border
+                  border-slate-100
+                  shadow-[0_8px_30px_rgb(0,0,0,0.04)]
+                  p-5
                   space-y-4
                 "
                 >
                   {/* TOP */}
                   <div>
-                    <h2 className="text-lg font-bold text-gray-800">
+                    <h2 className="text-lg font-bold text-slate-800 leading-tight">
                       {f.nome}
                     </h2>
 
-                    <p className="text-sm text-gray-500 mt-1">
-                      {f.matriz?.nome || "Sem matriz"}
+                    <p className="text-xs text-indigo-600 font-semibold mt-1">
+                      Matriz: {f.matriz?.nome || "Sem matriz"}
                     </p>
                   </div>
 
                   {/* INFO */}
-                  <div className="space-y-2 text-sm">
-                    <p>
-                      <span className="font-semibold">CEP:</span> {f.cep || "-"}
+                  <div className="space-y-2 text-sm bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
+                    <p className="text-slate-600">
+                      <span className="font-bold text-slate-700">CEP:</span> {f.cep || "-"}
                     </p>
 
-                    <p>
-                      <span className="font-semibold">Rua:</span> {f.rua || "-"}
-                    </p>
-
-                    <p>
-                      <span className="font-semibold">Bairro:</span>{" "}
-                      {f.bairro || "-"}
-                    </p>
-
-                    <p>
-                      <span className="font-semibold">Cidade:</span>{" "}
-                      {f.cidade || "-"}
-                    </p>
-
-                    <p>
-                      <span className="font-semibold">Estado:</span>{" "}
-                      {f.estado || "-"}
+                    <p className="text-slate-600">
+                      <span className="font-bold text-slate-700">Endereço:</span> {f.rua ? `${f.rua}, ${f.bairro} - ${f.cidade}/${f.estado}` : "-"}
                     </p>
                   </div>
 
                   {/* ACTIONS */}
-                  <div className="flex gap-2 pt-2">
+                  <div className="flex gap-2.5 pt-2">
                     <button
                       onClick={() => handleEditar(f.id)}
                       className="
                       flex-1
-                      py-2.5
+                      py-3
                       rounded-xl
-                      bg-yellow-500
-                      hover:bg-yellow-600
+                      bg-amber-500
+                      hover:bg-amber-600
                       text-white
-                      font-medium
-                      transition
+                      font-bold
+                      text-xs
+                      transition-all
+                      duration-200
+                      active:scale-[0.98]
+                      cursor-pointer
+                      shadow-md
+                      shadow-amber-500/10
                     "
                     >
                       Editar
@@ -202,13 +200,19 @@ export default function ListaFiliais() {
                       onClick={() => handleDeleteClick(f)}
                       className="
                       flex-1
-                      py-2.5
+                      py-3
                       rounded-xl
-                      bg-red-500
-                      hover:bg-red-600
+                      bg-rose-500
+                      hover:bg-rose-600
                       text-white
-                      font-medium
-                      transition
+                      font-bold
+                      text-xs
+                      transition-all
+                      duration-200
+                      active:scale-[0.98]
+                      cursor-pointer
+                      shadow-md
+                      shadow-rose-500/10
                     "
                     >
                       Excluir
@@ -220,36 +224,24 @@ export default function ListaFiliais() {
 
             {/* ================= DESKTOP ================= */}
 
-            <div className="hidden md:block overflow-x-auto">
-              <div className="bg-white rounded-3xl shadow-lg overflow-hidden">
-                <table className="w-full">
-                  <thead className="bg-gray-100 text-left">
-                    <tr>
-                      <th className="p-4 font-semibold text-gray-700">
+            <div className="hidden md:block">
+              <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50/70 border-b border-slate-100 text-left">
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
                         Matriz
                       </th>
 
-                      <th className="p-4 font-semibold text-gray-700">
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
                         Filial
                       </th>
 
-                      <th className="p-4 font-semibold text-gray-700">CEP</th>
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">CEP</th>
 
-                      <th className="p-4 font-semibold text-gray-700">Rua</th>
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">Endereço</th>
 
-                      <th className="p-4 font-semibold text-gray-700">
-                        Bairro
-                      </th>
-
-                      <th className="p-4 font-semibold text-gray-700">
-                        Cidade
-                      </th>
-
-                      <th className="p-4 font-semibold text-gray-700">
-                        Estado
-                      </th>
-
-                      <th className="p-4 text-center font-semibold text-gray-700">
+                      <th className="p-4 px-6 text-center font-bold text-slate-500 text-xs uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
@@ -260,26 +252,24 @@ export default function ListaFiliais() {
                       <tr
                         key={f.id}
                         className="
-                        border-t
-                        hover:bg-gray-50
-                        transition
+                        border-b
+                        border-slate-100
+                        hover:bg-slate-50/50
+                        transition-all
+                        duration-200
                       "
                       >
-                        <td className="p-4">{f.matriz?.nome || "-"}</td>
+                        <td className="p-4 px-6 text-sm text-slate-500">{f.matriz?.nome || "-"}</td>
 
-                        <td className="p-4 font-medium">{f.nome}</td>
+                        <td className="p-4 px-6 font-medium text-slate-800">{f.nome}</td>
 
-                        <td className="p-4">{f.cep || "-"}</td>
+                        <td className="p-4 px-6 text-sm text-slate-500">{f.cep || "-"}</td>
 
-                        <td className="p-4">{f.rua || "-"}</td>
+                        <td className="p-4 px-6 text-sm text-slate-500">
+                          {f.rua ? `${f.rua}, ${f.bairro} - ${f.cidade}/${f.estado}` : "-"}
+                        </td>
 
-                        <td className="p-4">{f.bairro || "-"}</td>
-
-                        <td className="p-4">{f.cidade || "-"}</td>
-
-                        <td className="p-4">{f.estado || "-"}</td>
-
-                        <td className="p-4">
+                        <td className="p-4 px-6">
                           <div className="flex gap-2 justify-center">
                             <button
                               onClick={() => handleEditar(f.id)}
@@ -287,11 +277,16 @@ export default function ListaFiliais() {
                               px-4
                               py-2
                               rounded-xl
-                              bg-yellow-500
-                              hover:bg-yellow-600
+                              bg-amber-500
+                              hover:bg-amber-600
                               text-white
-                              text-sm
-                              transition
+                              text-xs
+                              font-bold
+                              transition-all
+                              duration-200
+                              cursor-pointer
+                              shadow-md
+                              shadow-amber-500/10
                             "
                             >
                               Editar
@@ -303,11 +298,16 @@ export default function ListaFiliais() {
                               px-4
                               py-2
                               rounded-xl
-                              bg-red-500
-                              hover:bg-red-600
+                              bg-rose-500
+                              hover:bg-rose-600
                               text-white
-                              text-sm
-                              transition
+                              text-xs
+                              font-bold
+                              transition-all
+                              duration-200
+                              cursor-pointer
+                              shadow-md
+                              shadow-rose-500/10
                             "
                             >
                               Excluir
@@ -326,14 +326,18 @@ export default function ListaFiliais() {
                   onClick={handleCadastrar}
                   className="
                   px-6
-                  py-3
+                  py-3.5
                   rounded-2xl
-                  bg-blue-600
-                  hover:bg-blue-700
+                  premium-gradient-bg
+                  hover:opacity-95
                   text-white
-                  font-semibold
-                  transition
-                  shadow-md
+                  font-bold
+                  transition-all
+                  duration-200
+                  active:scale-[0.98]
+                  shadow-lg
+                  shadow-indigo-500/15
+                  cursor-pointer
                 "
                 >
                   Cadastrar Filial
@@ -351,20 +355,24 @@ export default function ListaFiliais() {
           className="
           md:hidden
           fixed
-          bottom-5
-          right-5
-          w-16
-          h-16
+          bottom-24
+          right-6
+          w-14
+          h-14
           rounded-full
-          bg-blue-600
-          hover:bg-blue-700
+          premium-gradient-bg
+          hover:opacity-95
           text-white
           text-3xl
-          shadow-2xl
+          shadow-lg
+          shadow-indigo-500/30
           flex
           items-center
           justify-center
           z-50
+          cursor-pointer
+          active:scale-90
+          transition-transform
         "
         >
           +
@@ -377,7 +385,8 @@ export default function ListaFiliais() {
           className="
           fixed
           inset-0
-          bg-black/50
+          bg-slate-900/40
+          backdrop-blur-sm
           flex
           items-center
           justify-center
@@ -388,21 +397,26 @@ export default function ListaFiliais() {
           <div
             className="
             bg-white
-            rounded-3xl
+            rounded-[2rem]
+            border
+            border-slate-100
             p-6
+            md:p-8
             w-full
             max-w-md
             shadow-2xl
-            space-y-5
+            space-y-6
           "
           >
-            <h3 className="text-xl font-bold text-gray-800">
+            <h3 className="text-xl font-bold text-slate-800 tracking-tight">
               Confirmar exclusão
             </h3>
 
-            <p className="text-gray-600">Deseja realmente excluir a filial:</p>
+            <p className="text-slate-500 text-sm">
+              Deseja realmente desativar a filial abaixo?
+            </p>
 
-            <div className="bg-gray-100 rounded-xl p-3 font-semibold">
+            <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 font-bold text-slate-800 text-center break-all">
               {filialToDelete?.nome}
             </div>
 
@@ -410,13 +424,17 @@ export default function ListaFiliais() {
               <button
                 onClick={() => setShowConfirm(false)}
                 className="
-                px-4
-                py-2
+                px-5
+                py-3
                 rounded-xl
-                bg-gray-400
-                hover:bg-gray-500
-                text-white
-                transition
+                bg-slate-100
+                hover:bg-slate-200
+                text-slate-600
+                font-bold
+                text-xs
+                transition-all
+                duration-200
+                cursor-pointer
               "
               >
                 Cancelar
@@ -425,13 +443,19 @@ export default function ListaFiliais() {
               <button
                 onClick={handleConfirmDelete}
                 className="
-                px-4
-                py-2
+                px-5
+                py-3
                 rounded-xl
-                bg-red-500
-                hover:bg-red-600
+                bg-rose-500
+                hover:bg-rose-600
                 text-white
-                transition
+                font-bold
+                text-xs
+                transition-all
+                duration-200
+                cursor-pointer
+                shadow-md
+                shadow-rose-500/10
               "
               >
                 Excluir
