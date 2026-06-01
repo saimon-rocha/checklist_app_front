@@ -102,7 +102,8 @@ export default function Relatorio() {
     }
 
     gerarRelatorioPDF(resultado, dataInicio, dataFim);
-  }  // =========================================
+  }
+  // =========================================
   // UI
   // =========================================
 
@@ -312,7 +313,7 @@ export default function Relatorio() {
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">Vazamento</span>
+                    <span className="font-bold text-slate-500 text-xs uppercase">Vazamento Bico</span>
                     <span className="font-medium text-slate-800">{item.vazamentoBico}</span>
                   </div>
 
@@ -340,7 +341,7 @@ export default function Relatorio() {
 
                   <th className="p-5 text-left font-bold">Vazão Mín</th>
 
-                  <th className="p-5 text-left font-bold">Vazamento</th>
+                  <th className="p-5 text-left font-bold">Vazamento Bico</th>
 
                   <th className="p-5 text-left font-bold">Vazão Bomba</th>
                 </tr>

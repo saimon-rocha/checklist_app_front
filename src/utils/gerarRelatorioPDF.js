@@ -168,7 +168,7 @@ export default function gerarRelatorioPDF(resultado, dataInicio, dataFim) {
           "DATA",
           "VAZÃO MÁX",
           "VAZÃO MÍN",
-          "VAZAMENTO",
+          "VAZAMENTO DO BICO",
           "VAZÃO BOMBA",
         ],
       ],
