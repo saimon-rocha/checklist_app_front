@@ -51,7 +51,7 @@ export default function Menu({ user }: { user?: any }) {
           <div>Relatórios</div>
         </Link>
 
-       
+        {(isMaster || isGestor) && (
           <>
             <Link href="/matriz" className="navItemCustom">
               <Building2 size={22} />
@@ -68,7 +68,7 @@ export default function Menu({ user }: { user?: any }) {
               <div>Usuários</div>
             </Link>
           </>
-        
+        )}
 
         <button onClick={handleLogout} className="navItemCustom">
           <BoxArrowRight size={22} />

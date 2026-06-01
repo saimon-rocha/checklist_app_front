@@ -89,6 +89,7 @@ export default function LoginPage() {
 
           <h1 className="text-white text-3xl font-bold mt-6">
             Sistema Checklist
+            <span className="block">Bomba Medidora</span>
           </h1>
         </div>
       </div>

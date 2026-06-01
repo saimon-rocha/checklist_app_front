@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import moment from "moment";
 import { toast } from "react-toastify";
 
@@ -24,6 +24,11 @@ type RelatorioItem = {
   vazaoBomba: number;
 };
 
+type Filial = {
+  id: number;
+  nome: string;
+};
+
 export default function Relatorio() {
   const hoje = new Date().toISOString().split("T")[0];
 
@@ -33,7 +38,27 @@ export default function Relatorio() {
 
   const [resultado, setResultado] = useState<RelatorioItem[]>([]);
 
+  const [filiais, setFiliais] = useState<Filial[]>([]);
+
+  const [idFilial, setIdFilial] = useState("");
+
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    carregarFiliais();
+  }, []);
+
+  async function carregarFiliais() {
+    try {
+      const response = await api.get("/filiais");
+
+      setFiliais(response.data);
+    } catch (err) {
+      console.error(err);
+
+      toast.error("Erro ao carregar filiais");
+    }
+  }
 
   // =========================================
   // BUSCAR
@@ -47,6 +72,7 @@ export default function Relatorio() {
         params: {
           dataInicio,
           dataFim,
+          id_filial: idFilial || undefined,
         },
       });
 
@@ -111,7 +137,7 @@ export default function Relatorio() {
       "
       >
         {/* DATAS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
           <div className="flex flex-col">
             <label className="text-sm font-semibold text-gray-700 mb-1">
               Data Inicial
@@ -156,6 +182,36 @@ export default function Relatorio() {
               transition
             "
             />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-semibold text-gray-700 mb-1">
+              Filial
+            </label>
+
+            <select
+              value={idFilial}
+              onChange={(e) => setIdFilial(e.target.value)}
+              className="
+      border
+      border-gray-300
+      rounded-xl
+      px-4
+      py-3
+      focus:outline-none
+      focus:ring-2
+      focus:ring-blue-500
+      transition
+    "
+            >
+              <option value="">Todas as filiais</option>
+
+              {filiais.map((filial) => (
+                <option key={filial.id} value={filial.id}>
+                  {filial.nome}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* BOTÕES */}
@@ -302,7 +358,12 @@ export default function Relatorio() {
 
                       <td className="p-4 font-medium">{item.bomba}</td>
 
-                      <td className="p-4">{ moment.utc(item.dataRelatorio).local().format("DD/MM/YYYY HH:mm") }</td>
+                      <td className="p-4">
+                        {moment
+                          .utc(item.dataRelatorio)
+                          .local()
+                          .format("DD/MM/YYYY HH:mm")}
+                      </td>
 
                       <td className="p-4">{item.totalVazaoMax}</td>
 

@@ -4,18 +4,16 @@ import autoTable from "jspdf-autotable";
 /* ================= FORMATAR DATA ================= */
 
 function formatarDataBR(data) {
-
   if (!data) return "-";
 
   const [ano, mes, dia] = data.split("-");
 
-  return `${ dia } /${mes}/${ ano } `;
+  return `${dia}/${mes}/${ano} `;
 }
 
 /* ================= HEADER MODERNO ================= */
 
 function addHeader(doc, info) {
-
   // FUNDO DO TOPO
   doc.setFillColor(25, 118, 210);
 
@@ -23,16 +21,7 @@ function addHeader(doc, info) {
 
   // LOGO
   try {
-
-    doc.addImage(
-      info.logo,
-      "PNG",
-      12,
-      8,
-      24,
-      24
-    );
-
+    doc.addImage(info.logo, "PNG", 12, 8, 24, 24);
   } catch (err) {
     console.error(err);
   }
@@ -44,24 +33,14 @@ function addHeader(doc, info) {
 
   doc.setFont("helvetica", "bold");
 
-  doc.text(
-    "RELATÓRIO DE AFERIÇÕES",
-    105,
-    18,
-    { align: "center" }
-  );
+  doc.text("RELATÓRIO DE AFERIÇÕES", 105, 18, { align: "center" });
 
   // SUBTÍTULO
   doc.setFontSize(11);
 
   doc.setFont("helvetica", "normal");
 
-  doc.text(
-    "Controle e monitoramento de bombas",
-    105,
-    27,
-    { align: "center" }
-  );
+  doc.text("Controle e monitoramento de bombas", 105, 27, { align: "center" });
 
   // LINHA
   doc.setDrawColor(255, 255, 255);
@@ -74,19 +53,10 @@ function addHeader(doc, info) {
 /* ================= INFO BOX ================= */
 
 function addInfoBox(doc, info, y) {
-
   // BOX
   doc.setFillColor(245, 247, 250);
 
-  doc.roundedRect(
-    10,
-    y,
-    190,
-    28,
-    3,
-    3,
-    "F"
-  );
+  doc.roundedRect(10, y, 190, 28, 3, 3, "F");
 
   // TITULOS
   doc.setTextColor(100);
@@ -97,7 +67,7 @@ function addInfoBox(doc, info, y) {
 
   doc.text("Usuário", 15, y + 8);
 
-  doc.text("Filial", 80, y + 8);
+  doc.text("Filiais", 80, y + 8);
 
   doc.text("Período", 145, y + 8);
 
@@ -106,22 +76,14 @@ function addInfoBox(doc, info, y) {
 
   doc.setFont("helvetica", "normal");
 
-  doc.text(
-    info.usuario || "-",
-    15,
-    y + 17
-  );
+  doc.text(info.usuario || "-", 15, y + 17);
+
+  doc.text(`${info.totalFiliais} filial(is)`, 80, y + 17);
 
   doc.text(
-    info.filial || "-",
-    80,
-    y + 17
-  );
-
-  doc.text(
-    `${ formatarDataBR(info.dataInicio) } até ${ formatarDataBR(info.dataFim) } `,
+    `${formatarDataBR(info.dataInicio)} até ${formatarDataBR(info.dataFim)} `,
     145,
-    y + 17
+    y + 17,
   );
 
   return y + 40;
@@ -129,18 +91,9 @@ function addInfoBox(doc, info, y) {
 
 /* ================= PDF ================= */
 
-export default function gerarRelatorioPDF(
-  resultado,
-  dataInicio,
-  dataFim
-) {
-
+export default function gerarRelatorioPDF(resultado, dataInicio, dataFim) {
   if (!Array.isArray(resultado)) {
-
-    console.error(
-      "Resultado inválido:",
-      resultado
-    );
+    console.error("Resultado inválido:", resultado);
 
     return;
   }
@@ -152,115 +105,73 @@ export default function gerarRelatorioPDF(
   img.src = "/android-chrome-512x512.png";
 
   img.onload = () => {
-
     /* ================= STORAGE ================= */
 
     let usuarioLogado = {};
 
     try {
-
-      usuarioLogado = JSON.parse(
-        localStorage.getItem("usuarioLogado") || "{}"
-      );
-
+      usuarioLogado = JSON.parse(localStorage.getItem("usuarioLogado") || "{}");
     } catch (err) {
-
       console.error(err);
     }
 
-    const filialNome =
-      resultado?.[0]?.filial || "-";
-
+    const totalFiliais = new Set(resultado.map((item) => item.filial)).size;
     /* ================= HEADER ================= */
 
     let y = addHeader(doc, {
-
-      logo: img
+      logo: img,
     });
 
     /* ================= INFO ================= */
 
-    y = addInfoBox(doc, {
+    y = addInfoBox(
+      doc,
+      {
+        usuario: usuarioLogado?.username || "-",
 
-      usuario:
-        usuarioLogado?.username || "-",
+        totalFiliais,
 
-      filial:
-        filialNome,
+        dataInicio,
 
-      dataInicio,
-
-      dataFim
-
-    }, y);
+        dataFim,
+      },
+      y,
+    );
 
     /* ================= BODY ================= */
 
-    const body = resultado.map((item, index) => {
+    const body = resultado.map((item) => [
+      item.filial || "-",
 
-      const checklist =
-        item?.respostas?.checklist || [];
+      item.bomba || "-",
 
-      const ensaio =
-        item?.respostas?.ensaio || [];
+      new Date(item.dataRelatorio).toLocaleString("pt-BR"),
 
-      const vazaoMax =
-        checklist.find(
-          (r) =>
-            r.nome === "Vazão Máxima"
-        )?.valor || 0;
+      `${item.totalVazaoMax} ML`,
 
-      const vazaoMin =
-        checklist.find(
-          (r) =>
-            r.nome === "Vazão Mínima"
-        )?.valor || 0;
+      `${item.totalVazaoMin} ML`,
 
-      const vazamentoBico =
-        ensaio.find(
-          (r) =>
-            r.nome === "Vazamento do Bico"
-        )?.valor || 0;
+      `${item.vazamentoBico} ML`,
 
-      const vazaoBomba =
-        ensaio.find(
-          (r) =>
-            r.nome === "Vazão da Bomba"
-        )?.valor || 0;
-
-      return [
-
-        item?.bomba || `Bico ${ index + 1 } `,
-
-        `${ vazaoMax } ML`,
-
-        `${ vazaoMin } ML`,
-
-        `${ vazamentoBico } ML`,
-
-        `${ vazaoBomba } L / min`
-      ];
-    });
+      `${item.vazaoBomba} L/min`,
+    ]);
 
     /* ================= TABELA ================= */
 
     autoTable(doc, {
-
       startY: y,
 
-      head: [[
-
-        "BICO",
-
-        "VAZÃO MÁXIMA",
-
-        "VAZÃO MÍNIMA",
-
-        "VAZAMENTO",
-
-        "VAZÃO BOMBA"
-
-      ]],
+      head: [
+        [
+          "FILIAL",
+          "BOMBA",
+          "DATA",
+          "VAZÃO MÁX",
+          "VAZÃO MÍN",
+          "VAZAMENTO",
+          "VAZÃO BOMBA",
+        ],
+      ],
 
       body,
 
@@ -270,11 +181,10 @@ export default function gerarRelatorioPDF(
 
       margin: {
         left: 10,
-        right: 10
+        right: 10,
       },
 
       styles: {
-
         fontSize: 10,
 
         cellPadding: 5,
@@ -283,11 +193,10 @@ export default function gerarRelatorioPDF(
 
         overflow: "linebreak",
 
-        textColor: [40, 40, 40]
+        textColor: [40, 40, 40],
       },
 
       headStyles: {
-
         fillColor: [25, 118, 210],
 
         textColor: 255,
@@ -296,101 +205,73 @@ export default function gerarRelatorioPDF(
 
         halign: "center",
 
-        fontSize: 11
+        fontSize: 11,
       },
 
       bodyStyles: {
-
-        halign: "center"
+        halign: "center",
       },
 
       alternateRowStyles: {
-
-        fillColor: [248, 249, 250]
+        fillColor: [248, 249, 250],
       },
 
       columnStyles: {
-
         0: {
           halign: "left",
-          fontStyle: "bold"
-        }
+          fontStyle: "bold",
+        },
       },
 
       didDrawPage: () => {
-
         // RODAPÉ
-        const pageCount =
-          doc.internal.getNumberOfPages();
+        const pageCount = doc.internal.getNumberOfPages();
 
-        const pageHeight =
-          doc.internal.pageSize.height;
+        const pageHeight = doc.internal.pageSize.height;
 
-        const pageWidth =
-          doc.internal.pageSize.width;
+        const pageWidth = doc.internal.pageSize.width;
 
         doc.setFontSize(9);
 
         doc.setTextColor(120);
 
         doc.text(
-          `Gerado em ${ new Date().toLocaleString("pt-BR") } `,
+          `Gerado em ${new Date().toLocaleString("pt-BR")} `,
           10,
-          pageHeight - 8
+          pageHeight - 8,
         );
 
         doc.text(
-          `Página ${ doc.internal.getCurrentPageInfo().pageNumber } de ${ pageCount } `,
+          `Página ${doc.internal.getCurrentPageInfo().pageNumber} de ${pageCount} `,
           pageWidth - 10,
           pageHeight - 8,
-          { align: "right" }
+          { align: "right" },
         );
-      }
+      },
     });
 
     /* ================= RESUMO ================= */
 
-    const finalY =
-      doc.lastAutoTable.finalY + 15;
+    const finalY = doc.lastAutoTable.finalY + 15;
 
     doc.setFillColor(245, 247, 250);
 
-    doc.roundedRect(
-      10,
-      finalY,
-      190,
-      20,
-      3,
-      3,
-      "F"
-    );
+    doc.roundedRect(10, finalY, 190, 20, 3, 3, "F");
 
     doc.setFontSize(11);
 
-    doc.setFont(
-      "helvetica",
-      "bold"
-    );
+    doc.setFont("helvetica", "bold");
 
     doc.setTextColor(40);
 
-    doc.text(
-      `Total de aferições: ${ resultado.length } `,
-      15,
-      finalY + 12
-    );
+    doc.text(`Total de aferições: ${resultado.length} `, 15, finalY + 12);
 
     /* ================= SAVE ================= */
 
-    doc.save(
-      `Relatorio_${ dataInicio }.pdf`
-    );
+    doc.save(`Relatorio_${dataInicio}_${dataFim}.pdf`);
   };
 
   img.onerror = () => {
-
-    console.error(
-      "Erro ao carregar imagem"
-    );
+    console.error("Erro ao carregar imagem");
   };
 }
