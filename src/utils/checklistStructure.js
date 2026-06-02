@@ -19,8 +19,8 @@ export const ensaioAfericaoItems = [
     { id: "vazaoBomba", label: "VAZÃO DA BOMBA (Segura 6 seg. o gatilho X 10 o resultado obtido dos litros) L/min", subtitle: "(Mínimo De 50% Da Vazão Indicada Na Placa Das Inscrições Obrigatórias)", type: "text", placeholder: "L/min", keyboardType: "numeric", },
     { id: "vazaoMax", label: "VOLUME INDICADO NO AFERIDOR NA VAZÃO MÁXIMA(ML)", subtitle: "(Tolerância: -100ml / +100ml, sinais contrários soman-se as Diferenças Obtidas.)", type: "text", placeholder: "ML", keyboardType: "numeric", allowNegative: true},
     { id: "vazaoMin", label: "VOLUME INDICADO NO AFERIDOR NA VAZÃO MÍNIMA (ML)", subtitle: "(Tolerância: -100ml / +100ml, sinais contrários soman-se as Diferenças Obtidas.)", type: "text", placeholder: "ML", keyboardType: "numeric", allowNegative: true},
-    { id: "desliga60seg", label: "DESLIGA EM ATÉ 60 SEGUNDOS?", type: "radio" },
-    { id: "comprimentoMangueira", label: "COMPRIMENTO DA MANGUEIRA ATÉ 5 METROS? (ou 6m com dispositivo de segurança)", type: "radio" },
+    { id: "desliga60seg", label: "DESLIGA EM ATÉ 60 SEGUNDOS?", type: "radio", defaultValue: "Sim"},
+    { id: "comprimentoMangueira", label: "COMPRIMENTO DA MANGUEIRA ATÉ 5 METROS? (ou 6m com dispositivo de segurança)", type: "radio", defaultValue: "Sim"},
     { id: "mangueiraDanificada", label: "MANGUEIRA DANIFICADA? (Quando trincada aparece a malha)", type: "radio", dangerOnSim: true},
     { id: "bico", placeholder: "Bico", type: "text", dependsOn: "mangueiraDanificada", showIf: "Sim" },
     {

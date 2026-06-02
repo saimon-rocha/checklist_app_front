@@ -81,9 +81,14 @@ export default function EnsaioAfericaoPage() {
 
   /* ================= INIT ================= */
   const initialState = ensaioAfericaoItems.reduce((acc: any, item: any) => {
-    if (item.type === "checkbox") acc[item.id] = [];
-    else if (item.type === "radio") acc[item.id] = "Não";
-    else acc[item.id] = "";
+    if (item.type === "checkbox") {
+      acc[item.id] = [];
+    } else if (item.type === "radio") {
+      acc[item.id] = item.defaultValue ?? "Não";
+    } else {
+      acc[item.id] = "";
+    }
+
     return acc;
   }, {});
 

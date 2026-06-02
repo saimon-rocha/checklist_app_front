@@ -43,8 +43,20 @@ export default function CadastrarMatriz() {
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (!nome || !cnpj || !responsavel || !contatoResponsavel) {
+    if (
+      !nome ||
+      !cnpj ||
+      !responsavel ||
+      !contatoResponsavel ||
+      !vencimentoAssinatura
+    ) {
       toast.warning("Preencha todos os campos!");
+      return;
+    }
+    const dataAtual = new Date();
+    const dataAssinatura = new Date(vencimentoAssinatura);
+    if (dataAssinatura < dataAtual) {
+      toast.warning("Data da Assinatura deve ser maior que a Data Atual");
       return;
     }
 
