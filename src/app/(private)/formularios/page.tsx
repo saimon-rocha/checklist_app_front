@@ -119,7 +119,7 @@ export default function Arquivos() {
     if (!formularioToDelete) return;
 
     try {
-      await api.put(`/formularios/${formularioToDelete.id}/ativo`);
+      await api.put(`/formularios/${formularioToDelete.id}/desabilitar`);
 
       toast.success("Formulário excluído com sucesso!");
 

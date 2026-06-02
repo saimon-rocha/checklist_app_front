@@ -22,6 +22,8 @@ export default function Menu({ user }: { user?: any }) {
   const isMaster = user?.role === "master";
   const isGestor = user?.role === "gestor";
 
+  console.log(user?.role);
+
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("usuarioLogado");
@@ -66,7 +68,7 @@ export default function Menu({ user }: { user?: any }) {
           <div>Relatórios</div>
         </Link>
 
-        {(isMaster || isGestor) && (
+        {(isMaster) && (
           <>
             <Link 
               href="/matriz" 

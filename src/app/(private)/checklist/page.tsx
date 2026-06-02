@@ -45,7 +45,7 @@ function ChecklistField({ item, formData, onChange }: any) {
           selectedValue={formData[item.id]}
           onChange={(val: string) => onChange(item.id, val)}
         />
-      )}
+      )}  
 
       {item.type === "text" && (
         <PerguntaTexto
@@ -69,10 +69,14 @@ export default function ChecklistBomba() {
   );
 
   const initialState = checklistItems.reduce(
-    (acc: any, item: any) => {
-      if (item.type === "checkbox") acc[item.id] = [];
-      else if (item.type === "radio") acc[item.id] = "nao";
-      else acc[item.id] = "";
+    (acc, item) => {
+      if (item.type === "checkbox") {
+        acc[item.id] = [];
+      } else if (item.type === "radio") {
+        acc[item.id] = item.defaultValue ?? "Não";
+      } else {
+        acc[item.id] = "";
+      }
 
       return acc;
     },
@@ -153,11 +157,12 @@ export default function ChecklistBomba() {
     const resetForm = {
       ...initialState,
       data: getToday(),
+      id_filial: filialSelecionada,
     };
 
     setForm(resetForm);
+
     localStorage.removeItem("checklistBombaForm");
-    setFilialSelecionada(null);
   }
 
   return (

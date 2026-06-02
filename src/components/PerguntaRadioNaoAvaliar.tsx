@@ -13,14 +13,14 @@ export default function PerguntaRadioNaoAvaliar({
   selectedValue,
   onChange,
 }: PerguntaRadioNaoAvaliarProps) {
-  const value = selectedValue || "sim";
+  const value = selectedValue || "Sim";
 
   const isDisabled = value === "NAO_AVALIADO";
 
   function handleToggle() {
     if (isDisabled) return;
 
-    const newValue = value === "sim" ? "nao" : "sim";
+    const newValue = value === "Sim" ? "Não" : "Sim";
 
     onChange(newValue);
   }
@@ -30,7 +30,7 @@ export default function PerguntaRadioNaoAvaliar({
   }
 
   function handleVoltar() {
-    onChange("sim");
+    onChange("Sim");
   }
 
   return (
@@ -64,17 +64,12 @@ export default function PerguntaRadioNaoAvaliar({
             pointerEvents: isDisabled ? "none" : "auto",
           }}
         >
-          <div
-            className={`toggleTrack ${
-              value === "sim" ? "sim" : "nao"
-            }`}
-          >
+          <div className={`toggleTrack ${value === "Sim" ? "sim" : "nao"}`}>
             <div className="toggleThumb" />
           </div>
 
           <div className="toggleLabels">
             <span className="labelSim">Sim</span>
-
             <span className="labelNao">Não</span>
           </div>
         </div>

@@ -11,10 +11,10 @@ export default function PerguntaRadioDefeito({
   selectedValue,
   onChange,
 }: PerguntaRadioDefeitoProps) {
-  const hasDefeito = selectedValue === "sim";
+  const hasDefeito = selectedValue === "Sim";
 
   function handleToggle() {
-    onChange(hasDefeito ? "nao" : "sim");
+    onChange(hasDefeito ? "Não" : "Sim");
   }
 
   return (

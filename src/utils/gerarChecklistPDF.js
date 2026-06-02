@@ -224,43 +224,21 @@ function addChecklist(doc, checklist, startY) {
 
 function addEnsaio(doc, ensaio, startY) {
   startY = addSectionTitle(doc, "Ensaio / Aferição", startY, [39, 174, 96]);
-
-  const body = ensaio
-    .map((item) => {
-      const def = ensaioAfericaoItems.find((i) => i.id === item.id);
-
-      if (!def) return null;
+  const body = ensaioAfericaoItems
+    .map((def) => {
+      const item = ensaio.find((e) => e.id === def.id);
 
       if (def.dependsOn) {
-        const depende = ensaio.find((c) => c.id === def.dependsOn)?.resposta;
+        const depende = ensaio.find((e) => e.id === def.dependsOn)?.resposta;
 
-        if (depende?.toLowerCase?.() !== def.showIf) {
+        if (depende?.toLowerCase?.() !== def.showIf?.toLowerCase?.()) {
           return null;
         }
       }
 
-      let fullLabel;
+      const resposta = item?.resposta ?? "—";
 
-      if (item.id === "bico") {
-        fullLabel = "BICO";
-      } else {
-        const labelBase = def.label || item.id;
-
-        const placeholder =
-          def.placeholder && !labelBase.includes(def.placeholder)
-            ? ` (${def.placeholder})`
-            : "";
-
-        const subtitle = def.subtitle ? ` ${def.subtitle}` : "";
-
-        fullLabel = labelBase + placeholder + subtitle;
-      }
-
-      const resposta = Array.isArray(item.resposta)
-        ? item.resposta.join(", ")
-        : item.resposta || "—";
-
-      return [fullLabel, resposta];
+      return [def.label || def.placeholder || def.id, resposta];
     })
     .filter(Boolean);
 

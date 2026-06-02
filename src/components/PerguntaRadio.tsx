@@ -11,10 +11,10 @@ export default function PerguntaRadio({
   selectedValue,
   onChange,
 }: PerguntaRadioProps) {
-  const isSim = selectedValue === "sim";
+  const isSim = selectedValue === "Sim";
 
   function handleToggle() {
-    onChange(isSim ? "nao" : "sim");
+    onChange(isSim ? "Não" : "Sim");
   }
 
   return (

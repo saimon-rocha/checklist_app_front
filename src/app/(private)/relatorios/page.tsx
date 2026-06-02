@@ -30,7 +30,7 @@ type Filial = {
 };
 
 export default function Relatorio() {
-  const hoje = new Date().toISOString().split("T")[0];
+  const hoje = new Date().toLocaleDateString("en-CA");
 
   const [dataInicio, setDataInicio] = useState(hoje);
 
