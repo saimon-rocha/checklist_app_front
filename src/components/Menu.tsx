@@ -26,7 +26,8 @@ export default function Menu({ user }: { user?: any }) {
     localStorage.removeItem("token");
     localStorage.removeItem("usuarioLogado");
     localStorage.removeItem("expiresAt");
-
+    localStorage.removeItem("ensaioForm");
+    localStorage.removeItem("checklistBombaForm");
     toast.success("Logout realizado!");
     router.replace("/login");
   }
