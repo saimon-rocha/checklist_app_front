@@ -231,6 +231,7 @@ export default function CadastroUsuario() {
             <input
               type="email"
               value={email}
+              maxLength={100}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Ex: funcionario@empresa.com"
               className="input-premium"
