@@ -45,7 +45,7 @@ function ChecklistField({ item, formData, onChange }: any) {
           selectedValue={formData[item.id]}
           onChange={(val: string) => onChange(item.id, val)}
         />
-      )}  
+      )}
 
       {item.type === "text" && (
         <PerguntaTexto
@@ -68,7 +68,13 @@ export default function ChecklistBomba() {
     null,
   );
 
-  const initialState = checklistItems.reduce(
+  const baseState: Record<string, any> = {
+    bombaId: "",
+    data: getToday(),
+    id_filial: "",
+  };
+
+  const initialState = checklistItems.reduce<Record<string, any>>(
     (acc, item) => {
       if (item.type === "checkbox") {
         acc[item.id] = [];
@@ -80,11 +86,7 @@ export default function ChecklistBomba() {
 
       return acc;
     },
-    {
-      bombaId: "",
-      data: getToday(),
-      id_filial: "",
-    },
+    baseState,
   );
 
   const [form, setForm] = useState<any>(() => {

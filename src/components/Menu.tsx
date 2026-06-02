@@ -21,9 +21,7 @@ export default function Menu({ user }: { user?: any }) {
 
   const isMaster = user?.role === "master";
   const isGestor = user?.role === "gestor";
-
-  console.log(user?.role);
-
+  
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("usuarioLogado");
