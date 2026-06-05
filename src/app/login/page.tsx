@@ -19,6 +19,7 @@ function parseJwt(token: string) {
 export default function LoginPage() {
   const router = useRouter();
 
+  const [nome, setNome] = useState("");
   const [username, setUsername] = useState("");
   const [password_hash, setPassword] = useState("");
 
@@ -46,12 +47,13 @@ export default function LoginPage() {
       localStorage.setItem("expiresAt", data.expiresAt);
 
       const payload = parseJwt(data.token);
-
+      const nome = data.user.nome;
       if (payload) {
         localStorage.setItem(
           "usuarioLogado",
           JSON.stringify({
             id: payload.id,
+            nome: nome,
             username: payload.username,
             perfil: payload.perfil,
             filiais: payload.filiais || [],
@@ -59,7 +61,7 @@ export default function LoginPage() {
         );
       }
 
-      toast.success(`Bem-vindo, ${username}!`);
+      toast.success(`Bem-vindo(a), ${nome}`);
 
       router.push("/checklist");
     } catch (error: any) {
@@ -82,7 +84,7 @@ export default function LoginPage() {
         {/* Glow circles */}
         <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-indigo-500/10 blur-[120px]" />
         <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-blue-500/10 blur-[120px]" />
-        
+
         <div className="flex flex-col items-center z-10 p-8">
           <Image
             src={logo}
@@ -156,8 +158,12 @@ export default function LoginPage() {
 
           {/* TÍTULO DESKTOP */}
           <div className="hidden md:block text-center mb-2">
-            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Bem-vindo</h1>
-            <p className="text-slate-400 mt-2 text-sm">Entre com suas credenciais de acesso</p>
+            <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">
+              Bem-vindo
+            </h1>
+            <p className="text-slate-400 mt-2 text-sm">
+              Entre com suas credenciais de acesso
+            </p>
           </div>
 
           {/* USERNAME */}
@@ -221,7 +227,9 @@ export default function LoginPage() {
           {/* MENSAGEM */}
           {msg && (
             <div className="p-3.5 bg-rose-50 border border-rose-100 rounded-2xl">
-              <p className="text-rose-600 text-sm font-medium text-center">{msg}</p>
+              <p className="text-rose-600 text-sm font-medium text-center">
+                {msg}
+              </p>
             </div>
           )}
         </form>
