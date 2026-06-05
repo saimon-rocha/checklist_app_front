@@ -29,14 +29,18 @@
   justify-content: center;
   align-items: center;
   gap: 12px;
+
   background-color: var(--menu-bg);
   backdrop-filter: blur(16px) saturate(180%);
   -webkit-backdrop-filter: blur(16px) saturate(180%);
+
   border: 1px solid var(--menu-border);
   border-radius: 24px;
   box-shadow: var(--menu-shadow);
+
   padding: 8px 16px;
-  pointer-events: auto; /* Re-enable clicks inside the menu itself */
+
+  pointer-events: auto;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -144,20 +148,24 @@
    RESPONSIVIDADE (MOBILE & TABLET)
    ============================================== */
 @media (max-width: 768px) {
+  .navbarCustom {
+    padding: 8px;
+  }
+
   .container-menu {
-    justify-content: center;
+    width: 100%;
+
+    display: flex;
+    justify-content: flex-start; /* importante */
+
     gap: 8px;
+
     overflow-x: auto;
-
-    border-radius: 20px;
-    padding: 6px 12px;
-
-    box-shadow:
-      0 -10px 30px -10px rgba(0, 0, 0, 0.12),
-      0 10px 30px -10px rgba(0, 0, 0, 0.12);
+    overflow-y: hidden;
 
     scrollbar-width: none;
-    -ms-overflow-style: none;
+
+    padding: 8px;
   }
 
   .container-menu::-webkit-scrollbar {
@@ -165,15 +173,10 @@
   }
 
   .navItemCustom {
-    min-width: 50px;
-    font-size: 9px;
-    padding: 6px 8px;
-    border-radius: 12px;
     flex-shrink: 0;
-  }
 
-  .navItemCustom svg {
-    width: 18px;
-    height: 18px;
+    min-width: 60px;
+    padding: 6px 8px;
+    font-size: 9px;
   }
 }
