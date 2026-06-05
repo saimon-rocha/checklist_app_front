@@ -64,7 +64,7 @@ export default function ListaUsuarios() {
     // GESTOR NÃO PODE EXCLUIR MASTER
     // =====================================
 
-    if (usuarioLogado?.role === "gestor" && usuario.role === "master") {
+    if (usuarioLogado?.perfil === "gestor" && usuario.perfil === "master") {
       toast.warning("Gestores não podem excluir usuários master!");
 
       return;
@@ -74,7 +74,7 @@ export default function ListaUsuarios() {
     // GESTOR NÃO PODE EXCLUIR GESTOR
     // =====================================
 
-    if (usuarioLogado?.role === "gestor" && usuario.role === "gestor") {
+    if (usuarioLogado?.perfil === "gestor" && usuario.perfil === "gestor") {
       toast.warning("Gestores não podem excluir outros gestores!");
 
       return;
@@ -107,8 +107,8 @@ export default function ListaUsuarios() {
   // ROLE COLOR
   // =====================================
 
-  function renderRole(role: string) {
-    if (role === "master") {
+  function renderRole(perfil: string) {
+    if (perfil === "master") {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-600 border border-rose-100">
           Master
@@ -116,7 +116,7 @@ export default function ListaUsuarios() {
       );
     }
 
-    if (role === "gestor") {
+    if (perfil === "gestor") {
       return (
         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">
           Gestor
@@ -207,7 +207,7 @@ export default function ListaUsuarios() {
                       {u.username}
                     </h2>
 
-                    <div className="shrink-0">{renderRole(u.role)}</div>
+                    <div className="shrink-0">{renderRole(u.perfil)}</div>
                   </div>
 
                   {/* INFO */}
@@ -315,7 +315,7 @@ export default function ListaUsuarios() {
                             : <span className="text-slate-400 italic">Sem filial associada</span>}
                         </td>
 
-                        <td className="p-4 px-6">{renderRole(u.role)}</td>
+                        <td className="p-4 px-6">{renderRole(u.perfil)}</td>
 
                         <td className="p-4 px-6">
                           <div className="flex gap-2 justify-center">

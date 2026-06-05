@@ -17,13 +17,15 @@ export default function EditarUsuario() {
 
   const id = params.id;
 
+  const [nome, setNome] = useState("");
+
   const [email, setEmail] = useState("");
 
   const [senha, setSenha] = useState("");
 
   const [cpf, setCpf] = useState("");
 
-  const [role, setRole] = useState("funcionario");
+  const [perfil, setRole] = useState("funcionario");
 
   const [filialSelecionada, setFilialSelecionada] = useState("");
 
@@ -44,7 +46,7 @@ export default function EditarUsuario() {
       ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
       : {};
 
-  const isMaster = usuarioLogado?.role === "master";
+  const isMaster = usuarioLogado?.perfil === "master";
 
   // =========================================
   // LOAD
@@ -84,11 +86,13 @@ export default function EditarUsuario() {
 
       const usuario = response.data;
 
+      setNome(usuario.nome || "");
+
       setEmail(usuario.username || "");
 
       setCpf(usuario.cpf || "");
 
-      setRole(usuario.role || "funcionario");
+      setRole(usuario.perfil || "funcionario");
 
       // =========================================
       // FILIAIS
@@ -119,16 +123,24 @@ export default function EditarUsuario() {
     // VALIDA FILIAIS
     // =========================================
 
-    if (role === "funcionario" && !filialSelecionada) {
+    if (perfil === "funcionario" && !filialSelecionada) {
       toast.warning("Selecione uma filial.");
       return;
     }
 
     if (
-      (role === "gestor" || role === "master") &&
+      (perfil === "gestor" || perfil === "master") &&
       filiaisSelecionadas.length === 0
     ) {
       toast.warning("Selecione ao menos uma filial.");
+      return;
+    }
+
+    // =========================================
+    // Nome
+    // =========================================
+    if (!nome.trim()) {
+      toast.warning("Informe o nome do usuário.");
       return;
     }
 
@@ -145,7 +157,7 @@ export default function EditarUsuario() {
     // MASTER
     // =========================================
 
-    if (!isMaster && role === "master") {
+    if (!isMaster && perfil === "master") {
       toast.error("Você não possui permissão para definir perfil master.");
       return;
     }
@@ -154,8 +166,8 @@ export default function EditarUsuario() {
     // SENHA
     // =========================================
 
-    if (senha && senha.trim().length < 6) {
-      toast.warning("A senha deve ter no mínimo 6 caracteres.");
+    if (senha && senha.trim().length < 8) {
+      toast.warning("A senha deve conter no mínimo 8 caracteres.");
       return;
     }
 
@@ -175,20 +187,18 @@ export default function EditarUsuario() {
       // =========================================
 
       const body: any = {
+        nome: nome.trim(),
         username: email.trim(),
-
         cpf,
-
-        role,
-
+        perfil,
         filiais:
-          role === "gestor" || role === "master"
+          perfil === "gestor" || perfil === "master"
             ? filiaisSelecionadas
             : [Number(filialSelecionada)],
       };
 
       if (senha.trim()) {
-        body.password = senha.trim();
+        body.password_hash = senha.trim();
       }
 
       // =========================================
@@ -207,17 +217,19 @@ export default function EditarUsuario() {
       // ALTERAÇÕES SENSÍVEIS
       // =========================================
 
+      const nomeAlterado = usuarioOriginal.nome !== nome.trim();
+
       const emailAlterado = usuarioOriginal.username !== email.trim();
 
       const senhaAlterada = senha.trim().length > 0;
 
-      const roleAlterado = usuarioOriginal.role !== role;
+      const roleAlterado = usuarioOriginal.perfil !== perfil;
 
       const filiaisOriginais =
         usuarioOriginal?.filiais?.map((f: any) => Number(f.id)) || [];
 
       const filiaisAtuais =
-        role === "gestor" || role === "master"
+        perfil === "gestor" || perfil === "master"
           ? filiaisSelecionadas
           : [Number(filialSelecionada)];
 
@@ -231,7 +243,8 @@ export default function EditarUsuario() {
 
       if (
         editouProprioUsuario &&
-        (emailAlterado ||
+        (nomeAlterado ||
+          emailAlterado ||
           senhaAlterada ||
           roleAlterado ||
           filialAlterada)
@@ -274,7 +287,9 @@ export default function EditarUsuario() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-slate-500 font-medium animate-pulse">Carregando formulário...</p>
+          <p className="text-slate-500 font-medium animate-pulse">
+            Carregando formulário...
+          </p>
         </div>
       </div>
     );
@@ -332,6 +347,21 @@ export default function EditarUsuario() {
             space-y-6
           "
         >
+          {/* Nome */}
+          <div className="flex flex-col">
+            <label className="text-sm font-bold text-slate-700 mb-2">
+              Nome Completo
+            </label>
+
+            <input
+              type="text"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Digite o nome completo"
+              className="input-premium"
+            />
+          </div>
+
           {/* EMAIL */}
           <div className="flex flex-col">
             <label className="text-sm font-bold text-slate-700 mb-2">
@@ -388,7 +418,7 @@ export default function EditarUsuario() {
               </label>
 
               <select
-                value={role}
+                value={perfil}
                 onChange={(e) => setRole(e.target.value)}
                 className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
               >
@@ -403,13 +433,13 @@ export default function EditarUsuario() {
             {/* FILIAIS */}
             <div className="flex flex-col">
               <label className="text-sm font-bold text-slate-700 mb-2">
-                {role === "gestor" || role === "master"
+                {perfil === "gestor" || perfil === "master"
                   ? "Filiais Vinculadas (Múltiplas)"
                   : "Filial Vinculada"}
               </label>
 
               {/* FUNCIONÁRIO */}
-              {role === "funcionario" && (
+              {perfil === "funcionario" && (
                 <select
                   value={filialSelecionada}
                   onChange={(e) => setFilialSelecionada(e.target.value)}
@@ -426,7 +456,7 @@ export default function EditarUsuario() {
               )}
 
               {/* GESTOR / MASTER */}
-              {(role === "gestor" || role === "master") && (
+              {(perfil === "gestor" || perfil === "master") && (
                 <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 max-h-64 overflow-y-auto space-y-2.5">
                   {filiais.map((filial) => {
                     const checked = filiaisSelecionadas.includes(filial.id);

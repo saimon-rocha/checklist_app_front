@@ -13,13 +13,11 @@ import api from "../../../../service/api";
 export default function CadastroUsuario() {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-
+  const [nome, setNome] = useState("");
+  const [username, setUsername] = useState("");
+  const [perfil, setPerfil] = useState("funcionario");
   const [senha, setSenha] = useState("");
-
   const [cpf, setCpf] = useState("");
-
-  const [role, setRole] = useState("funcionario");
 
   const [filialSelecionada, setFilialSelecionada] = useState("");
   const [filiaisGestor, setFiliaisGestor] = useState<number[]>([]);
@@ -35,8 +33,8 @@ export default function CadastroUsuario() {
       ? JSON.parse(localStorage.getItem("usuarioLogado") || "{}")
       : {};
 
-  const isMaster = usuarioLogado?.role === "master";
-  const isGestor = usuarioLogado?.role === "gestor";
+  const isMaster = usuarioLogado?.perfil === "master";
+  const isGestor = usuarioLogado?.perfil === "gestor";
 
   // =========================================
   // LOAD FILIAIS
@@ -103,13 +101,13 @@ export default function CadastroUsuario() {
   async function handleSubmit(e: any) {
     e.preventDefault();
 
-    if (!email || !senha || !cpf || !role) {
+    if (!nome || !username || !senha || !cpf || !perfil) {
       toast.warning("Preencha todos os campos!");
 
       return;
     }
     if (
-      (role === "gestor" || role === "master") &&
+      (perfil === "gestor" || perfil === "master") &&
       filiaisGestor.length === 0
     ) {
       toast.warning("Selecione ao menos uma filial.");
@@ -117,7 +115,7 @@ export default function CadastroUsuario() {
       return;
     }
 
-    if (role === "funcionario" && !filialSelecionada) {
+    if (perfil === "funcionario" && !filialSelecionada) {
       toast.warning("Selecione uma filial!");
       return;
     }
@@ -127,8 +125,8 @@ export default function CadastroUsuario() {
       return;
     }
 
-    if (senha.trim().length < 6) {
-      toast.warning("A senha deve ter no mínimo 6 caracteres!");
+    if (senha.trim().length < 8) {
+      toast.warning("A senha deve ter no mínimo 8 caracteres!");
 
       return;
     }
@@ -137,13 +135,18 @@ export default function CadastroUsuario() {
 
     try {
       await api.post("/usuarios", {
-        username: email.trim(),
-        password: senha.trim(),
+        nome: nome.trim(),
+
+        username: username.trim().toLowerCase(),
+
+        password_hash: senha.trim(),
+
         cpf: cpf.trim(),
-        role,
+
+        perfil,
 
         filiais:
-          role === "gestor" || role === "master"
+          perfil === "gestor" || perfil === "master"
             ? filiaisGestor
             : [Number(filialSelecionada)],
       });
@@ -224,17 +227,34 @@ export default function CadastroUsuario() {
             space-y-6
           "
         >
+          {/* Nome */}
+
+          <div className="flex flex-col">
+            <label className="text-sm font-bold text-slate-700 mb-2">
+              Nome Completo
+            </label>
+
+            <input
+              type="text"
+              value={nome}
+              maxLength={150}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Ex: João da Silva"
+              className="input-premium"
+            />
+          </div>
+
           {/* EMAIL */}
           <div className="flex flex-col">
             <label className="text-sm font-bold text-slate-700 mb-2">
-              E-mail / Usuário
+              E-mail
             </label>
 
             <input
               type="email"
-              value={email}
+              value={username}
               maxLength={100}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setUsername(e.target.value)}
               placeholder="Ex: funcionario@empresa.com"
               className="input-premium"
             />
@@ -252,7 +272,7 @@ export default function CadastroUsuario() {
                 type="password"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}
-                placeholder="Mínimo de 6 caracteres"
+                placeholder="Mínimo de 8 caracteres"
                 className="input-premium"
               />
             </div>
@@ -267,7 +287,7 @@ export default function CadastroUsuario() {
                 onChange={handleCpfChange}
                 maxLength={11}
                 placeholder="Somente números"
-                className="input-premium bg-slate-100/70 text-slate-500 border-slate-200/60 cursor-not-allowed"
+                className="input-premium bg-slate-100/70 text-slate-500 border-slate-200/60"
               />
             </div>
           </div>
@@ -281,8 +301,8 @@ export default function CadastroUsuario() {
               </label>
 
               <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
+                value={perfil}
+                onChange={(e) => setPerfil(e.target.value)}
                 className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
               >
                 <option value="funcionario">Funcionário</option>
@@ -299,12 +319,12 @@ export default function CadastroUsuario() {
             {/* FILIAL */}
             <div className="flex flex-col">
               <label className="text-sm font-bold text-slate-700 mb-2">
-                {role === "gestor" || role === "master"
+                {perfil === "gestor" || perfil === "master"
                   ? "Filiais Vinculadas (Múltiplas)"
                   : "Filial Vinculada"}
               </label>
 
-              {role === "gestor" || role === "master" ? (
+              {perfil === "gestor" || perfil === "master" ? (
                 <div
                   className="
                     border

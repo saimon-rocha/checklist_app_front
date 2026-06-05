@@ -20,13 +20,13 @@ export default function LoginPage() {
   const router = useRouter();
 
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [password_hash, setPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
   async function handleLogin() {
-    if (!username || !password) {
+    if (!username || !password_hash) {
       setMsg("Preencha usuário e senha!");
       return;
     }
@@ -37,7 +37,7 @@ export default function LoginPage() {
 
       const response = await api.post("/login", {
         username: username.trim(),
-        password: password.trim(),
+        password_hash: password_hash.trim(),
       });
 
       const data = response.data;
@@ -53,7 +53,7 @@ export default function LoginPage() {
           JSON.stringify({
             id: payload.id,
             username: payload.username,
-            role: payload.role,
+            perfil: payload.perfil,
             filiais: payload.filiais || [],
           }),
         );
@@ -184,7 +184,7 @@ export default function LoginPage() {
 
             <input
               type="password"
-              value={password}
+              value={password_hash}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="current-password"
               placeholder="Digite sua senha"

@@ -19,8 +19,8 @@ export default function Menu({ user }: { user?: any }) {
   const router = useRouter();
   const pathname = usePathname() || "";
 
-  const isMaster = user?.role === "master";
-  const isGestor = user?.role === "gestor";
+  const isMaster = user?.perfil === "master";
+  const isGestor = user?.perfil === "gestor";
   
   function handleLogout() {
     localStorage.removeItem("token");
