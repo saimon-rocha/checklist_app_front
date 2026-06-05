@@ -427,18 +427,7 @@ export default function EditarUsuario() {
 
               {/* GESTOR / MASTER */}
               {(role === "gestor" || role === "master") && (
-                <div
-                  className="
-                    border
-                    border-slate-200
-                    rounded-2xl
-                    p-4
-                    bg-slate-50/50
-                    max-h-64
-                    overflow-y-auto
-                    space-y-2.5
-                  "
-                >
+                <div className="border border-slate-200 rounded-2xl p-4 bg-slate-50/50 max-h-64 overflow-y-auto space-y-2.5">
                   {filiais.map((filial) => {
                     const checked = filiaisSelecionadas.includes(filial.id);
 

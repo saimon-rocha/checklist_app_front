@@ -168,7 +168,9 @@ export default function CadastroUsuario() {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
-          <p className="text-slate-500 font-medium animate-pulse">Carregando formulário...</p>
+          <p className="text-slate-500 font-medium animate-pulse">
+            Carregando formulário...
+          </p>
         </div>
       </div>
     );
@@ -260,13 +262,12 @@ export default function CadastroUsuario() {
               <label className="text-sm font-bold text-slate-700 mb-2">
                 CPF
               </label>
-
               <input
                 value={cpf}
                 onChange={handleCpfChange}
                 maxLength={11}
                 placeholder="Somente números"
-                className="input-premium"
+                className="input-premium bg-slate-100/70 text-slate-500 border-slate-200/60 cursor-not-allowed"
               />
             </div>
           </div>
