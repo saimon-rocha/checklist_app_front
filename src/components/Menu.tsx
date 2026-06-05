@@ -28,7 +28,7 @@ export default function Menu({ user }: { user?: any }) {
     localStorage.removeItem("expiresAt");
     localStorage.removeItem("ensaioForm");
     localStorage.removeItem("checklistBombaForm");
-    toast.success("Logout realizado!");
+    toast.success("Sessão encerrada.");
     router.replace("/login");
   }
 

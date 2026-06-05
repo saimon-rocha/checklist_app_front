@@ -178,7 +178,7 @@ export default function EnsaioAfericaoPage() {
 
       const dadosCompletos = {
         titulo: checklistObj.bombaId || "Checklist Bomba",
-        usuario_id: payload?.id,
+        id_usuario: payload?.id,
         id_filial: combinedForm.id_filial,
         respostas: {
           checklist: checklistArray,

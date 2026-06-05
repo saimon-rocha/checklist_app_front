@@ -19,7 +19,7 @@ type Formulario = {
 
   createdAt?: string;
 
-  usuario_id?: number;
+  id_usuario?: number;
 
   id_filial?: number;
 
