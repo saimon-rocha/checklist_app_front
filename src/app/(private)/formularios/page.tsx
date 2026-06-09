@@ -174,7 +174,12 @@ export default function Arquivos() {
       toast.error(error?.response?.data?.error || "Erro ao gerar PDF");
     }
   }
+  
+const hoje = new Date().toISOString().split("T")[0];
 
+const [dataInicio, setDataInicio] = useState(hoje);
+const [dataFim, setDataFim] = useState(hoje);
+  
   // =====================================
   // UI
   // =====================================
@@ -215,8 +220,8 @@ export default function Arquivos() {
       {/* FILTRO */}
       <div className="max-w-6xl mx-auto mb-6">
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6">
-          <div className="flex flex-col md:flex-row gap-3 items-start md:items-end">
-            <div className="flex flex-col w-full md:max-w-sm">
+          <div className="flex flex-col md:flex-row gap-4 items-end">
+            <div className="flex flex-col w-full md:w-[320px]">
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Filtrar por filial
               </label>
@@ -235,23 +240,31 @@ export default function Arquivos() {
                 ))}
               </select>
             </div>
-            <div className="flex flex-col">
+           <div className="flex flex-col w-full md:w-[180px]">
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Data inicial
               </label>
 
-              <input
-                type="date"
-                value={dataInicio}
-                onChange={(e) => setDataInicio(e.target.value)}
-                className="input-premium"
-              />
-            </div>
-
-            <div className="flex flex-col">
-              <label className="text-sm font-bold text-slate-700 mb-2">
-                Data final
-              </label>
+                  <input
+                    type="date"
+                    value={dataInicio}
+                    onChange={(e) => setDataInicio(e.target.value)}
+                    className="input-premium h-11"
+                  />
+                </div>
+                
+                <div className="flex flex-col w-full md:w-[180px]">
+                  <label className="text-sm font-bold text-slate-700 mb-2">
+                    Data final
+                  </label>
+                
+                  <input
+                    type="date"
+                    value={dataFim}
+                    onChange={(e) => setDataFim(e.target.value)}
+                    className="input-premium h-11"
+                  />
+                </div>
 
               <input
                 type="date"
