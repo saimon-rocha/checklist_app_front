@@ -22,8 +22,6 @@ export default function ListaUsuarios() {
   const [busca, setBusca] = useState("");
   const [filtroFilial, setFiltroFilial] = useState("");
   const [filtroPerfil, setFiltroPerfil] = useState("");
-
-  const [matrizes, setMatrizes] = useState([]);
   const [filiais, setFiliais] = useState([]);
 
   // =====================================
@@ -63,11 +61,7 @@ export default function ListaUsuarios() {
       !filtroFilial ||
       u.filiais?.some((f: any) => String(f.id) === filtroFilial);
 
-    const matchMatriz =
-      !filtroMatriz ||
-      u.filiais?.some((f: any) => String(f.matriz_id) === filtroMatriz);
-
-    return matchBusca && matchPerfil && matchFilial && matchMatriz;
+    return matchBusca && matchPerfil && matchFilial;
   });
   // =====================================
   // DELETE
@@ -192,7 +186,7 @@ export default function ListaUsuarios() {
         </div>
 
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <input
               type="text"
               placeholder="Pesquisar usuário..."
@@ -200,7 +194,7 @@ export default function ListaUsuarios() {
               onChange={(e) => setBusca(e.target.value)}
               className="input-premium"
             />
-            
+
             <select
               value={filtroFilial}
               onChange={(e) => setFiltroFilial(e.target.value)}

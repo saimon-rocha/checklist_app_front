@@ -55,7 +55,8 @@ export default function Arquivos() {
     useState<Formulario | null>(null);
 
   const [filtroFilial, setFiltroFilial] = useState("");
-
+  const [dataInicio, setDataInicio] = useState("");
+  const [dataFim, setDataFim] = useState("");
   // =====================================
   // FETCH
   // =====================================
@@ -104,12 +105,23 @@ export default function Arquivos() {
   }, [formularios]);
 
   const formulariosFiltrados = useMemo(() => {
-    if (!filtroFilial) return formularios;
+    return formularios.filter((f) => {
+      const matchFilial =
+        !filtroFilial || String(f.id_filial) === String(filtroFilial);
 
-    return formularios.filter(
-      (f) => String(f.id_filial) === String(filtroFilial),
-    );
-  }, [formularios, filtroFilial]);
+      const dataFormulario = f.createdAt ? new Date(f.createdAt) : null;
+
+      const matchDataInicio =
+        !dataInicio ||
+        (dataFormulario && dataFormulario >= new Date(dataInicio));
+
+      const matchDataFim =
+        !dataFim ||
+        (dataFormulario && dataFormulario <= new Date(`${dataFim}T23:59:59`));
+
+      return matchFilial && matchDataInicio && matchDataFim;
+    });
+  }, [formularios, filtroFilial, dataInicio, dataFim]);
 
   // =====================================
   // DELETE
@@ -223,6 +235,31 @@ export default function Arquivos() {
                 ))}
               </select>
             </div>
+            <div className="flex flex-col">
+              <label className="text-sm font-bold text-slate-700 mb-2">
+                Data inicial
+              </label>
+
+              <input
+                type="date"
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+                className="input-premium"
+              />
+            </div>
+
+            <div className="flex flex-col">
+              <label className="text-sm font-bold text-slate-700 mb-2">
+                Data final
+              </label>
+
+              <input
+                type="date"
+                value={dataFim}
+                onChange={(e) => setDataFim(e.target.value)}
+                className="input-premium"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -232,7 +269,9 @@ export default function Arquivos() {
         <div className="flex justify-center py-20">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
-            <p className="text-slate-500 font-medium animate-pulse">Carregando formulários...</p>
+            <p className="text-slate-500 font-medium animate-pulse">
+              Carregando formulários...
+            </p>
           </div>
         </div>
       ) : (
@@ -270,13 +309,21 @@ export default function Arquivos() {
 
                   <div className="space-y-2 text-sm text-slate-600">
                     <div className="flex justify-between items-center py-1 border-b border-slate-50">
-                      <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">Filial</span>
-                      <span className="font-medium text-slate-800">{f.filial?.nome || "—"}</span>
+                      <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
+                        Filial
+                      </span>
+                      <span className="font-medium text-slate-800">
+                        {f.filial?.nome || "—"}
+                      </span>
                     </div>
 
                     <div className="flex justify-between items-center py-1">
-                      <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">Usuário</span>
-                      <span className="font-medium text-slate-800">{f.usuario?.username || "—"}</span>
+                      <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
+                        Usuário
+                      </span>
+                      <span className="font-medium text-slate-800">
+                        {f.usuario?.username || "—"}
+                      </span>
                     </div>
                   </div>
 
@@ -361,11 +408,15 @@ export default function Arquivos() {
                         duration-150
                       "
                     >
-                      <td className="p-5 font-medium text-slate-900">{f.titulo}</td>
+                      <td className="p-5 font-medium text-slate-900">
+                        {f.titulo}
+                      </td>
 
                       <td className="p-5">{f.filial?.nome || "—"}</td>
 
-                      <td className="p-5 text-slate-600">{f.usuario?.username || "—"}</td>
+                      <td className="p-5 text-slate-600">
+                        {f.usuario?.username || "—"}
+                      </td>
 
                       <td className="p-5 text-slate-500 font-medium">
                         {f.createdAt
@@ -423,7 +474,10 @@ export default function Arquivos() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan={5} className="text-center p-12 text-slate-400 font-medium">
+                    <td
+                      colSpan={5}
+                      className="text-center p-12 text-slate-400 font-medium"
+                    >
                       Nenhum formulário cadastrado
                     </td>
                   </tr>
@@ -458,7 +512,8 @@ export default function Arquivos() {
               </h3>
 
               <p className="text-slate-500 mt-2 text-sm leading-relaxed">
-                Tem certeza que deseja deletar este formulário? Esta ação não pode ser desfeita.
+                Tem certeza que deseja deletar este formulário? Esta ação não
+                pode ser desfeita.
               </p>
             </div>
 
