@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+
 import moment from "moment";
 import { toast } from "react-toastify";
 
@@ -45,20 +46,18 @@ export default function Relatorio() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    async function carregarFiliais() {
+      try {
+        const response = await api.get("/filiais");
+        setFiliais(response.data);
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao carregar filiais");
+      }
+    }
+
     carregarFiliais();
   }, []);
-
-  async function carregarFiliais() {
-    try {
-      const response = await api.get("/filiais");
-
-      setFiliais(response.data);
-    } catch (err) {
-      console.error(err);
-
-      toast.error("Erro ao carregar filiais");
-    }
-  }
 
   // =========================================
   // BUSCAR
