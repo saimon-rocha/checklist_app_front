@@ -127,7 +127,7 @@ export default function ListaFiliais() {
             Gerencie as filiais ativas e suas respectivas localizações
           </p>
         </div>
-        
+
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 mb-6">
           <div className="grid md:grid-cols-2 gap-4">
             <input
@@ -159,7 +159,7 @@ export default function ListaFiliais() {
           <div className="flex justify-center py-20">
             <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
           </div>
-        ) : filiais.length === 0 ? (
+        ) : filiaisFiltradas.length === 0 ? (
           <div
             className="
             bg-white
@@ -173,14 +173,14 @@ export default function ListaFiliais() {
             font-medium
           "
           >
-            Nenhuma filial cadastrada
+            Nenhuma filial encontrada para os filtros selecionados
           </div>
         ) : (
           <>
             {/* ================= MOBILE ================= */}
 
             <div className="md:hidden space-y-4 pb-28">
-              {filiais.map((f) => (
+              {filiaisFiltradas.map((f) => (
                 <div
                   key={f.id}
                   className="
@@ -301,7 +301,7 @@ export default function ListaFiliais() {
                   </thead>
 
                   <tbody>
-                    {filiais.map((f) => (
+                    {filiaisFiltradas.map((f) => (
                       <tr
                         key={f.id}
                         className="
