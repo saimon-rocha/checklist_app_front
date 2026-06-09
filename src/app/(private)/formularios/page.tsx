@@ -54,9 +54,11 @@ export default function Arquivos() {
   const [formularioToDelete, setFormularioToDelete] =
     useState<Formulario | null>(null);
 
+  const hoje = new Date().toISOString().split("T")[0];
+  
   const [filtroFilial, setFiltroFilial] = useState("");
-  const [dataInicio, setDataInicio] = useState("");
-  const [dataFim, setDataFim] = useState("");
+  const [dataInicio, setDataInicio] = useState(hoje);
+  const [dataFim, setDataFim] = useState(hoje);
   // =====================================
   // FETCH
   // =====================================
@@ -119,7 +121,11 @@ export default function Arquivos() {
         !dataFim ||
         (dataFormulario && dataFormulario <= new Date(`${dataFim}T23:59:59`));
 
-      return matchFilial && matchDataInicio && matchDataFim;
+      return (
+          matchFilial &&
+          Boolean(matchDataInicio) &&
+          Boolean(matchDataFim)
+        );
     });
   }, [formularios, filtroFilial, dataInicio, dataFim]);
 
@@ -173,12 +179,7 @@ export default function Arquivos() {
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Erro ao gerar PDF");
     }
-  }
-  
-const hoje = new Date().toISOString().split("T")[0];
-const [dataInicio, setDataInicio] = useState(hoje);
-const [dataFim, setDataFim] = useState(hoje)
-  
+  }  
   // =====================================
   // UI
   // =====================================
@@ -224,14 +225,14 @@ const [dataFim, setDataFim] = useState(hoje)
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Filtrar por filial
               </label>
-
+          
               <select
                 value={filtroFilial}
                 onChange={(e) => setFiltroFilial(e.target.value)}
                 className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
               >
                 <option value="">Todas as filiais</option>
-
+          
                 {filiais.map((filial: any) => (
                   <option key={filial.id} value={filial.id}>
                     {filial.nome}
@@ -239,37 +240,30 @@ const [dataFim, setDataFim] = useState(hoje)
                 ))}
               </select>
             </div>
-           <div className="flex flex-col w-full md:w-[180px]">
+          
+            <div className="flex flex-col w-full md:w-[180px]">
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Data inicial
               </label>
-
-                  <input
-                    type="date"
-                    value={dataInicio}
-                    onChange={(e) => setDataInicio(e.target.value)}
-                    className="input-premium h-11"
-                  />
-                </div>
-                
-                <div className="flex flex-col w-full md:w-[180px]">
-                  <label className="text-sm font-bold text-slate-700 mb-2">
-                    Data final
-                  </label>
-                
-                  <input
-                    type="date"
-                    value={dataFim}
-                    onChange={(e) => setDataFim(e.target.value)}
-                    className="input-premium h-11"
-                  />
-                </div>
-
+          
+              <input
+                type="date"
+                value={dataInicio}
+                onChange={(e) => setDataInicio(e.target.value)}
+                className="input-premium h-11"
+              />
+            </div>
+          
+            <div className="flex flex-col w-full md:w-[180px]">
+              <label className="text-sm font-bold text-slate-700 mb-2">
+                Data final
+              </label>
+          
               <input
                 type="date"
                 value={dataFim}
                 onChange={(e) => setDataFim(e.target.value)}
-                className="input-premium"
+                className="input-premium h-11"
               />
             </div>
           </div>
