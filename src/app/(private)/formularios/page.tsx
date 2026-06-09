@@ -220,7 +220,7 @@ export default function Arquivos() {
       {/* FILTRO */}
       <div className="max-w-6xl mx-auto mb-6">
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6">
-          <div className="flex flex-col md:flex-row gap-4 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex flex-col w-full md:w-[320px]">
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Filtrar por filial
