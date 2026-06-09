@@ -176,9 +176,8 @@ export default function Arquivos() {
   }
   
 const hoje = new Date().toISOString().split("T")[0];
-
 const [dataInicio, setDataInicio] = useState(hoje);
-const [dataFim, setDataFim] = useState(hoje);
+const [dataFim, setDataFim] = useState(hoje)
   
   // =====================================
   // UI
