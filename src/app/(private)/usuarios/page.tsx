@@ -20,7 +20,6 @@ export default function ListaUsuarios() {
   const [loading, setLoading] = useState(true);
 
   const [busca, setBusca] = useState("");
-  const [filtroMatriz, setFiltroMatriz] = useState("");
   const [filtroFilial, setFiltroFilial] = useState("");
   const [filtroPerfil, setFiltroPerfil] = useState("");
 
@@ -34,17 +33,11 @@ export default function ListaUsuarios() {
   useEffect(() => {
     loadUsuarios();
     loadFiliais();
-    loadMatrizes();
   }, []);
 
   async function loadFiliais() {
     const response = await api.get("/filiais");
     setFiliais(response.data);
-  }
-
-  async function loadMatrizes() {
-    const response = await api.get("/matriz");
-    setMatrizes(response.data);
   }
 
   async function loadUsuarios() {
@@ -207,21 +200,7 @@ export default function ListaUsuarios() {
               onChange={(e) => setBusca(e.target.value)}
               className="input-premium"
             />
-
-            <select
-              value={filtroMatriz}
-              onChange={(e) => setFiltroMatriz(e.target.value)}
-              className="input-premium"
-            >
-              <option value="">Todas as matrizes</option>
-
-              {matrizes.map((m: any) => (
-                <option key={m.id} value={m.id}>
-                  {m.nome}
-                </option>
-              ))}
-            </select>
-
+            
             <select
               value={filtroFilial}
               onChange={(e) => setFiltroFilial(e.target.value)}
