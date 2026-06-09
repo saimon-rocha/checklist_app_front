@@ -19,13 +19,33 @@ export default function ListaUsuarios() {
 
   const [loading, setLoading] = useState(true);
 
+  const [busca, setBusca] = useState("");
+  const [filtroMatriz, setFiltroMatriz] = useState("");
+  const [filtroFilial, setFiltroFilial] = useState("");
+  const [filtroPerfil, setFiltroPerfil] = useState("");
+
+  const [matrizes, setMatrizes] = useState([]);
+  const [filiais, setFiliais] = useState([]);
+
   // =====================================
   // LOAD
   // =====================================
 
   useEffect(() => {
     loadUsuarios();
+    loadFiliais();
+    loadMatrizes();
   }, []);
+
+  async function loadFiliais() {
+    const response = await api.get("/filiais");
+    setFiliais(response.data);
+  }
+
+  async function loadMatrizes() {
+    const response = await api.get("/matriz");
+    setMatrizes(response.data);
+  }
 
   async function loadUsuarios() {
     try {
@@ -40,7 +60,22 @@ export default function ListaUsuarios() {
       setLoading(false);
     }
   }
+  const usuariosFiltrados = usuarios.filter((u) => {
+    const matchBusca =
+      !busca || u.username?.toLowerCase().includes(busca.toLowerCase());
 
+    const matchPerfil = !filtroPerfil || u.perfil === filtroPerfil;
+
+    const matchFilial =
+      !filtroFilial ||
+      u.filiais?.some((f: any) => String(f.id) === filtroFilial);
+
+    const matchMatriz =
+      !filtroMatriz ||
+      u.filiais?.some((f: any) => String(f.matriz_id) === filtroMatriz);
+
+    return matchBusca && matchPerfil && matchFilial && matchMatriz;
+  });
   // =====================================
   // DELETE
   // =====================================
@@ -158,8 +193,60 @@ export default function ListaUsuarios() {
           </h1>
 
           <p className="text-sm md:text-base text-slate-400 font-medium mt-2">
-            Gerencie os usuários cadastrados e as permissões de acesso do sistema
+            Gerencie os usuários cadastrados e as permissões de acesso do
+            sistema
           </p>
+        </div>
+
+        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <input
+              type="text"
+              placeholder="Pesquisar usuário..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="input-premium"
+            />
+
+            <select
+              value={filtroMatriz}
+              onChange={(e) => setFiltroMatriz(e.target.value)}
+              className="input-premium"
+            >
+              <option value="">Todas as matrizes</option>
+
+              {matrizes.map((m: any) => (
+                <option key={m.id} value={m.id}>
+                  {m.nome}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filtroFilial}
+              onChange={(e) => setFiltroFilial(e.target.value)}
+              className="input-premium"
+            >
+              <option value="">Todas as filiais</option>
+
+              {filiais.map((f: any) => (
+                <option key={f.id} value={f.id}>
+                  {f.nome}
+                </option>
+              ))}
+            </select>
+
+            <select
+              value={filtroPerfil}
+              onChange={(e) => setFiltroPerfil(e.target.value)}
+              className="input-premium"
+            >
+              <option value="">Todos os perfis</option>
+              <option value="master">Master</option>
+              <option value="gestor">Gestor</option>
+              <option value="funcionario">Funcionário</option>
+            </select>
+          </div>
         </div>
 
         {/* LOADING */}
@@ -188,7 +275,7 @@ export default function ListaUsuarios() {
             {/* ================= MOBILE ================= */}
 
             <div className="md:hidden space-y-4 pb-28">
-              {usuarios.map((u) => (
+              {usuariosFiltrados.map((u) => (
                 <div
                   key={u.id}
                   className="
@@ -214,9 +301,11 @@ export default function ListaUsuarios() {
                   <div className="space-y-2 text-sm bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                     <p className="text-slate-600">
                       <span className="font-bold text-slate-700">Filiais:</span>{" "}
-                      {u.filiais?.length > 0
-                        ? u.filiais.map((f: any) => f.nome).join(", ")
-                        : <span className="text-slate-400 italic">Nenhuma</span>}
+                      {u.filiais?.length > 0 ? (
+                        u.filiais.map((f: any) => f.nome).join(", ")
+                      ) : (
+                        <span className="text-slate-400 italic">Nenhuma</span>
+                      )}
                     </p>
                   </div>
 
@@ -277,7 +366,9 @@ export default function ListaUsuarios() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-slate-50/70 border-b border-slate-100 text-left">
-                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">Email/Usuário</th>
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
+                        Email/Usuário
+                      </th>
 
                       <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
                         Filiais associadas
@@ -294,7 +385,7 @@ export default function ListaUsuarios() {
                   </thead>
 
                   <tbody>
-                    {usuarios.map((u) => (
+                    {usuariosFiltrados.map((u) => (
                       <tr
                         key={u.id}
                         className="
@@ -310,9 +401,13 @@ export default function ListaUsuarios() {
                         </td>
 
                         <td className="p-4 px-6 text-sm text-slate-500">
-                          {u.filiais?.length > 0
-                            ? u.filiais.map((f: any) => f.nome).join(", ")
-                            : <span className="text-slate-400 italic">Sem filial associada</span>}
+                          {u.filiais?.length > 0 ? (
+                            u.filiais.map((f: any) => f.nome).join(", ")
+                          ) : (
+                            <span className="text-slate-400 italic">
+                              Sem filial associada
+                            </span>
+                          )}
                         </td>
 
                         <td className="p-4 px-6">{renderRole(u.perfil)}</td>
@@ -463,7 +558,8 @@ export default function ListaUsuarios() {
             </h3>
 
             <p className="text-slate-500 text-sm">
-              Deseja realmente desativar o usuário abaixo? Ele perderá acesso ao sistema.
+              Deseja realmente desativar o usuário abaixo? Ele perderá acesso ao
+              sistema.
             </p>
 
             <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 font-bold text-slate-800 text-center break-all">

@@ -10,14 +10,12 @@ import api from "../../../service/api";
 
 export default function ListaFiliais() {
   const router = useRouter();
-
   const [filiais, setFiliais] = useState<any[]>([]);
-
   const [showConfirm, setShowConfirm] = useState(false);
-
   const [filialToDelete, setFilialToDelete] = useState<any>(null);
-
   const [loading, setLoading] = useState(true);
+  const [filtroMatriz, setFiltroMatriz] = useState("");
+  const [busca, setBusca] = useState("");
 
   // =====================================
   // LOAD
@@ -80,6 +78,25 @@ export default function ListaFiliais() {
     }
   }
 
+  const matrizes = [
+    ...new Map(
+      filiais.filter((f) => f.matriz).map((f) => [f.matriz.id, f.matriz]),
+    ).values(),
+  ];
+
+  const filiaisFiltradas = filiais.filter((filial) => {
+    const matchMatriz =
+      !filtroMatriz || String(filial.matriz?.id) === filtroMatriz;
+
+    const matchBusca =
+      !busca ||
+      filial.nome?.toLowerCase().includes(busca.toLowerCase()) ||
+      filial.cidade?.toLowerCase().includes(busca.toLowerCase()) ||
+      filial.cep?.includes(busca);
+
+    return matchMatriz && matchBusca;
+  });
+
   // =====================================
   // UI
   // =====================================
@@ -109,6 +126,32 @@ export default function ListaFiliais() {
           <p className="text-sm md:text-base text-slate-400 font-medium mt-2">
             Gerencie as filiais ativas e suas respectivas localizações
           </p>
+        </div>
+        
+        <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-5 mb-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            <input
+              type="text"
+              placeholder="Buscar filial, cidade ou CEP..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="input-premium"
+            />
+
+            <select
+              value={filtroMatriz}
+              onChange={(e) => setFiltroMatriz(e.target.value)}
+              className="input-premium"
+            >
+              <option value="">Todas as matrizes</option>
+
+              {matrizes.map((matriz) => (
+                <option key={matriz.id} value={matriz.id}>
+                  {matriz.nome}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {/* LOADING */}
@@ -164,11 +207,17 @@ export default function ListaFiliais() {
                   {/* INFO */}
                   <div className="space-y-2 text-sm bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                     <p className="text-slate-600">
-                      <span className="font-bold text-slate-700">CEP:</span> {f.cep || "-"}
+                      <span className="font-bold text-slate-700">CEP:</span>{" "}
+                      {f.cep || "-"}
                     </p>
 
                     <p className="text-slate-600">
-                      <span className="font-bold text-slate-700">Endereço:</span> {f.rua ? `${f.rua}, ${f.bairro} - ${f.cidade}/${f.estado}` : "-"}
+                      <span className="font-bold text-slate-700">
+                        Endereço:
+                      </span>{" "}
+                      {f.rua
+                        ? `${f.rua}, ${f.bairro} - ${f.cidade}/${f.estado}`
+                        : "-"}
                     </p>
                   </div>
 
@@ -237,9 +286,13 @@ export default function ListaFiliais() {
                         Filial
                       </th>
 
-                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">CEP</th>
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
+                        CEP
+                      </th>
 
-                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">Endereço</th>
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
+                        Endereço
+                      </th>
 
                       <th className="p-4 px-6 text-center font-bold text-slate-500 text-xs uppercase tracking-wider">
                         Ações
@@ -259,14 +312,22 @@ export default function ListaFiliais() {
                         duration-200
                       "
                       >
-                        <td className="p-4 px-6 text-sm text-slate-500">{f.matriz?.nome || "-"}</td>
+                        <td className="p-4 px-6 text-sm text-slate-500">
+                          {f.matriz?.nome || "-"}
+                        </td>
 
-                        <td className="p-4 px-6 font-medium text-slate-800">{f.nome}</td>
-
-                        <td className="p-4 px-6 text-sm text-slate-500">{f.cep || "-"}</td>
+                        <td className="p-4 px-6 font-medium text-slate-800">
+                          {f.nome}
+                        </td>
 
                         <td className="p-4 px-6 text-sm text-slate-500">
-                          {f.rua ? `${f.rua}, ${f.bairro} - ${f.cidade}/${f.estado}` : "-"}
+                          {f.cep || "-"}
+                        </td>
+
+                        <td className="p-4 px-6 text-sm text-slate-500">
+                          {f.rua
+                            ? `${f.rua}, ${f.bairro} - ${f.cidade}/${f.estado}`
+                            : "-"}
                         </td>
 
                         <td className="p-4 px-6">

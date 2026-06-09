@@ -12,6 +12,7 @@ export default function ListaEmpresas() {
   const [matriz, setEmpresas] = useState<any[]>([]);
   const [showConfirm, setShowConfirm] = useState(false);
   const [empresaToDelete, setEmpresaToDelete] = useState<any>(null);
+  const [filtroMatriz, setFiltroMatriz] = useState("");
 
   useEffect(() => {
     loadEmpresas();
@@ -57,6 +58,12 @@ export default function ListaEmpresas() {
     }
   }
 
+  const matrizFiltrada = matriz.filter(
+    (empresa) =>
+      empresa.nome?.toLowerCase().includes(filtroMatriz.toLowerCase()) ||
+      empresa.cnpj?.includes(filtroMatriz),
+  );
+
   return (
     <div className="min-h-screen bg-slate-50/50">
       {/* CONTAINER */}
@@ -89,12 +96,36 @@ export default function ListaEmpresas() {
           </h1>
 
           <p className="text-sm md:text-base text-slate-400 font-medium mt-2">
-            Gerencie as matrizes do sistema e suas informações básicas de contato
+            Gerencie as matrizes do sistema e suas informações básicas de
+            contato
           </p>
         </div>
 
+        {/* FILTRO */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Pesquisar por nome ou CNPJ..."
+            value={filtroMatriz}
+            onChange={(e) => setFiltroMatriz(e.target.value)}
+            className="
+                        w-full
+                        px-4
+                        py-3
+                        rounded-2xl
+                        border
+                        border-slate-200
+                        bg-white
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-indigo-500
+                        focus:border-indigo-500
+                      "
+          />
+        </div>
+
         {/* EMPTY */}
-        {matriz.length === 0 ? (
+        {matrizFiltrada.length === 0 ? (
           <div
             className="
             bg-white
@@ -115,7 +146,7 @@ export default function ListaEmpresas() {
             {/* ================= MOBILE ================= */}
 
             <div className="md:hidden space-y-4 pb-28">
-              {matriz.map((e) => (
+              {matrizFiltrada.map((e) => (
                 <div
                   key={e.id}
                   className="
@@ -134,19 +165,31 @@ export default function ListaEmpresas() {
                       {e.nome}
                     </h2>
 
-                    <p className="text-xs text-indigo-600 font-semibold mt-1">CNPJ: {e.cnpj}</p>
+                    <p className="text-xs text-indigo-600 font-semibold mt-1">
+                      CNPJ: {e.cnpj}
+                    </p>
                   </div>
 
                   {/* INFO */}
                   <div className="space-y-2 text-sm bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
                     <p className="text-slate-600">
-                      <span className="font-bold text-slate-700">Responsável:</span>{" "}
-                      {e.responsavel || <span className="text-slate-400 italic">Não informado</span>}
+                      <span className="font-bold text-slate-700">
+                        Responsável:
+                      </span>{" "}
+                      {e.responsavel || (
+                        <span className="text-slate-400 italic">
+                          Não informado
+                        </span>
+                      )}
                     </p>
 
                     <p className="text-slate-600">
                       <span className="font-bold text-slate-700">Contato:</span>{" "}
-                      {e.contato_responsavel || <span className="text-slate-400 italic">Não informado</span>}
+                      {e.contato_responsavel || (
+                        <span className="text-slate-400 italic">
+                          Não informado
+                        </span>
+                      )}
                     </p>
                   </div>
 
@@ -207,9 +250,13 @@ export default function ListaEmpresas() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-slate-50/70 border-b border-slate-100 text-left">
-                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">Nome</th>
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
+                        Nome
+                      </th>
 
-                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">CNPJ</th>
+                      <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
+                        CNPJ
+                      </th>
 
                       <th className="p-4 px-6 font-bold text-slate-500 text-xs uppercase tracking-wider">
                         Responsável
@@ -226,7 +273,7 @@ export default function ListaEmpresas() {
                   </thead>
 
                   <tbody>
-                    {matriz.map((e) => (
+                    {matrizFiltrada.map((e) => (
                       <tr
                         key={e.id}
                         className="
@@ -237,13 +284,21 @@ export default function ListaEmpresas() {
                         duration-200
                       "
                       >
-                        <td className="p-4 px-6 font-medium text-slate-800 break-all max-w-[250px]">{e.nome}</td>
+                        <td className="p-4 px-6 font-medium text-slate-800 break-all max-w-[250px]">
+                          {e.nome}
+                        </td>
 
-                        <td className="p-4 px-6 text-sm text-slate-500">{e.cnpj}</td>
+                        <td className="p-4 px-6 text-sm text-slate-500">
+                          {e.cnpj}
+                        </td>
 
-                        <td className="p-4 px-6 text-sm text-slate-500">{e.responsavel}</td>
+                        <td className="p-4 px-6 text-sm text-slate-500">
+                          {e.responsavel}
+                        </td>
 
-                        <td className="p-4 px-6 text-sm text-slate-500">{e.contato_responsavel}</td>
+                        <td className="p-4 px-6 text-sm text-slate-500">
+                          {e.contato_responsavel}
+                        </td>
 
                         <td className="p-4 px-6">
                           <div className="flex gap-2 justify-center">
@@ -387,7 +442,8 @@ export default function ListaEmpresas() {
             </h3>
 
             <p className="text-slate-500 text-sm">
-              Deseja realmente desativar a matriz abaixo? Todas as filiais ligadas a ela serão afetadas.
+              Deseja realmente desativar a matriz abaixo? Todas as filiais
+              ligadas a ela serão afetadas.
             </p>
 
             <div className="bg-slate-50 rounded-2xl border border-slate-100 p-4 font-bold text-slate-800 text-center break-all">
