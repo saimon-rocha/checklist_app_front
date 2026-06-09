@@ -155,7 +155,7 @@ export default function Relatorio() {
         "
       >
         {/* DATAS & FILTRO */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
           <div className="flex flex-col">
             <label className="text-sm font-bold text-slate-700 mb-2">
               Data Inicial
@@ -182,7 +182,7 @@ export default function Relatorio() {
             />
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col col-span-2 md:col-span-1">
             <label className="text-sm font-bold text-slate-700 mb-2">
               Filial
             </label>
@@ -190,7 +190,7 @@ export default function Relatorio() {
             <select
               value={idFilial}
               onChange={(e) => setIdFilial(e.target.value)}
-              className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
+              className="input-premium"
             >
               <option value="">Todas as filiais</option>
 
@@ -260,7 +260,9 @@ export default function Relatorio() {
         <div className="mt-12 flex justify-center">
           <div className="flex flex-col items-center gap-4">
             <div className="w-10 h-10 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin" />
-            <p className="text-slate-500 font-medium animate-pulse">Buscando relatórios...</p>
+            <p className="text-slate-500 font-medium animate-pulse">
+              Buscando relatórios...
+            </p>
           </div>
         </div>
       )}
@@ -298,28 +300,48 @@ export default function Relatorio() {
 
                 <div className="space-y-2 text-sm text-slate-600">
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">Filial</span>
-                    <span className="font-medium text-slate-800">{item.filial}</span>
+                    <span className="font-bold text-slate-500 text-xs uppercase">
+                      Filial
+                    </span>
+                    <span className="font-medium text-slate-800">
+                      {item.filial}
+                    </span>
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">Vazão Máx</span>
-                    <span className="font-medium text-slate-800">{item.totalVazaoMax}</span>
+                    <span className="font-bold text-slate-500 text-xs uppercase">
+                      Vazão Máx
+                    </span>
+                    <span className="font-medium text-slate-800">
+                      {item.totalVazaoMax}
+                    </span>
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">Vazão Mín</span>
-                    <span className="font-medium text-slate-800">{item.totalVazaoMin}</span>
+                    <span className="font-bold text-slate-500 text-xs uppercase">
+                      Vazão Mín
+                    </span>
+                    <span className="font-medium text-slate-800">
+                      {item.totalVazaoMin}
+                    </span>
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">Vazamento Bico</span>
-                    <span className="font-medium text-slate-800">{item.vazamentoBico}</span>
+                    <span className="font-bold text-slate-500 text-xs uppercase">
+                      Vazamento Bico
+                    </span>
+                    <span className="font-medium text-slate-800">
+                      {item.vazamentoBico}
+                    </span>
                   </div>
 
                   <div className="flex justify-between py-1">
-                    <span className="font-bold text-slate-500 text-xs uppercase">Vazão Bomba</span>
-                    <span className="font-medium text-slate-800">{item.vazaoBomba}</span>
+                    <span className="font-bold text-slate-500 text-xs uppercase">
+                      Vazão Bomba
+                    </span>
+                    <span className="font-medium text-slate-800">
+                      {item.vazaoBomba}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -357,9 +379,13 @@ export default function Relatorio() {
                       duration-150
                     "
                   >
-                    <td className="p-5 font-medium text-slate-900">{item.filial}</td>
+                    <td className="p-5 font-medium text-slate-900">
+                      {item.filial}
+                    </td>
 
-                    <td className="p-5 font-bold text-indigo-950">{item.bomba}</td>
+                    <td className="p-5 font-bold text-indigo-950">
+                      {item.bomba}
+                    </td>
 
                     <td className="p-5 text-slate-500">
                       {moment
@@ -368,13 +394,21 @@ export default function Relatorio() {
                         .format("DD/MM/YYYY HH:mm")}
                     </td>
 
-                    <td className="p-5 text-slate-800 font-medium">{item.totalVazaoMax}</td>
+                    <td className="p-5 text-slate-800 font-medium">
+                      {item.totalVazaoMax}
+                    </td>
 
-                    <td className="p-5 text-slate-800 font-medium">{item.totalVazaoMin}</td>
+                    <td className="p-5 text-slate-800 font-medium">
+                      {item.totalVazaoMin}
+                    </td>
 
-                    <td className="p-5 text-slate-800 font-medium">{item.vazamentoBico}</td>
+                    <td className="p-5 text-slate-800 font-medium">
+                      {item.vazamentoBico}
+                    </td>
 
-                    <td className="p-5 text-slate-800 font-medium">{item.vazaoBomba}</td>
+                    <td className="p-5 text-slate-800 font-medium">
+                      {item.vazaoBomba}
+                    </td>
                   </tr>
                 ))}
               </tbody>
