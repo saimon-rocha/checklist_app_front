@@ -55,7 +55,7 @@ export default function Arquivos() {
     useState<Formulario | null>(null);
 
   const hoje = new Date().toISOString().split("T")[0];
-  
+
   const [filtroFilial, setFiltroFilial] = useState("");
   const [dataInicio, setDataInicio] = useState(hoje);
   const [dataFim, setDataFim] = useState(hoje);
@@ -121,11 +121,7 @@ export default function Arquivos() {
         !dataFim ||
         (dataFormulario && dataFormulario <= new Date(`${dataFim}T23:59:59`));
 
-      return (
-          matchFilial &&
-          Boolean(matchDataInicio) &&
-          Boolean(matchDataFim)
-        );
+      return matchFilial && Boolean(matchDataInicio) && Boolean(matchDataFim);
     });
   }, [formularios, filtroFilial, dataInicio, dataFim]);
 
@@ -179,7 +175,7 @@ export default function Arquivos() {
     } catch (error: any) {
       toast.error(error?.response?.data?.error || "Erro ao gerar PDF");
     }
-  }  
+  }
   // =====================================
   // UI
   // =====================================
@@ -220,19 +216,19 @@ export default function Arquivos() {
       {/* FILTRO */}
       <div className="max-w-6xl mx-auto mb-6">
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex flex-col w-full md:w-[320px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="flex flex-col">
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Filtrar por filial
               </label>
-          
+
               <select
                 value={filtroFilial}
                 onChange={(e) => setFiltroFilial(e.target.value)}
-                className="input-premium appearance-none bg-no-repeat bg-[right_0.75rem_center] bg-[length:1.25rem]"
+                className="input-premium w-full min-h-[48px]"
               >
                 <option value="">Todas as filiais</option>
-          
+
                 {filiais.map((filial: any) => (
                   <option key={filial.id} value={filial.id}>
                     {filial.nome}
@@ -240,30 +236,30 @@ export default function Arquivos() {
                 ))}
               </select>
             </div>
-          
-            <div className="flex flex-col w-full md:w-[180px]">
+
+            <div className="flex flex-col">
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Data inicial
               </label>
-          
+
               <input
                 type="date"
                 value={dataInicio}
                 onChange={(e) => setDataInicio(e.target.value)}
-                className="input-premium h-11"
+                className="input-premium w-full min-h-[48px]"
               />
             </div>
-          
-            <div className="flex flex-col w-full md:w-[180px]">
+
+            <div className="flex flex-col">
               <label className="text-sm font-bold text-slate-700 mb-2">
                 Data final
               </label>
-          
+
               <input
                 type="date"
                 value={dataFim}
                 onChange={(e) => setDataFim(e.target.value)}
-                className="input-premium h-11"
+                className="input-premium w-full min-h-[48px]"
               />
             </div>
           </div>

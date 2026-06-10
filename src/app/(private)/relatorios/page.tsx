@@ -154,9 +154,9 @@ export default function Relatorio() {
         "
       >
         {/* DATAS & FILTRO */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-5">
-          <div className="flex flex-col">
-            <label className="text-sm font-bold text-slate-700 mb-2">
+        <div className="flex flex-wrap gap-4 items-end">
+          <div className="flex flex-col flex-1 min-w-[150px]">
+            <label className="text-sm font-semibold text-slate-700 mb-2">
               Data Inicial
             </label>
 
@@ -164,11 +164,11 @@ export default function Relatorio() {
               type="date"
               value={dataInicio}
               onChange={(e) => setDataInicio(e.target.value)}
-              className="input-premium"
+              className="input-premium h-11 w-full"
             />
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col flex-1 min-w-[150px]">
             <label className="text-sm font-bold text-slate-700 mb-2">
               Data Final
             </label>
@@ -181,7 +181,7 @@ export default function Relatorio() {
             />
           </div>
 
-          <div className="flex flex-col col-span-2 md:col-span-1">
+          <div className="flex flex-col flex-[1.5] min-w-[220px]">
             <label className="text-sm font-bold text-slate-700 mb-2">
               Filial
             </label>
@@ -189,10 +189,9 @@ export default function Relatorio() {
             <select
               value={idFilial}
               onChange={(e) => setIdFilial(e.target.value)}
-              className="input-premium"
+              className="input-premium w-full min-h-[48px] text-base"
             >
               <option value="">Todas as filiais</option>
-
               {filiais.map((filial) => (
                 <option key={filial.id} value={filial.id}>
                   {filial.nome}
@@ -206,48 +205,16 @@ export default function Relatorio() {
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-slate-50">
           <button
             onClick={buscar}
-            className="
-              px-8
-              py-3.5
-              rounded-2xl
-              premium-gradient-bg
-              hover:opacity-95
-              text-white
-              font-bold
-              shadow-lg
-              shadow-indigo-500/10
-              transition-all
-              duration-200
-              active:scale-[0.98]
-              cursor-pointer
-              w-full
-              sm:w-auto
-              text-center
-            "
+            className="px-8 py-3.5 rounded-2xl premium-gradient-bg hover:opacity-95 text-white font-bold shadow-lg shadow-indigo-500/10 transition-all
+              duration-200 active:scale-[0.98] cursor-pointer w-full sm:w-auto text-center"
           >
             Buscar
           </button>
 
           <button
             onClick={gerarRelatorio}
-            className="
-              px-8
-              py-3.5
-              rounded-2xl
-              bg-emerald-50
-              hover:bg-emerald-100
-              text-emerald-700
-              font-bold
-              border
-              border-emerald-200/50
-              transition-all
-              duration-200
-              active:scale-[0.98]
-              cursor-pointer
-              w-full
-              sm:w-auto
-              text-center
-            "
+            className="px-8 py-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold border border-emerald-200/50 transition-all
+              duration-200 active:scale-[0.98] cursor-pointer w-full sm:w-auto text-center"
           >
             Exportar PDF
           </button>
