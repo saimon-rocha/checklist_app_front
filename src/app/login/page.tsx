@@ -232,6 +232,10 @@ export default function LoginPage() {
               </p>
             </div>
           )}
+          <p className="mt-6 text-xs text-slate-400 text-center">
+            © 2026 Sistema Checklist Bomba Medidora <br></br>
+            • Desenvolvido por Saimon A.S Rocha
+          </p>
         </form>
       </div>
     </div>

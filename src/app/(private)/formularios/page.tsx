@@ -78,7 +78,7 @@ export default function Arquivos() {
       toast.error(
         error?.response?.data?.error || "Erro ao carregar formulários",
       );
-    } finally {
+    } finaly {
       setLoading(false);
     }
   }
@@ -176,6 +176,17 @@ export default function Arquivos() {
       toast.error(error?.response?.data?.error || "Erro ao gerar PDF");
     }
   }
+
+  // Estilos base comuns para os inputs tratados contra o Safari iOS
+  const safariInputFix = `
+    w-full min-h-[48px] px-4 py-2.5
+    text-base text-slate-800 bg-white
+    border border-slate-200 rounded-2xl
+    shadow-sm transition-all duration-200
+    focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10
+    appearance-none [-webkit-appearance:none]
+  `;
+
   // =====================================
   // UI
   // =====================================
@@ -216,52 +227,58 @@ export default function Arquivos() {
       {/* FILTRO */}
       <div className="max-w-6xl mx-auto mb-6">
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            
             <div className="flex flex-col">
-              <label className="text-sm font-bold text-slate-700 mb-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 pl-1">
                 Filtrar por filial
               </label>
-
-              <select
-                value={filtroFilial}
-                onChange={(e) => setFiltroFilial(e.target.value)}
-                className="input-premium w-full min-h-[48px]"
-              >
-                <option value="">Todas as filiais</option>
-
-                {filiais.map((filial: any) => (
-                  <option key={filial.id} value={filial.id}>
-                    {filial.nome}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  value={filtroFilial}
+                  onChange={(e) => setFiltroFilial(e.target.value)}
+                  className={`${safariInputFix} pr-10 cursor-pointer`}
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E")`,
+                    backgroundPosition: "right 14px center",
+                    backgroundSize: "16px",
+                    backgroundRepeat: "no-repeat"
+                  }}
+                >
+                  <option value="">Todas as filiais</option>
+                  {filiais.map((filial: any) => (
+                    <option key={filial.id} value={filial.id}>
+                      {filial.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="flex flex-col">
-              <label className="text-sm font-bold text-slate-700 mb-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 pl-1">
                 Data inicial
               </label>
-
               <input
                 type="date"
                 value={dataInicio}
                 onChange={(e) => setDataInicio(e.target.value)}
-                className="input-premium w-full min-h-[48px]"
+                className={`${safariInputFix} flex items-center justify-between font-medium`}
               />
             </div>
 
             <div className="flex flex-col">
-              <label className="text-sm font-bold text-slate-700 mb-2">
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 pl-1">
                 Data final
               </label>
-
               <input
                 type="date"
                 value={dataFim}
                 onChange={(e) => setDataFim(e.target.value)}
-                className="input-premium w-full min-h-[48px]"
+                className={`${safariInputFix} flex items-center justify-between font-medium`}
               />
             </div>
+
           </div>
         </div>
       </div>
