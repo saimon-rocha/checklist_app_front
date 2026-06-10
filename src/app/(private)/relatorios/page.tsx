@@ -102,6 +102,17 @@ export default function Relatorio() {
 
     gerarRelatorioPDF(resultado, dataInicio, dataFim);
   }
+
+  // Estilos compartilhados contra bizarrices do Safari iOS
+  const safariInputFix = `
+    w-full min-h-[48px] px-4 py-2.5
+    text-base text-slate-800 bg-white
+    border border-slate-200 rounded-2xl
+    shadow-sm transition-all duration-200
+    focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10
+    appearance-none [-webkit-appearance:none]
+  `;
+
   // =========================================
   // UI
   // =========================================
@@ -154,50 +165,55 @@ export default function Relatorio() {
         "
       >
         {/* DATAS & FILTRO */}
-        <div className="flex flex-wrap gap-4 items-end">
-          <div className="flex flex-col flex-1 min-w-[150px]">
-            <label className="text-sm font-semibold text-slate-700 mb-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="flex flex-col">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 pl-1">
               Data Inicial
             </label>
-
             <input
               type="date"
               value={dataInicio}
               onChange={(e) => setDataInicio(e.target.value)}
-              className="input-premium h-11 w-full"
+              className={`${safariInputFix} flex items-center justify-between font-medium`}
             />
           </div>
 
-          <div className="flex flex-col flex-1 min-w-[150px]">
-            <label className="text-sm font-bold text-slate-700 mb-2">
+          <div className="flex flex-col">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 pl-1">
               Data Final
             </label>
-
             <input
               type="date"
               value={dataFim}
               onChange={(e) => setDataFim(e.target.value)}
-              className="input-premium"
+              className={`${safariInputFix} flex items-center justify-between font-medium`}
             />
           </div>
 
-          <div className="flex flex-col flex-[1.5] min-w-[220px]">
-            <label className="text-sm font-bold text-slate-700 mb-2">
+          <div className="flex flex-col sm:col-span-2 lg:col-span-1">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 pl-1">
               Filial
             </label>
-
-            <select
-              value={idFilial}
-              onChange={(e) => setIdFilial(e.target.value)}
-              className="input-premium w-full min-h-[48px] text-base"
-            >
-              <option value="">Todas as filiais</option>
-              {filiais.map((filial) => (
-                <option key={filial.id} value={filial.id}>
-                  {filial.nome}
-                </option>
-              ))}
-            </select>
+            <div className="relative">
+              <select
+                value={idFilial}
+                onChange={(e) => setIdFilial(e.target.value)}
+                className={`${safariInputFix} pr-10 cursor-pointer`}
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E")`,
+                  backgroundPosition: "right 14px center",
+                  backgroundSize: "16px",
+                  backgroundRepeat: "no-repeat",
+                }}
+              >
+                <option value="">Todas as filiais</option>
+                {filiais.map((filial) => (
+                  <option key={filial.id} value={filial.id}>
+                    {filial.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
@@ -205,8 +221,8 @@ export default function Relatorio() {
         <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t border-slate-50">
           <button
             onClick={buscar}
-            className="px-8 py-3.5 rounded-2xl premium-gradient-bg hover:opacity-95 text-white font-bold shadow-lg shadow-indigo-500/10 transition-all
-              duration-200 active:scale-[0.98] cursor-pointer w-full sm:w-auto text-center"
+            className="px-8 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-lg shadow-indigo-600/10 transition-all
+              duration-200 active:scale-[0.98] cursor-pointer w-full sm:w-auto text-center text-sm"
           >
             Buscar
           </button>
@@ -214,7 +230,7 @@ export default function Relatorio() {
           <button
             onClick={gerarRelatorio}
             className="px-8 py-3.5 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold border border-emerald-200/50 transition-all
-              duration-200 active:scale-[0.98] cursor-pointer w-full sm:w-auto text-center"
+              duration-200 active:scale-[0.98] cursor-pointer w-full sm:w-auto text-center text-sm"
           >
             Exportar PDF
           </button>
@@ -266,7 +282,7 @@ export default function Relatorio() {
 
                 <div className="space-y-2 text-sm text-slate-600">
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">
+                    <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
                       Filial
                     </span>
                     <span className="font-medium text-slate-800">
@@ -275,7 +291,7 @@ export default function Relatorio() {
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">
+                    <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
                       Vazão Máx
                     </span>
                     <span className="font-medium text-slate-800">
@@ -284,7 +300,7 @@ export default function Relatorio() {
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">
+                    <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
                       Vazão Mín
                     </span>
                     <span className="font-medium text-slate-800">
@@ -293,7 +309,7 @@ export default function Relatorio() {
                   </div>
 
                   <div className="flex justify-between py-1 border-b border-slate-50/50">
-                    <span className="font-bold text-slate-500 text-xs uppercase">
+                    <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
                       Vazamento Bico
                     </span>
                     <span className="font-medium text-slate-800">
@@ -302,7 +318,7 @@ export default function Relatorio() {
                   </div>
 
                   <div className="flex justify-between py-1">
-                    <span className="font-bold text-slate-500 text-xs uppercase">
+                    <span className="font-bold text-slate-500 text-xs uppercase tracking-wider">
                       Vazão Bomba
                     </span>
                     <span className="font-medium text-slate-800">
