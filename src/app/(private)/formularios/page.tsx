@@ -78,7 +78,7 @@ export default function Arquivos() {
       toast.error(
         error?.response?.data?.error || "Erro ao carregar formulários",
       );
-    } finaly {
+    } finally {
       setLoading(false);
     }
   }
@@ -228,7 +228,6 @@ export default function Arquivos() {
       <div className="max-w-6xl mx-auto mb-6">
         <div className="bg-white rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            
             <div className="flex flex-col">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 pl-1">
                 Filtrar por filial
@@ -242,7 +241,7 @@ export default function Arquivos() {
                     backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E")`,
                     backgroundPosition: "right 14px center",
                     backgroundSize: "16px",
-                    backgroundRepeat: "no-repeat"
+                    backgroundRepeat: "no-repeat",
                   }}
                 >
                   <option value="">Todas as filiais</option>
@@ -278,7 +277,6 @@ export default function Arquivos() {
                 className={`${safariInputFix} flex items-center justify-between font-medium`}
               />
             </div>
-
           </div>
         </div>
       </div>
