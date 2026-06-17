@@ -140,7 +140,6 @@ function addSectionTitle(doc, titulo, y, cor = [41, 128, 185]) {
 /* =========================================================
    CHECKLIST
 ========================================================= */
-
 function addChecklist(doc, checklist, startY) {
   startY = addSectionTitle(doc, "Checklist Técnico", startY, [41, 128, 185]);
 
@@ -153,8 +152,9 @@ function addChecklist(doc, checklist, startY) {
         const dependeItem = checklist.find((c) => c.id === def.dependsOn);
 
         const dependeValor = dependeItem?.resposta?.toLowerCase?.();
+        const showIf = def.showIf?.toLowerCase?.();
 
-        if (dependeValor !== def.showIf) {
+        if (dependeValor !== showIf) {
           return null;
         }
       }
@@ -380,7 +380,6 @@ export default function gerarPDF(dadosCompletos) {
     /* =====================================================
        SAVE
     ===================================================== */
-
     const nomeArquivo =
       dadosCompletos?.titulo?.replace(/\s+/g, "_")?.replace(/[^\w-]/g, "") ||
       "Relatorio";
